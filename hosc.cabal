@@ -1,0 +1,19 @@
+Name:             hosc
+Version:          0.1
+License:          GPL
+Copyright:        Rohan Drape, 2006-2007
+Author:           Rohan Drape
+Maintainer:       rd@slavepianos.org
+Stability:        Experimental
+Homepage:         http://www.slavepianos.org/rd/f/207949/
+Synopsis:         Haskell SuperCollider
+Description:      Haskell client for the SuperCollider synthesis server
+Category:         Sound
+Tested-With:      GHC
+Build-Depends:    base, network
+GHC-Options:      -Wall -O2
+Exposed-modules:  Sound.OpenSoundControl
+                  Sound.OpenSoundControl.OSC
+                  Sound.OpenSoundControl.Time
+                  Sound.OpenSoundControl.U8v
+                  Sound.OpenSoundControl.UDP
