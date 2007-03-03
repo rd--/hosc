@@ -7,6 +7,7 @@ module Sound.OpenSoundControl.OSC
 
 import Sound.OpenSoundControl.Time (utc_ntp)
 import Sound.OpenSoundControl.U8v
+import Sound.OpenSoundControl.Cast
 
 import Data.List (elemIndex, mapAccumL)
 import Data.Maybe (fromMaybe)
@@ -59,7 +60,7 @@ instance Encodable Datum where
     encode (Int i)    = i32_u8v i
     encode (Float f)  = f32_u8v (f64_f32 f)
     encode (Double d) = f64_u8v d
-    encode (String s) = extend 0 (cstr_u8v s)
+    encode (String s) = extend 0 (str_cstr s)
     encode (Blob b)   = i32_u8v (length b) ++ extend 0 b
 
 instance Encodable OSC where

@@ -49,15 +49,6 @@ f64_u8v f = i64_u8v (fromIntegral $ f64_i64 f)
 str_u8v :: String -> [U8]
 str_u8v s = map (asU8 . ord) s
 
--- | C strings are null suffixed.
-cstr_u8v :: String -> [U8]
-cstr_u8v s = str_u8v s ++ [0]
-
--- | Pascal strings are length prefixed.
-pstr_u8v :: String -> [U8]
-pstr_u8v s = i8_u8v n ++ str_u8v s
-    where n = length s
-
 u8v_str :: [U8] -> String
 u8v_str s = map (chr . fromIntegral) s
 
