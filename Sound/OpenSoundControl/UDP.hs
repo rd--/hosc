@@ -1,7 +1,7 @@
 module Sound.OpenSoundControl.UDP
    (UDP, Port, udp, send, recv, wait, close, withUDP) where
 
-import Sound.OpenSoundControl.U8v (u8v_str, str_u8v)
+import Sound.OpenSoundControl.Byte
 import Sound.OpenSoundControl.OSC (OSC(..), encode, decode)
 
 import Control.Exception (bracket)
@@ -20,12 +20,12 @@ udp host port = do fd <- N.socket N.AF_INET N.Datagram 0
                    return fd
 
 -- | Encode and send an OSC packet over a UDP connection. 
-send :: UDP -> OSC -> IO Int
-send fd = N.send fd . u8v_str . encode
+send :: UDP -> OSC -> IO ()
+send fd msg = N.send fd (decode_str (encode msg)) >> return ()
 
 -- | Receive and decode an OSC packet over a UDP connection. 
 recv :: UDP -> IO OSC
-recv fd = liftM (decode . str_u8v) (N.recv fd 8192)
+recv fd = liftM (decode . encode_str) (N.recv fd 8192)
 
 -- | Does the OSC message have the specified address.
 hasAddress :: String -> OSC -> Bool
