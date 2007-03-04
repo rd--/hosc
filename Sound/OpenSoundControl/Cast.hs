@@ -2,7 +2,7 @@ module Sound.OpenSoundControl.Cast (f32_i32, i32_f32,
                                     f64_i64, i64_f64,
                                     str_cstr, str_pstr) where
 
-import Data.Word(Word8)
+import Data.Word (Word8)
 import Data.Int (Int32, Int64)
 import Data.Char (ord)
 import Control.Monad.ST (runST, ST)
