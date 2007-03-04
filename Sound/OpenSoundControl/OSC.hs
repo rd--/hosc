@@ -1,9 +1,4 @@
-module Sound.OpenSoundControl.OSC
-   (OSC(..),
-    Datum(..),
-    Encodable, encode,
-    Decodable, decode,
-    ) where
+module Sound.OpenSoundControl.OSC (OSC(..), Datum(..), encodeOSC, decodeOSC) where
 
 import Sound.OpenSoundControl.Time (utc_ntp)
 import Sound.OpenSoundControl.Byte
@@ -25,12 +20,6 @@ data OSC = Message String [Datum]
          | Bundle Double [OSC]
            deriving (Eq, Show)
 
-class Encodable a where
-    encode :: a -> B.ByteString
-
-class Decodable a where
-    decode :: B.ByteString -> a
-
 -- | OSC types have single character identifiers.
 tag :: Datum -> Char
 tag (Int _)    = 'i'
@@ -51,20 +40,21 @@ align n = mod (-n) 4
 extend :: a -> [a] -> [a]
 extend p s = s ++ replicate (align (length s)) p
 
-instance Encodable Datum where
-    encode (Int i)    = encode_i32 i
-    encode (Float f)  = encode_f32 f
-    encode (Double d) = encode_f64 d
-    encode (String s) = B.pack (extend 0 (str_cstr s))
-    encode (Blob b)   = B.concat [encode_i32 (length b), B.pack (extend 0 b)]
+encodeDatum :: Datum -> B.ByteString
+encodeDatum (Int i)    = encode_i32 i
+encodeDatum (Float f)  = encode_f32 f
+encodeDatum (Double d) = encode_f64 d
+encodeDatum (String s) = B.pack (extend 0 (str_cstr s))
+encodeDatum (Blob b)   = B.concat [encode_i32 (length b), B.pack (extend 0 b)]
 
-instance Encodable OSC where
-    encode (Message c l) = B.concat [encode (String c),
-                                     encode (descriptor l),
-                                     B.concat (map encode l)]
-    encode (Bundle t l) = B.concat [encode (String "#bundle"),
-                                    encode_u64 (utc_ntp t),
-                                    B.concat (map (encode . Blob . B.unpack . encode) l)]
+-- | Encode an OSC packet.
+encodeOSC :: OSC -> B.ByteString
+encodeOSC (Message c l) = B.concat [encodeDatum (String c),
+                                    encodeDatum (descriptor l),
+                                    B.concat (map encodeDatum l)]
+encodeOSC (Bundle t l) = B.concat [encodeDatum (String "#bundle"),
+                                   encode_u64 (utc_ntp t),
+                                   B.concat (map (encodeDatum . Blob . B.unpack . encodeOSC) l)]
 
 -- | The plain byte count of an OSC value.
 size :: Char -> B.ByteString -> Int
@@ -99,17 +89,16 @@ decodeData cs b =
    zipWith decodeDatum cs $ snd $
    mapAccumL (\bRest c -> swap (B.splitAt (fromIntegral (storage c bRest)) bRest)) b cs
 
-instance Decodable OSC where
-    decode b = Message cmd arg
-        where n            = storage 's' b
-              (String cmd) = decodeDatum 's' b
-              m            = storage 's' (drop' n b)
-              (String dsc) = decodeDatum 's' (drop' n b)
-              arg          = decodeData (drop 1 dsc) (drop' (n + m) b)
+decodeOSC :: B.ByteString -> OSC
+decodeOSC b = Message cmd arg
+    where n            = storage 's' b
+          (String cmd) = decodeDatum 's' b
+          m            = storage 's' (drop' n b)
+          (String dsc) = decodeDatum 's' (drop' n b)
+          arg          = decodeData (drop 1 dsc) (drop' (n + m) b)
 
 take' :: Int -> B.ByteString -> B.ByteString
 take' n b = B.take (fromIntegral n) b
 
 drop' :: Int -> B.ByteString -> B.ByteString
 drop' n b = B.drop (fromIntegral n) b
-
