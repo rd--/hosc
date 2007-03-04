@@ -10,11 +10,12 @@ Synopsis:         Haskell SuperCollider
 Description:      Haskell client for the SuperCollider synthesis server
 Category:         Sound
 Tested-With:      GHC
-Build-Depends:    base, network
+Build-Depends:    base, network, binary
 GHC-Options:      -Wall -O2
 Exposed-modules:  Sound.OpenSoundControl
                   Sound.OpenSoundControl.OSC
                   Sound.OpenSoundControl.Time
                   Sound.OpenSoundControl.Cast
-                  Sound.OpenSoundControl.U8v
+                  Sound.OpenSoundControl.Byte
                   Sound.OpenSoundControl.UDP
+                  Sound.OpenSoundControl.TCP
