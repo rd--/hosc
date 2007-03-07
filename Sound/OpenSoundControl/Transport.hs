@@ -1,5 +1,5 @@
 module Sound.OpenSoundControl.Transport (Transport(..), withTransport, 
-                                         udp, tcp,
+                                         udp, tcp, tcpServer,
                                          send, recv, wait, close) where
 
 import Sound.OpenSoundControl.Byte
@@ -30,6 +30,13 @@ udp host port = do fd <- N.socket N.AF_INET N.Datagram 0
 tcp :: String -> Int -> IO Transport
 tcp host port = do fd <- connectTo host (PortNumber (fromIntegral port))
                    return (TCP fd)
+
+-- | A TCP OSC server.
+tcpServer :: Int -> (Transport -> IO ()) -> IO ()
+tcpServer p f = do s <- listenOn (PortNumber (fromIntegral p))
+                   (sequence_ . repeat) (do (fd, _, _) <- accept s
+                                            f (TCP fd)
+                                            return ())
 
 -- | Encode and send an OSC packet over a TCP connection.
 send :: Transport -> OSC -> IO ()
