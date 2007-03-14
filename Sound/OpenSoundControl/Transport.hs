@@ -60,11 +60,8 @@ hasAddress _    (Bundle _ _)  = False
 
 -- | Repeat action until predicate holds on result.
 untilM :: Monad m => (a -> Bool) -> m a -> m a
-untilM p act =
-   let recurse =
-         do r <- act
-            if p r then return r else recurse
-   in  recurse
+untilM p act = recurse
+    where recurse = act >>= (\r -> if p r then return r else recurse)
 
 -- | Wait for an OSC message with the specified address, discard intervening messages.
 wait :: Transport -> String -> IO OSC
