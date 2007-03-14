@@ -38,7 +38,7 @@ tcpServer p f = do s <- listenOn (PortNumber (fromIntegral p))
                                             f (TCP fd)
                                             return ())
 
--- | Encode and send an OSC packet over a TCP connection.
+-- | Encode and send an OSC packet over a UDP/TCP connection.
 send :: Transport -> OSC -> IO ()
 send (UDP fd) msg = N.send fd (decode_str (encodeOSC msg)) >> return ()
 send (TCP fd) msg = do let b = encodeOSC msg
@@ -46,7 +46,7 @@ send (TCP fd) msg = do let b = encodeOSC msg
                        B.hPut fd (B.append (encode_u32 n) b)
                        hFlush fd
 
--- | Receive and decode an OSC packet over a UDP connection.
+-- | Receive and decode an OSC packet over a UDP/TCP connection.
 recv :: Transport -> IO OSC
 recv (UDP fd) = liftM (decodeOSC . encode_str) (N.recv fd 8192)
 recv (TCP fd) = do b0 <- B.hGet fd 4
@@ -70,11 +70,11 @@ untilM p act =
 wait :: Transport -> String -> IO OSC
 wait t s = untilM (hasAddress s) (recv t)
 
--- | Close a UDP connection.
+-- | Close a UDP/TCP connection.
 close :: Transport -> IO ()
 close (UDP fd) = N.sClose fd
 close (TCP fd) = hClose fd
 
--- | Bracket UDP activity.
+-- | Bracket UDP/TCP activity.
 withTransport :: IO Transport -> (Transport -> IO a) -> IO a
 withTransport u = bracket u close
