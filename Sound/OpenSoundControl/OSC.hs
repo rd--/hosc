@@ -20,6 +20,10 @@ data OSC = Message String [Datum]
          | Bundle Double [OSC]
            deriving (Eq, Show)
 
+instance Ord OSC where
+    compare (Bundle a _) (Bundle b _) = compare a b
+    compare _            _            = EQ
+
 -- | OSC types have single character identifiers.
 tag :: Datum -> Char
 tag (Int _)    = 'i'
