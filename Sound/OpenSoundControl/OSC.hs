@@ -2,7 +2,7 @@ module Sound.OpenSoundControl.OSC (OSC(..), Datum(..), encodeOSC, decodeOSC) whe
 
 import Sound.OpenSoundControl.Time (utc_ntp)
 import Sound.OpenSoundControl.Byte
-import Sound.OpenSoundControl.Cast
+import Sound.OpenSoundControl.Cast (str_cstr)
 
 import Data.Word (Word8)
 import Data.List (mapAccumL)

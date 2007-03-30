@@ -4,7 +4,7 @@ import Data.Int
 import Data.Char
 import qualified Data.ByteString.Lazy as B
 import Data.Binary
-import Sound.OpenSoundControl.Cast
+import Sound.OpenSoundControl.Cast (f32_i32, f64_i64, i32_f32, i64_f64)
 
 encode_i8 :: Int -> B.ByteString
 encode_i8 n = encode (fromIntegral n :: Int8)
