@@ -18,3 +18,5 @@ Exposed-modules:  Sound.OpenSoundControl
                   Sound.OpenSoundControl.Cast
                   Sound.OpenSoundControl.Byte
                   Sound.OpenSoundControl.Transport
+                  Sound.OpenSoundControl.Transport.TCP
+                  Sound.OpenSoundControl.Transport.UDP
