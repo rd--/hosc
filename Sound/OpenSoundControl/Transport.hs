@@ -1,22 +1,16 @@
-module Sound.OpenSoundControl.Transport
-   (Transport(send, recv, close),
-    withTransport, wait,)
-       where
+module Sound.OpenSoundControl.Transport ( Transport(send, recv, close)
+                                        , withTransport
+                                        , wait) where
 
 import Sound.OpenSoundControl.OSC (OSC(..))
-
 import Control.Exception (bracket)
-
-
 
 -- | The class for the network protocolls.
 class Transport t where
    -- | Encode and send an OSC packet over a UDP\/TCP connection.
    send :: t -> OSC -> IO ()
-
    -- | Receive and decode an OSC packet over a UDP\/TCP connection.
    recv :: t -> IO OSC
-
    -- | Close a UDP\/TCP connection.
    close :: t -> IO ()
 

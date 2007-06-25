@@ -1,6 +1,6 @@
-module Sound.OpenSoundControl.Transport.TCP (TCP, open, server) where
+module Sound.OpenSoundControl.Transport.TCP (TCP, tcp, tcpServer) where
 
-import Sound.OpenSoundControl.Transport (Transport(..))
+import Sound.OpenSoundControl.Transport
 import Sound.OpenSoundControl.Byte (encode_u32, decode_u32)
 import Sound.OpenSoundControl.OSC (encodeOSC, decodeOSC)
 
@@ -10,9 +10,7 @@ import Network (PortID(PortNumber), connectTo, listenOn, accept)
 import System.IO (Handle, hFlush, hClose)
 
 -- | The TCP transport handle data type.
-data TCP = TCP Handle
-                 deriving (Eq, Show)
-
+data TCP = TCP Handle deriving (Eq, Show)
 
 instance Transport TCP where
    send (TCP fd) msg =
@@ -28,18 +26,13 @@ instance Transport TCP where
 
    close (TCP fd) = hClose fd
 
-
-
 -- | Make a TCP connection.
-open :: String -> Int -> IO TCP
-open host port =
-   liftM TCP $ connectTo host (PortNumber (fromIntegral port))
+tcp :: String -> Int -> IO TCP
+tcp host port = liftM TCP (connectTo host (PortNumber (fromIntegral port)))
 
--- | A TCP OSC server.
-server :: Int -> (TCP -> IO ()) -> IO ()
-server p f =
-   do s <- listenOn (PortNumber (fromIntegral p))
-      sequence_ $ repeat $
-         do (fd, _, _) <- accept s
-            f (TCP fd)
-            return ()
+-- | A trivial TCP OSC server.
+tcpServer :: Int -> (TCP -> IO ()) -> IO ()
+tcpServer p f = do s <- listenOn (PortNumber (fromIntegral p))
+                   (sequence_ . repeat) (do (fd, _, _) <- accept s
+                                            f (TCP fd)
+                                            return ())
