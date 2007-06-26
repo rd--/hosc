@@ -1,4 +1,4 @@
-module Sound.OpenSoundControl.Transport.TCP (TCP, tcp, tcpServer) where
+module Sound.OpenSoundControl.Transport.TCP (TCP, openTCP, tcpServer) where
 
 import Sound.OpenSoundControl.Transport
 import Sound.OpenSoundControl.Byte (encode_u32, decode_u32)
@@ -27,8 +27,8 @@ instance Transport TCP where
    close (TCP fd) = hClose fd
 
 -- | Make a TCP connection.
-tcp :: String -> Int -> IO TCP
-tcp host port = liftM TCP (connectTo host (PortNumber (fromIntegral port)))
+openTCP :: String -> Int -> IO TCP
+openTCP host port = liftM TCP (connectTo host (PortNumber (fromIntegral port)))
 
 -- | A trivial TCP OSC server.
 tcpServer :: Int -> (TCP -> IO ()) -> IO ()

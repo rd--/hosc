@@ -1,4 +1,4 @@
-module Sound.OpenSoundControl.Transport.UDP (UDP, udp) where
+module Sound.OpenSoundControl.Transport.UDP (UDP, openUDP) where
 
 import Sound.OpenSoundControl.Transport
 import Sound.OpenSoundControl.Byte (encode_str, decode_str)
@@ -16,9 +16,9 @@ instance Transport UDP where
    close (UDP fd) = N.sClose fd
 
 -- | Make a UDP connection.
-udp :: String -> Int -> IO UDP
-udp host port = do fd <- N.socket N.AF_INET N.Datagram 0
-                   a  <- N.inet_addr host
-                   N.connect fd (N.SockAddrInet (fromIntegral port) a)
-                   -- N.setSocketOption fd N.RecvTimeOut 1000
-                   return (UDP fd)
+openUDP :: String -> Int -> IO UDP
+openUDP host port = do fd <- N.socket N.AF_INET N.Datagram 0
+                       a  <- N.inet_addr host
+                       N.connect fd (N.SockAddrInet (fromIntegral port) a)
+                       -- N.setSocketOption fd N.RecvTimeOut 1000
+                       return (UDP fd)
