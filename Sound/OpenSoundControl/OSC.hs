@@ -1,6 +1,10 @@
-module Sound.OpenSoundControl.OSC (OSC(..), Datum(..), encodeOSC, decodeOSC) where
+module Sound.OpenSoundControl.OSC ( OSC(..)
+                                  , Datum(..)
+                                  , encodeOSC
+                                  , encodeOSC_NTP
+                                  , decodeOSC ) where
 
-import Sound.OpenSoundControl.Time (utc_ntp)
+import Sound.OpenSoundControl.Time (ntpr_ntp)
 import Sound.OpenSoundControl.Byte
 import Sound.OpenSoundControl.Cast (str_cstr)
 
@@ -51,14 +55,21 @@ encodeDatum (Double d) = encode_f64 d
 encodeDatum (String s) = B.pack (extend 0 (str_cstr s))
 encodeDatum (Blob b)   = B.concat [encode_i32 (length b), B.pack (extend 0 b)]
 
+-- | Encode an OSC packet (NTP epoch).
+encodeOSC_NTP :: OSC -> B.ByteString
+encodeOSC_NTP (Message c l) = B.concat [ encodeDatum (String c)
+                                       , encodeDatum (descriptor l)
+                                       , B.concat (map encodeDatum l) ]
+encodeOSC_NTP (Bundle t l) = B.concat [ encodeDatum (String "#bundle")
+                                      , encode_u64 (ntpr_ntp t)
+                                      , B.concat (map f l) ]
+    where f = encodeDatum . Blob . B.unpack . encodeOSC
+
 -- | Encode an OSC packet.
 encodeOSC :: OSC -> B.ByteString
-encodeOSC (Message c l) = B.concat [encodeDatum (String c),
-                                    encodeDatum (descriptor l),
-                                    B.concat (map encodeDatum l)]
-encodeOSC (Bundle t l) = B.concat [encodeDatum (String "#bundle"),
-                                   encode_u64 (utc_ntp t),
-                                   B.concat (map (encodeDatum . Blob . B.unpack . encodeOSC) l)]
+encodeOSC (Message c l) = encodeOSC_NTP (Message c l)
+encodeOSC (Bundle t l) = encodeOSC_NTP (Bundle (t + n) l) 
+    where n = (70 * 365 + 17) * 24 * 60 * 60
 
 -- | The plain byte count of an OSC value.
 size :: Char -> B.ByteString -> Int
