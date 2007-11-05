@@ -5,7 +5,7 @@ Copyright:        Rohan Drape, 2006-2007
 Author:           Rohan Drape
 Maintainer:       rd@slavepianos.org
 Stability:        Experimental
-Homepage:         http://www.slavepianos.org/rd/f/269573/
+Homepage:         http://slavepianos.org/rd/f/269573/
 Synopsis:         Haskell SuperCollider
 Description:      Haskell client for the SuperCollider synthesis server
 Category:         Sound
