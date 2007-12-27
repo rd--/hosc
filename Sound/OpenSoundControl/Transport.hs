@@ -1,6 +1,6 @@
-module Sound.OpenSoundControl.Transport ( Transport(send, recv, close)
+module Sound.OpenSoundControl.Transport ( Transport(..)
                                         , withTransport
-                                        , wait) where
+                                        , wait ) where
 
 import Sound.OpenSoundControl.OSC (OSC(..))
 import Control.Exception (bracket)
