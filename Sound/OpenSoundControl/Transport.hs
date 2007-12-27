@@ -5,13 +5,13 @@ module Sound.OpenSoundControl.Transport ( Transport(send, recv, close)
 import Sound.OpenSoundControl.OSC (OSC(..))
 import Control.Exception (bracket)
 
--- | The class for the network protocolls.
+-- | Abstract over the underlying transport protocol.
 class Transport t where
-   -- | Encode and send an OSC packet over a UDP\/TCP connection.
+   -- | Encode and send an OSC packet.
    send :: t -> OSC -> IO ()
-   -- | Receive and decode an OSC packet over a UDP\/TCP connection.
+   -- | Receive and decode an OSC packet.
    recv :: t -> IO OSC
-   -- | Close a UDP\/TCP connection.
+   -- | Close an existing connection.
    close :: t -> IO ()
 
 -- | Does the OSC message have the specified address.
@@ -24,10 +24,11 @@ untilM :: Monad m => (a -> Bool) -> m a -> m a
 untilM p act = recurse
     where recurse = act >>= (\r -> if p r then return r else recurse)
 
--- | Wait for an OSC message with the specified address, discard intervening messages.
+-- | Wait for an OSC message with the specified address, 
+--   discarding intervening messages.
 wait :: Transport t => t -> String -> IO OSC
 wait t s = untilM (hasAddress s) (recv t)
 
--- | Bracket UDP\/TCP activity.
+-- | Bracket OSC communication.
 withTransport :: Transport t => IO t -> (t -> IO a) -> IO a
 withTransport u = bracket u close

@@ -13,6 +13,7 @@ import Data.List (mapAccumL)
 import Data.Maybe (fromMaybe)
 import qualified Data.ByteString.Lazy as B
 
+-- | The basic elements of OSC messages.
 data Datum = Int Int
            | Float Double
            | Double Double
@@ -20,6 +21,7 @@ data Datum = Int Int
            | Blob [Word8]
              deriving (Eq, Show)
 
+-- | An OSC packet.
 data OSC = Message String [Datum]
          | Bundle Double [OSC]
            deriving (Eq, Show)
@@ -48,6 +50,7 @@ align n = mod (-n) 4
 extend :: a -> [a] -> [a]
 extend p s = s ++ replicate (align (length s)) p
 
+-- | Encode an OSC datum.
 encodeDatum :: Datum -> B.ByteString
 encodeDatum (Int i)    = encode_i32 i
 encodeDatum (Float f)  = encode_f32 f
@@ -96,14 +99,17 @@ decodeDatum 's' b = String (decode_str (take' n b)) where n = size 's' b
 decodeDatum 'b' b = Blob (B.unpack (take' n (B.drop 4 b))) where n = size 'b' b
 decodeDatum _   _ = error "illegal osc type"
 
+-- | Trivial utility.
 swap :: (a,b) -> (b,a)
 swap (x,y) = (y,x)
 
+-- | Decode data given a type descriptor string.
 decodeData :: [Char] -> B.ByteString -> [Datum]
 decodeData cs b =
    zipWith decodeDatum cs $ snd $
    mapAccumL (\bRest c -> swap (B.splitAt (fromIntegral (storage c bRest)) bRest)) b cs
 
+-- | Decode an OSC packet.
 decodeOSC :: B.ByteString -> OSC
 decodeOSC b = Message cmd arg
     where n            = storage 's' b

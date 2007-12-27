@@ -8,7 +8,10 @@ module Sound.OpenSoundControl.Time ( UTC
 import qualified Data.Time as T
 import Control.Monad (liftM)
 
+-- | UTC time is represented as a real number.
 type UTC = Double
+
+-- | NTP time is represented as an integer.
 type NTP = Integer
 
 -- | Convert a real-valued NTP timestamp to an NTP timestamp.
