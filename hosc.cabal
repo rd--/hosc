@@ -6,8 +6,8 @@ Author:           Rohan Drape
 Maintainer:       rd@slavepianos.org
 Stability:        Experimental
 Homepage:         http://slavepianos.org/rd/f/269573/
-Synopsis:         Haskell SuperCollider
-Description:      Haskell client for the SuperCollider synthesis server
+Synopsis:         Haskell Open Sound Control
+Description:      Haskell implementation of the Open Sound Control byte protocol
 Category:         Sound
 Tested-With:      GHC
 Build-Depends:    array, base, bytestring, binary, network, time
