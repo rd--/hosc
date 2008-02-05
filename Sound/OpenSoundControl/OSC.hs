@@ -1,5 +1,6 @@
-module Sound.OpenSoundControl.OSC ( OSC(..)
-                                  , Datum(..)
+module Sound.OpenSoundControl.OSC ( OSC, message, bundle
+                                  , address, arguments
+                                  , Datum, int, float, double, string, blob
                                   , encodeOSC
                                   , encodeOSC_NTP
                                   , decodeOSC ) where
@@ -21,10 +22,50 @@ data Datum = Int Int
            | Blob [Word8]
              deriving (Eq, Show)
 
+-- | Construct OSC int datum.
+int :: Int -> Datum
+int = Int
+
+-- | Construct OSC float datum.
+float :: Double -> Datum
+float = Float
+
+-- | Construct OSC double datum.
+double :: Double -> Datum
+double = Double
+
+-- | Construct OSC string datum.
+string :: String -> Datum
+string = String
+
+-- | Construct OSC blob datum.
+blob :: [Word8] -> Datum
+blob = Blob
+
 -- | An OSC packet.
 data OSC = Message String [Datum]
          | Bundle Double [OSC]
            deriving (Eq, Show)
+
+-- | OSC message constructor
+message :: String -> [Datum] -> OSC
+message = Message
+
+-- | OSC bundle constructor
+bundle :: Double -> [OSC] -> OSC
+bundle = Bundle
+
+-- | Retrieve the address of an OSC message, or 
+--   Nothing for a bundle.
+address :: OSC -> Maybe String
+address (Message s _) = Just s
+address (Bundle _ _) = Nothing
+
+-- | Retrieve the arguments of an OSC message, or 
+--   Nothing for a bundle.
+arguments :: OSC -> Maybe [Datum]
+arguments (Message _ a) = Just a
+arguments (Bundle _ _) = Nothing
 
 instance Ord OSC where
     compare (Bundle a _) (Bundle b _) = compare a b
