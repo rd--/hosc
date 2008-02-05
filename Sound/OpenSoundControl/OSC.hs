@@ -1,5 +1,6 @@
 module Sound.OpenSoundControl.OSC ( OSC, message, bundle
                                   , address, arguments
+                                  , timestamp, messages
                                   , Datum, int, float, double, string, blob
                                   , encodeOSC
                                   , encodeOSC_NTP
@@ -66,6 +67,14 @@ address (Bundle _ _) = Nothing
 arguments :: OSC -> Maybe [Datum]
 arguments (Message _ a) = Just a
 arguments (Bundle _ _) = Nothing
+
+timestamp :: OSC -> Maybe Double
+timestamp (Bundle t _) = Just t
+timestamp (Message _ _) = Nothing
+
+messages :: OSC -> Maybe [OSC]
+messages (Bundle _ m) = Just m
+messages (Message _ _) = Nothing
 
 instance Ord OSC where
     compare (Bundle a _) (Bundle b _) = compare a b
