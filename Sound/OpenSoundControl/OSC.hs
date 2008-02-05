@@ -56,22 +56,26 @@ message = Message
 bundle :: Double -> [OSC] -> OSC
 bundle = Bundle
 
--- | Retrieve the address of an OSC message, or 
---   Nothing for a bundle.
+-- | Retrieve the address of an OSC message,
+--   or Nothing for a bundle.
 address :: OSC -> Maybe String
 address (Message s _) = Just s
 address (Bundle _ _) = Nothing
 
--- | Retrieve the arguments of an OSC message, or 
---   Nothing for a bundle.
+-- | Retrieve the arguments of an OSC message,
+--   or Nothing for a bundle.
 arguments :: OSC -> Maybe [Datum]
 arguments (Message _ a) = Just a
 arguments (Bundle _ _) = Nothing
 
+-- | Retrieve the timestamp of an OSC bundle,
+--   or Nothing for a message.
 timestamp :: OSC -> Maybe Double
 timestamp (Bundle t _) = Just t
 timestamp (Message _ _) = Nothing
 
+-- | Retrieve the messages in an OSC bundle,
+--   or Nothing for a message.
 messages :: OSC -> Maybe [OSC]
 messages (Bundle _ m) = Just m
 messages (Message _ _) = Nothing
@@ -121,7 +125,7 @@ encodeOSC_NTP (Bundle t l) = B.concat [ encodeDatum (String "#bundle")
 -- | Encode an OSC packet.
 encodeOSC :: OSC -> B.ByteString
 encodeOSC (Message c l) = encodeOSC_NTP (Message c l)
-encodeOSC (Bundle t l) = encodeOSC_NTP (Bundle (t + n) l) 
+encodeOSC (Bundle t l) = encodeOSC_NTP (Bundle (t + n) l)
     where n = (70 * 365 + 17) * 24 * 60 * 60
 
 -- | The plain byte count of an OSC value.
@@ -129,7 +133,7 @@ size :: Char -> B.ByteString -> Int
 size 'i' _ = 4
 size 'f' _ = 4
 size 'd' _ = 8
-size 's' b = fromIntegral (fromMaybe 
+size 's' b = fromIntegral (fromMaybe
                            (error ("no terminating zero found in " ++ show b))
                            (B.elemIndex 0 b))
 size 'b' b = decode_i32 (B.take 4 b)
