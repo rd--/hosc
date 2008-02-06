@@ -10,6 +10,7 @@ Synopsis:         Haskell Open Sound Control
 Description:      Haskell implementation of the Open Sound Control byte protocol
 Category:         Sound
 Tested-With:      GHC==6.8.2
+Build-Type:       Simple
 Build-Depends:    array, base, bytestring, binary, network, time
 GHC-Options:      -Wall -O2
 Exposed-modules:  Sound.OpenSoundControl
