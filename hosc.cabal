@@ -21,3 +21,5 @@ Exposed-modules:  Sound.OpenSoundControl
                   Sound.OpenSoundControl.Transport
                   Sound.OpenSoundControl.Transport.TCP
                   Sound.OpenSoundControl.Transport.UDP
+
+Data-Files:       README
