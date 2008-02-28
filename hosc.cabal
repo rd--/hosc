@@ -16,10 +16,10 @@ GHC-Options:      -Wall -O2
 Exposed-modules:  Sound.OpenSoundControl
                   Sound.OpenSoundControl.OSC
                   Sound.OpenSoundControl.Time
-                  Sound.OpenSoundControl.Cast
                   Sound.OpenSoundControl.Byte
                   Sound.OpenSoundControl.Transport
                   Sound.OpenSoundControl.Transport.TCP
                   Sound.OpenSoundControl.Transport.UDP
+Other-modules:    Sound.OpenSoundControl.Cast
 
 Data-Files:       README
