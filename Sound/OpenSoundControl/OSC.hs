@@ -1,7 +1,9 @@
-module Sound.OpenSoundControl.OSC ( OSC, message, bundle
+module Sound.OpenSoundControl.OSC ( OSC(..)
+                                  , message, bundle
                                   , address, arguments
                                   , timestamp, messages
-                                  , Datum, int, float, double, string, blob
+                                  , Datum(..)
+                                  , int, float, double, string, blob
                                   , encodeOSC
                                   , encodeOSC_NTP
                                   , decodeOSC ) where
