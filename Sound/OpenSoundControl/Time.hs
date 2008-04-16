@@ -1,12 +1,7 @@
-module Sound.OpenSoundControl.Time ( UTC
-                                   , utc
-                                   , NTP
-                                   , ntp
-                                   , ntpr_ntp
-                                   , utc_ntp ) where
+module Sound.OpenSoundControl.Time where
 
+import Control.Monad
 import qualified Data.Time as T
-import Control.Monad (liftM)
 
 -- | UTC time is represented as a real number.
 type UTC = Double

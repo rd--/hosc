@@ -2,8 +2,8 @@ module Sound.OpenSoundControl.Transport ( Transport(..)
                                         , withTransport
                                         , wait ) where
 
-import Sound.OpenSoundControl.OSC
 import Control.Exception
+import Sound.OpenSoundControl.OSC
 
 -- | Abstract over the underlying transport protocol.
 class Transport t where
@@ -14,11 +14,12 @@ class Transport t where
    -- | Close an existing connection.
    close :: t -> IO ()
 
--- | Does the OSC message have the specified address.
-hasAddress :: String -> OSC -> Bool
-hasAddress addr o = maybe False (== addr) (address o)
+-- Does the OSC message have the specified address.
+has_address :: String -> OSC -> Bool
+has_address x (Message y _) = x == y
+has_address _ _ = False
 
--- | Repeat action until predicate holds on result.
+-- Repeat action until predicate holds on result.
 untilM :: Monad m => (a -> Bool) -> m a -> m a
 untilM p act = recurse
     where recurse = act >>= (\r -> if p r then return r else recurse)
@@ -26,7 +27,7 @@ untilM p act = recurse
 -- | Wait for an OSC message with the specified address, 
 --   discarding intervening messages.
 wait :: Transport t => t -> String -> IO OSC
-wait t s = untilM (hasAddress s) (recv t)
+wait t s = untilM (has_address s) (recv t)
 
 -- | Bracket OSC communication.
 withTransport :: Transport t => IO t -> (t -> IO a) -> IO a

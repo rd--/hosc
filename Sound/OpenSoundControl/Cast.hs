@@ -3,40 +3,48 @@ module Sound.OpenSoundControl.Cast (f32_i32, i32_f32,
                                     str_cstr, cstr_str,
                                     str_pstr, pstr_str) where
 
-import Data.Word (Word8)
-import Data.Int (Int32, Int64)
-import Data.Char (chr, ord)
-import Control.Monad.ST (runST, ST)
-import Data.Array.ST (MArray, newArray, readArray, castSTUArray)
+import Control.Monad.ST
+import Data.Array.ST
+import Data.Char
+import Data.Int
+import Data.Word
 
+-- | The IEEE byte representation of a float packed into an integer.
 f32_i32 :: Float -> Int32
-f32_i32 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Int32)
+f32_i32 d = runST ((from_array =<< castSTUArray =<< unit_array d) :: ST s Int32)
 
-f64_i64 :: Double -> Int64
-f64_i64 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Int64)
-
+-- | Inverse of 'f32_i32'.
 i32_f32 :: Int32 -> Float
-i32_f32 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Float)
+i32_f32 d = runST ((from_array =<< castSTUArray =<< unit_array d) :: ST s Float)
 
+-- | The IEEE byte representation of a double packed into an integer.
+f64_i64 :: Double -> Int64
+f64_i64 d = runST ((from_array =<< castSTUArray =<< unit_array d) :: ST s Int64)
+
+-- | Inverse of 'f64_i64'.
 i64_f64 :: Int64 -> Double
-i64_f64 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Double)
+i64_f64 d = runST ((from_array =<< castSTUArray =<< unit_array d) :: ST s Double)
 
--- | C strings are null suffixed byte strings.
+-- | Transform a haskell string into a C string (a null suffixed byte string).
 str_cstr :: String -> [Word8]
 str_cstr s = map (fromIntegral . ord) s ++ [0]
 
+-- | Inverse of 'str_cstr'.
 cstr_str :: [Word8] -> String
 cstr_str s = map (chr . fromIntegral) (takeWhile (/= 0) s)
 
--- | Pascal strings are length prefixed byte strings.
+-- | Transform a haskell string to a pascal string (a length prefixed byte string).
 str_pstr :: String -> [Word8]
 str_pstr s = (fromIntegral (length s)) : map (fromIntegral . ord) s
 
+-- | Inverse of 'str_pstr'.
 pstr_str :: [Word8] -> String
 pstr_str s = map (chr . fromIntegral) (drop 1 s)
 
-singletonArray :: (MArray a e m) => e -> m (a Int e)
-singletonArray = newArray (0, 0::Int)
+-- One element marray.
+unit_array :: (MArray a e m) => e -> m (a Int e)
+unit_array = newArray (0, 0::Int)
 
-fromArray :: (MArray a e m) => a Int e -> m e
-fromArray = flip readArray 0
+-- Extract first element from array.
+from_array :: (MArray a e m) => a Int e -> m e
+from_array = flip readArray 0

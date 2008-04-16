@@ -1,13 +1,12 @@
 module Sound.OpenSoundControl.Transport.TCP (TCP, openTCP, tcpServer) where
 
-import Sound.OpenSoundControl.Transport
-import Sound.OpenSoundControl.Byte (encode_u32, decode_u32)
-import Sound.OpenSoundControl.OSC (encodeOSC, decodeOSC)
-
-import Control.Monad (liftM)
 import qualified Data.ByteString.Lazy as B
-import Network (PortID(PortNumber), connectTo, listenOn, accept)
-import System.IO (Handle, hFlush, hClose)
+import Control.Monad
+import Network
+import Sound.OpenSoundControl.Transport
+import Sound.OpenSoundControl.Byte
+import Sound.OpenSoundControl.OSC
+import System.IO
 
 -- | The TCP transport handle data type.
 data TCP = TCP Handle deriving (Eq, Show)

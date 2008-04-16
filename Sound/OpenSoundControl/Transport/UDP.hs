@@ -1,11 +1,10 @@
 module Sound.OpenSoundControl.Transport.UDP (UDP, openUDP) where
 
-import Sound.OpenSoundControl.Transport
-import Sound.OpenSoundControl.Byte (encode_str, decode_str)
-import Sound.OpenSoundControl.OSC (encodeOSC, decodeOSC)
-
-import Control.Monad (liftM)
+import Control.Monad
 import qualified Network.Socket as N
+import Sound.OpenSoundControl.Byte
+import Sound.OpenSoundControl.OSC
+import Sound.OpenSoundControl.Transport
 
 -- | The UDP transport handle data type.
 data UDP = UDP N.Socket deriving (Eq, Show)

@@ -1,10 +1,10 @@
 module Sound.OpenSoundControl.Byte where
 
-import Data.Int
-import Data.Char
-import qualified Data.ByteString.Lazy as B
 import Data.Binary
-import Sound.OpenSoundControl.Cast (f32_i32, f64_i64, i32_f32, i64_f64)
+import qualified Data.ByteString.Lazy as B
+import Data.Char
+import Data.Int
+import Sound.OpenSoundControl.Cast
 
 -- | Encode a signed 8-bit integer.
 encode_i8 :: Int -> B.ByteString
