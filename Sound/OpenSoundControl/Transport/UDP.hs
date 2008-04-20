@@ -1,4 +1,6 @@
-module Sound.OpenSoundControl.Transport.UDP (UDP, openUDP) where
+module Sound.OpenSoundControl.Transport.UDP ( UDP
+                                            , openUDP
+                                            , udpServer ) where
 
 import Control.Monad
 import qualified Network.Socket as N
@@ -18,6 +20,15 @@ instance Transport UDP where
 openUDP :: String -> Int -> IO UDP
 openUDP host port = do fd <- N.socket N.AF_INET N.Datagram 0
                        a  <- N.inet_addr host
-                       N.connect fd (N.SockAddrInet (fromIntegral port) a)
+                       let sa = N.SockAddrInet (fromIntegral port) a
+                       N.connect fd sa
                        -- N.setSocketOption fd N.RecvTimeOut 1000
                        return (UDP fd)
+
+-- | Trivial udp server.
+udpServer :: String -> Int -> IO UDP
+udpServer host port = do fd <- N.socket N.AF_INET N.Datagram 0
+                         a  <- N.inet_addr host
+                         let sa = N.SockAddrInet (fromIntegral port) a
+                         N.bindSocket fd sa
+                         return (UDP fd)
