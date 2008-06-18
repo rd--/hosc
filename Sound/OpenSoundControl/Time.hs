@@ -1,5 +1,6 @@
 module Sound.OpenSoundControl.Time where
 
+import Control.Concurrent
 import Control.Monad
 import qualified Data.Time as T
 
@@ -32,3 +33,11 @@ utc = do t <- T.getCurrentTime
 -- | Read current NTP timestamp.
 ntp :: IO NTP
 ntp = liftM utc_ntp utc
+
+-- | Pause current thread for the indicated duration, given in seconds.
+pause :: Double -> IO ()
+pause n = when (n > 1e-4) (threadDelay (floor (n * 1e6)))
+
+-- | Pause current thread until the given utc time.
+pauseUntil :: UTC -> IO ()
+pauseUntil t = pause . (t -) =<< utc
