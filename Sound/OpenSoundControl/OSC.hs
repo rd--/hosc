@@ -1,6 +1,6 @@
 module Sound.OpenSoundControl.OSC ( OSC(..)
                                   , Datum(..)
-                                  , encodeOSC, encodeOSCNTP
+                                  , encodeOSC
                                   , decodeOSC ) where
 
 import qualified Data.ByteString.Lazy as B
@@ -21,7 +21,7 @@ data Datum = Int Int
 
 -- | An OSC packet.
 data OSC = Message String [Datum]
-         | Bundle Double [OSC]
+         | Bundle Time [OSC]
            deriving (Eq, Show)
 
 -- | OSC bundles can be ordered (time ascending).
@@ -69,25 +69,18 @@ encode_osc_blob :: OSC -> Datum
 encode_osc_blob = Blob . B.unpack . encodeOSC
 
 -- Encode an OSC bundle.
-encode_bundle_ntp :: Double -> [OSC] -> B.ByteString
-encode_bundle_ntp t l =
+encode_bundle_ntpi :: Integer -> [OSC] -> B.ByteString
+encode_bundle_ntpi t l =
     B.concat [ encode_datum (String "#bundle")
-             , encode_u64 (ntpr_ntp t)
+             , encode_u64 t
              , B.concat (map (encode_datum . encode_osc_blob) l) ]
-
--- | Encode an OSC packet (NTP epoch).
-encodeOSCNTP :: OSC -> B.ByteString
-encodeOSCNTP (Message c l) = encode_message c l
-encodeOSCNTP (Bundle t l) = encode_bundle_ntp t l
-
--- Offset from UTC to NTP epoch.
-utc_ntp_diff :: Double
-utc_ntp_diff = (70 * 365 + 17) * 24 * 60 * 60
 
 -- | Encode an OSC packet.
 encodeOSC :: OSC -> B.ByteString
 encodeOSC (Message c l) = encode_message c l
-encodeOSC (Bundle t l) = encode_bundle_ntp (t + utc_ntp_diff) l
+encodeOSC (Bundle (NTPi t) l) = encode_bundle_ntpi t l
+encodeOSC (Bundle (NTPr t) l) = encode_bundle_ntpi (ntpr_ntpi t) l
+encodeOSC (Bundle (UTCr t) l) = encode_bundle_ntpi (utcr_ntpi t) l
 
 -- The plain byte count of an OSC value.
 size :: Char -> B.ByteString -> Int
