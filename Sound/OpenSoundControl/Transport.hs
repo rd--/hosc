@@ -1,6 +1,6 @@
 module Sound.OpenSoundControl.Transport ( Transport(..)
                                         , withTransport
-                                        , wait ) where
+                                        , waitFor, wait ) where
 
 import Control.Exception
 import Sound.OpenSoundControl.OSC
@@ -19,15 +19,21 @@ has_address :: String -> OSC -> Bool
 has_address x (Message y _) = x == y
 has_address _ _ = False
 
--- Repeat action until predicate holds on result.
-untilM :: Monad m => (a -> Bool) -> m a -> m a
-untilM p act = recurse
-    where recurse = act >>= (\r -> if p r then return r else recurse)
+-- Repeat action until function does not give Nothing when applied to result.
+untilM :: Monad m => (a -> Maybe b) -> m a -> m b
+untilM f act = recurse
+    where g p = let q = f p in case q of { Nothing -> recurse
+                                         ; Just r -> return r }
+          recurse = act >>= g
 
--- | Wait for an OSC message with the specified address, 
---   discarding intervening messages.
+-- | Wait for an OSC message where the supplied function does not give
+--   Nothing, discarding intervening messages.
+waitFor :: Transport t => t -> (OSC -> Maybe a) -> IO a
+waitFor t f = untilM f (recv t)
+
+-- | A 'waitFor' for variant matching on address string of messages.
 wait :: Transport t => t -> String -> IO OSC
-wait t s = untilM (has_address s) (recv t)
+wait t s = waitFor t (\o -> if has_address s o then Just o else Nothing)
 
 -- | Bracket OSC communication.
 withTransport :: Transport t => IO t -> (t -> IO a) -> IO a
