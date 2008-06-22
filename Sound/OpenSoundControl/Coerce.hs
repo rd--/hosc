@@ -23,3 +23,7 @@ fd_to_i :: Datum -> Datum
 fd_to_i (Float n) = Int (round n)
 fd_to_i (Double n) = Int (round n)
 fd_to_i x = x
+
+-- | A normalized osc packet has only Int and Double numerical values.
+normalize :: OSC -> OSC
+normalize = coerce f_to_d
