@@ -21,6 +21,17 @@ i32_f32 d = runST ((from_array =<< castSTUArray =<< unit_array d) :: ST s Float)
 f64_i64 :: Double -> Int64
 f64_i64 d = runST ((from_array =<< castSTUArray =<< unit_array d) :: ST s Int64)
 
+{-
+http://www.haskell.org/pipermail/haskell-cafe/2008-February/040000.html
+
+{-# LANGUAGE MagicHash #-}
+import Data.Int
+import GHC.Exts
+
+f64_i64 :: Double -> Int64 --ghc only
+f64_i64 (D# x) = I64# (unsafeCoerce# x)
+-}
+
 -- | Inverse of 'f64_i64'.
 i64_f64 :: Int64 -> Double
 i64_f64 d = runST ((from_array =<< castSTUArray =<< unit_array d) :: ST s Double)
