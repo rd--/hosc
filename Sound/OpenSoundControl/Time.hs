@@ -50,5 +50,5 @@ pauseThread :: Double -> IO ()
 pauseThread n = when (n > 1e-4) (threadDelay (floor (n * 1e6)))
 
 -- | Pause current thread until the given utcr time.
-pauseUntil :: Double -> IO ()
-pauseUntil t = pauseThread . (t -) =<< utcr
+pauseThreadUntil :: Double -> IO ()
+pauseThreadUntil t = pauseThread . (t -) =<< utcr
