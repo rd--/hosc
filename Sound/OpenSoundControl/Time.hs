@@ -6,7 +6,7 @@ import qualified Data.Time as T
 
 -- | Time is represented in either UTC or NTP form.
 data Time = UTCr Double | NTPr Double | NTPi Integer
-          deriving (Eq, Show)
+            deriving (Eq, Show)
 
 -- | Coerce to NTPi form.
 as_ntpi :: Time -> Integer
@@ -46,9 +46,9 @@ ntpi :: IO Integer
 ntpi = liftM utcr_ntpi utcr
 
 -- | Pause current thread for the indicated duration, given in seconds.
-pause :: Double -> IO ()
-pause n = when (n > 1e-4) (threadDelay (floor (n * 1e6)))
+pauseThread :: Double -> IO ()
+pauseThread n = when (n > 1e-4) (threadDelay (floor (n * 1e6)))
 
 -- | Pause current thread until the given utcr time.
 pauseUntil :: Double -> IO ()
-pauseUntil t = pause . (t -) =<< utcr
+pauseUntil t = pauseThread . (t -) =<< utcr
