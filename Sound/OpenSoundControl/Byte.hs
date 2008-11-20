@@ -1,3 +1,4 @@
+-- | Byte-level encoding and decoding functions.
 module Sound.OpenSoundControl.Byte where
 
 import Data.Binary

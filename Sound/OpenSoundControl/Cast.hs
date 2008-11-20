@@ -1,3 +1,4 @@
+-- | Bit-level type casts and byte layout string typecasts.
 module Sound.OpenSoundControl.Cast (f32_i32, i32_f32,
                                     f64_i64, i64_f64,
                                     str_cstr, cstr_str,

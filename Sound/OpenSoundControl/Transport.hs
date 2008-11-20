@@ -1,3 +1,5 @@
+-- | An abstract transport layer with implementations for UDP and TCP
+--   transport.
 module Sound.OpenSoundControl.Transport ( Transport(..)
                                         , withTransport
                                         , waitFor, wait ) where

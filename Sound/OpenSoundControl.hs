@@ -1,3 +1,5 @@
+-- | hosc implements a subset of the Open Sound Control byte protocol.
+--   The protocol is documented at <http://opensoundcontrol.org/>.
 module Sound.OpenSoundControl (module Sound.OpenSoundControl.OSC,
                                module Sound.OpenSoundControl.Time,
                                module Sound.OpenSoundControl.Cast,

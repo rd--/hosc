@@ -1,3 +1,4 @@
+-- | OSC packet coercion and normalization.
 module Sound.OpenSoundControl.Coerce where
 
 import Sound.OpenSoundControl.OSC

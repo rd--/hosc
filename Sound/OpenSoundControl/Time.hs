@@ -1,3 +1,5 @@
+-- | Temporal representations and clock operations (read current time
+--   and pause thread).
 module Sound.OpenSoundControl.Time where
 
 import Control.Concurrent

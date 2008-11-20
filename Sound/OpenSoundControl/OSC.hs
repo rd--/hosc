@@ -1,3 +1,5 @@
+-- | Alegbraic data types for OSC packets and encode and decode
+--   functions.
 module Sound.OpenSoundControl.OSC ( OSC(..)
                                   , Datum(..)
                                   , encodeOSC

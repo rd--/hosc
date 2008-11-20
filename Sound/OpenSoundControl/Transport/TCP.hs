@@ -1,3 +1,4 @@
+-- | OSC over TCP implementation.
 module Sound.OpenSoundControl.Transport.TCP (TCP, openTCP, tcpServer) where
 
 import qualified Data.ByteString.Lazy as B

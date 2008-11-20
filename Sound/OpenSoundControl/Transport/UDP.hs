@@ -1,3 +1,4 @@
+-- | OSC over UDP implementation.
 module Sound.OpenSoundControl.Transport.UDP ( UDP
                                             , openUDP
                                             , udpServer
