@@ -19,6 +19,7 @@ data Datum = Int Int
            | Double Double
            | String String
            | Blob [Word8]
+           | TimeStamp Time
              deriving (Eq, Show)
 
 -- | An OSC packet.
@@ -73,7 +74,7 @@ encode_osc_blob = Blob . B.unpack . encodeOSC
 -- Encode an OSC bundle.
 encode_bundle_ntpi :: Integer -> [OSC] -> B.ByteString
 encode_bundle_ntpi t l =
-    B.concat [ encode_datum (String "#bundle")
+    B.concat [ bundle_header
              , encode_u64 t
              , B.concat (map (encode_datum . encode_osc_blob) l) ]
 
@@ -89,6 +90,7 @@ size :: Char -> B.ByteString -> Int
 size 'i' _ = 4
 size 'f' _ = 4
 size 'd' _ = 8
+size 't' _ = 8 -- timetag
 size 's' b = fromIntegral (fromMaybe
                            (error ("size: no terminating zero: " ++ show b))
                            (B.elemIndex 0 b))
@@ -108,9 +110,10 @@ decode_datum 'f' b = Float (decode_f32 b)
 decode_datum 'd' b = Double (decode_f64 b)
 decode_datum 's' b = String (decode_str (b_take n b)) where n = size 's' b
 decode_datum 'b' b = Blob (B.unpack (b_take n (B.drop 4 b))) where n = size 'b' b
-decode_datum _ _ = error "decode_datum: illegal type"
+decode_datum 't' b = TimeStamp $ NTPi (decode_u64 b)
+decode_datum t _ = error ("decode_datum: illegal type (" ++ [t] ++ ")")
 
--- Decode a sequenc of OSC datum given a type descriptor string.
+-- Decode a sequence of OSC datum given a type descriptor string.
 decode_datum_seq :: [Char] -> B.ByteString -> [Datum]
 decode_datum_seq cs b = zipWith decode_datum cs (snd (mapAccumL f b cs))
     where swap (x,y) = (y,x)
@@ -125,12 +128,32 @@ decode_message b = Message cmd arg
           (String dsc) = decode_datum 's' (b_drop n b)
           arg = decode_datum_seq (drop 1 dsc) (b_drop (n + m) b)
 
+-- Decode a sequence of OSC messages, each one headed by its length
+decode_message_seq :: B.ByteString -> [OSC]
+decode_message_seq b | B.length b == 0 = []
+                     | otherwise = m:nxt
+                     where s = decode_i32 b
+                           m = decode_message $ b_drop 4 b
+                           nxt = decode_message_seq $ b_drop (4+s) b
+
+decode_bundle :: B.ByteString -> OSC
+decode_bundle b = Bundle timeStamp ms
+    where h = storage 's' b -- header
+          (String cmd) = decode_datum 's' b -- cmd should be #bundle
+          t = storage 't' (b_drop h b) -- time tag
+          (TimeStamp timeStamp) = decode_datum 't' (b_drop h b)
+          ms = decode_message_seq $ b_drop (h+t) b
+
 -- | Decode an OSC packet.
 decodeOSC :: B.ByteString -> OSC
-decodeOSC = decode_message
+decodeOSC b | bundle_header `B.isPrefixOf` b = decode_bundle b
+            | otherwise = decode_message b
 
 b_take :: Int -> B.ByteString -> B.ByteString
 b_take n = B.take (fromIntegral n)
 
 b_drop :: Int -> B.ByteString -> B.ByteString
 b_drop n = B.drop (fromIntegral n)
+
+bundle_header = encode_datum (String "#bundle")
+
