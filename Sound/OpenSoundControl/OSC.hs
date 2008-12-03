@@ -39,6 +39,7 @@ tag (Float _) = 'f'
 tag (Double _) = 'd'
 tag (String _) = 's'
 tag (Blob _) = 'b'
+tag (TimeStamp _) = 't'
 
 -- Command argument types are given by a descriptor.
 descriptor :: [Datum] -> Datum
@@ -57,6 +58,7 @@ encode_datum :: Datum -> B.ByteString
 encode_datum (Int i) = encode_i32 i
 encode_datum (Float f) = encode_f32 f
 encode_datum (Double d) = encode_f64 d
+encode_datum (TimeStamp t) = encode_u64 $ as_ntpi t
 encode_datum (String s) = B.pack (extend 0 (str_cstr s))
 encode_datum (Blob b) = B.concat [encode_i32 (length b), B.pack (extend 0 b)]
 
@@ -138,8 +140,7 @@ decode_message_seq b | B.length b == 0 = []
 
 decode_bundle :: B.ByteString -> OSC
 decode_bundle b = Bundle timeStamp ms
-    where h = storage 's' b -- header
-          (String cmd) = decode_datum 's' b -- cmd should be #bundle
+    where h = storage 's' b -- header (should be '#bundle'
           t = storage 't' (b_drop h b) -- time tag
           (TimeStamp timeStamp) = decode_datum 't' (b_drop h b)
           ms = decode_message_seq $ b_drop (h+t) b
@@ -155,5 +156,6 @@ b_take n = B.take (fromIntegral n)
 b_drop :: Int -> B.ByteString -> B.ByteString
 b_drop n = B.drop (fromIntegral n)
 
+bundle_header :: B.ByteString
 bundle_header = encode_datum (String "#bundle")
 
