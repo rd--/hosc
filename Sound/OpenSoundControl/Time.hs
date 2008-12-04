@@ -16,6 +16,12 @@ as_ntpi (UTCr t) = utcr_ntpi t
 as_ntpi (NTPr t) = ntpr_ntpi t
 as_ntpi (NTPi t) = t
 
+-- | Coerce to UTCr form.
+as_utcr :: Time -> Double
+as_utcr (UTCr t) = t
+as_utcr (NTPr t) = ntpr_utcr t
+as_utcr (NTPi t) = ntpi_utcr t
+
 -- | Times can be ordered, avoid coercion if not required.
 instance Ord Time where
     compare (UTCr p) (UTCr q) = compare p q
@@ -27,10 +33,23 @@ instance Ord Time where
 ntpr_ntpi :: Double -> Integer
 ntpr_ntpi t = round (t * 2^(32::Int))
 
+-- | Convert an NTP timestamp to a real-valued NTP timestamp.
+ntpi_ntpr :: Integer -> Double
+ntpi_ntpr t = (fromIntegral t) / 2^(32::Int)
+
 -- | Convert UTC timestamp to NTP timestamp.
 utcr_ntpi :: Double -> Integer
 utcr_ntpi t = ntpr_ntpi (t + secdif)
     where secdif = (70 * 365 + 17) * 24 * 60 * 60
+
+-- | Convert NTP timestamp to UTC timestamp.
+ntpr_utcr :: Double -> Double
+ntpr_utcr t = t - secdif
+    where secdif = (70 * 365 + 17) * 24 * 60 * 60
+
+-- | Convert NTP timestamp to UTC timestamp.
+ntpi_utcr :: Integer -> Double
+ntpi_utcr = ntpr_utcr . ntpi_ntpr
 
 -- | The time at 1970-01-01:00:00:00.
 utc_base :: T.UTCTime
