@@ -2,6 +2,7 @@
 module Sound.OpenSoundControl.Transport.UDP ( UDP
                                             , openUDP
                                             , udpServer
+                                            , udpPort
                                             , sendTo, recvFrom ) where
 
 import Control.Monad
@@ -45,3 +46,6 @@ recvFrom (UDP fd) =
     do (s, _, a) <- N.recvFrom fd 8192
        let o = (decodeOSC . encode_str) s
        return (o, a)
+
+udpPort :: UDP -> IO N.PortNumber
+udpPort (UDP fd) = N.socketPort fd
