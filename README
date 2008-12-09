@@ -9,4 +9,6 @@ Control byte protocol.
   http://opensoundcontrol.org/
 
 (c) rohan drape, 2006-2008
-    gpl.2, http://gnu.org/copyleft/
+    gpl, http://gnu.org/copyleft/
+    with contributions by alex mclean
+    see darcs history for details
