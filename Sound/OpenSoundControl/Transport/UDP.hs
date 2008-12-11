@@ -1,5 +1,5 @@
 -- | OSC over UDP implementation.
-module Sound.OpenSoundControl.Transport.UDP ( UDP
+module Sound.OpenSoundControl.Transport.UDP ( UDP(udpSocket)
                                             , openUDP
                                             , udpServer
                                             , udpPort
@@ -12,7 +12,8 @@ import Sound.OpenSoundControl.OSC
 import Sound.OpenSoundControl.Transport
 
 -- | The UDP transport handle data type.
-data UDP = UDP N.Socket deriving (Eq, Show)
+data UDP = UDP { udpSocket :: N.Socket }
+           deriving (Eq, Show)
 
 instance Transport UDP where
    send  (UDP fd) msg = N.send fd (decode_str (encodeOSC msg)) >> return ()
