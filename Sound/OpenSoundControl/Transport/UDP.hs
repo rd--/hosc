@@ -48,5 +48,5 @@ recvFrom (UDP fd) =
        let o = (decodeOSC . encode_str) s
        return (o, a)
 
-udpPort :: UDP -> IO N.PortNumber
-udpPort (UDP fd) = N.socketPort fd
+udpPort :: Integral n => UDP -> IO n
+udpPort (UDP fd) = fmap fromIntegral (N.socketPort fd)
