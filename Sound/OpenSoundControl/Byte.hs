@@ -33,15 +33,15 @@ encode_u64 n = encode (fromIntegral n :: Word64)
 
 -- | Encode a 32-bit IEEE floating point number.
 encode_f32 :: Double -> B.ByteString
-encode_f32 n = encode (f32_i32 (realToFrac n))
+encode_f32 = encode . f32_i32 . realToFrac
 
 -- | Encode a 64-bit IEEE floating point number.
 encode_f64 :: Double -> B.ByteString
-encode_f64 n = encode (f64_i64 n)
+encode_f64 = encode . f64_i64
 
 -- | Encode an ASCII string.
 encode_str :: String -> B.ByteString
-encode_str s = B.pack (map (fromIntegral . ord) s)
+encode_str = B.pack . map (fromIntegral . ord)
 
 -- | Decode a signed 8-bit integer.
 decode_i8 :: B.ByteString -> Int
@@ -77,4 +77,4 @@ decode_f64 b = i64_f64 (decode b :: Int64)
 
 -- | Decode an ASCII string.
 decode_str :: B.ByteString -> String
-decode_str b = map (chr . fromIntegral) (B.unpack b)
+decode_str = map (chr . fromIntegral) . B.unpack

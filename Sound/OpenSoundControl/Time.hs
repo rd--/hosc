@@ -35,7 +35,7 @@ ntpr_ntpi t = round (t * 2^(32::Int))
 
 -- | Convert an NTP timestamp to a real-valued NTP timestamp.
 ntpi_ntpr :: Integer -> Double
-ntpi_ntpr t = (fromIntegral t) / 2^(32::Int)
+ntpi_ntpr t = fromIntegral t / 2^(32::Int)
 
 -- | Convert UTC timestamp to NTP timestamp.
 utcr_ntpi :: Double -> Integer

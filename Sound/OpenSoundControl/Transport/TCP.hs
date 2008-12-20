@@ -28,7 +28,7 @@ instance Transport TCP where
 
 -- | Make a TCP connection.
 openTCP :: String -> Int -> IO TCP
-openTCP host port = liftM TCP (connectTo host (PortNumber (fromIntegral port)))
+openTCP host = liftM TCP . connectTo host . PortNumber . fromIntegral
 
 -- | A trivial TCP OSC server.
 tcpServer :: Int -> (TCP -> IO ()) -> IO ()

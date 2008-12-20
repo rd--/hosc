@@ -43,15 +43,15 @@ str_cstr s = map (fromIntegral . ord) s ++ [0]
 
 -- | Inverse of 'str_cstr'.
 cstr_str :: [Word8] -> String
-cstr_str s = map (chr . fromIntegral) (takeWhile (/= 0) s)
+cstr_str = map (chr . fromIntegral) . takeWhile (/= 0)
 
 -- | Transform a haskell string to a pascal string (a length prefixed byte string).
 str_pstr :: String -> [Word8]
-str_pstr s = (fromIntegral (length s)) : map (fromIntegral . ord) s
+str_pstr s = fromIntegral (length s) : map (fromIntegral . ord) s
 
 -- | Inverse of 'str_pstr'.
 pstr_str :: [Word8] -> String
-pstr_str s = map (chr . fromIntegral) (drop 1 s)
+pstr_str = map (chr . fromIntegral) . drop 1
 
 -- One element marray.
 unit_array :: (MArray a e m) => e -> m (a Int e)

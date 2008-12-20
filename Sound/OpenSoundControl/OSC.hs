@@ -151,10 +151,10 @@ decodeOSC b | bundle_header `B.isPrefixOf` b = decode_bundle b
             | otherwise = decode_message b
 
 b_take :: Int -> B.ByteString -> B.ByteString
-b_take n = B.take (fromIntegral n)
+b_take = B.take . fromIntegral
 
 b_drop :: Int -> B.ByteString -> B.ByteString
-b_drop n = B.drop (fromIntegral n)
+b_drop = B.drop . fromIntegral
 
 bundle_header :: B.ByteString
 bundle_header = encode_datum (String "#bundle")
