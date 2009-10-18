@@ -10,7 +10,7 @@ Copyright:         (c) Rohan Drape, 2006-2009
 Author:            Rohan Drape
 Maintainer:        rd@slavepianos.org
 Stability:         Experimental
-Homepage:          http://slavepianos.org/rd/f/269573/
+Homepage:          http://slavepianos.org/rd/?f=269573
 Tested-With:       GHC == 6.10.3
 Build-Type:        Simple
 Cabal-Version:     >= 1.6
