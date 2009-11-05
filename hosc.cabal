@@ -15,6 +15,7 @@ Tested-With:       GHC == 6.10.3
 Build-Type:        Simple
 Cabal-Version:     >= 1.6
 Data-Files:        README
+                   Help/timer.hs
 
 Library
   Build-Depends:   array,
