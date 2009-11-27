@@ -73,3 +73,7 @@ pauseThread n = when (n > 1e-4) (threadDelay (floor (n * 1e6)))
 -- | Pause current thread until the given utcr time.
 pauseThreadUntil :: Double -> IO ()
 pauseThreadUntil t = pauseThread . (t -) =<< utcr
+
+-- | Execute the bundle immediately.
+immediately :: Time
+immediately = NTPi 1
