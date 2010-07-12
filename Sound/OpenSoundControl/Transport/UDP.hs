@@ -22,31 +22,33 @@ instance Transport UDP where
 
 -- | Make a UDP connection.
 openUDP :: String -> Int -> IO UDP
-openUDP host port = do fd <- N.socket N.AF_INET N.Datagram 0
-                       a  <- N.inet_addr host
-                       let sa = N.SockAddrInet (fromIntegral port) a
-                       N.connect fd sa
-                       -- N.setSocketOption fd N.RecvTimeOut 1000
-                       return (UDP fd)
+openUDP host port = do
+  fd <- N.socket N.AF_INET N.Datagram 0
+  a  <- N.inet_addr host
+  let sa = N.SockAddrInet (fromIntegral port) a
+  N.connect fd sa
+  -- N.setSocketOption fd N.RecvTimeOut 1000
+  return (UDP fd)
 
 -- | Trivial udp server.
 udpServer :: String -> Int -> IO UDP
-udpServer host port = do fd <- N.socket N.AF_INET N.Datagram 0
-                         a  <- N.inet_addr host
-                         let sa = N.SockAddrInet (fromIntegral port) a
-                         N.bindSocket fd sa
-                         return (UDP fd)
+udpServer host port = do
+  fd <- N.socket N.AF_INET N.Datagram 0
+  a  <- N.inet_addr host
+  let sa = N.SockAddrInet (fromIntegral port) a
+  N.bindSocket fd sa
+  return (UDP fd)
 
 sendTo :: UDP -> OSC -> N.SockAddr -> IO ()
-sendTo (UDP fd) o a =
-    do N.sendTo fd (decode_str (encodeOSC o)) a
-       return ()
+sendTo (UDP fd) o a = do
+  N.sendTo fd (decode_str (encodeOSC o)) a
+  return ()
 
 recvFrom :: UDP -> IO (OSC, N.SockAddr)
-recvFrom (UDP fd) = 
-    do (s, _, a) <- N.recvFrom fd 8192
-       let o = (decodeOSC . encode_str) s
-       return (o, a)
+recvFrom (UDP fd) = do
+  (s, _, a) <- N.recvFrom fd 8192
+  let o = (decodeOSC . encode_str) s
+  return (o, a)
 
 udpPort :: Integral n => UDP -> IO n
 udpPort (UDP fd) = fmap fromIntegral (N.socketPort fd)
