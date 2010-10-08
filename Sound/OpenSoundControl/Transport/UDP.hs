@@ -41,7 +41,7 @@ udpServer host port = do
 
 sendTo :: UDP -> OSC -> N.SockAddr -> IO ()
 sendTo (UDP fd) o a = do
-  N.sendTo fd (decode_str (encodeOSC o)) a
+  _ <- N.sendTo fd (decode_str (encodeOSC o)) a
   return ()
 
 recvFrom :: UDP -> IO (OSC, N.SockAddr)
