@@ -8,6 +8,7 @@ module Sound.OpenSoundControl.OSC ( OSC(..)
 import qualified Data.ByteString.Lazy as B
 import Data.List
 import Data.Maybe
+import Data.Monoid (Monoid(..))
 import Data.Word
 import Sound.OpenSoundControl.Time
 import Sound.OpenSoundControl.Byte
@@ -31,6 +32,16 @@ data OSC = Message String [Datum]
 instance Ord OSC where
     compare (Bundle a _) (Bundle b _) = compare a b
     compare _ _ = EQ
+
+instance Monoid (OSC) where
+    mempty = Bundle immediately []
+    mappend m1@(Message _ _) m2@(Message _ _)  = Bundle immediately [m1, m2]
+    mappend m@(Message _ _)     (Bundle t xs)  = Bundle t (m:xs)
+    mappend   (Bundle t xs)   m@(Message _ _)  = Bundle t (xs++[m])
+    mappend   (Bundle _ [])     (Bundle _ [])  = mempty
+    mappend b@(Bundle _ _)      (Bundle _ [])  = b
+    mappend   (Bundle _ [])   b@(Bundle _ _)   = b
+    mappend   (Bundle t xs1)    (Bundle _ xs2) = Bundle t (xs1++xs2)
 
 -- OSC types have single character identifiers.
 tag :: Datum -> Char
@@ -158,4 +169,3 @@ b_drop = B.drop . fromIntegral
 
 bundle_header :: B.ByteString
 bundle_header = encode_datum (String "#bundle")
-
