@@ -94,6 +94,7 @@ encode_bundle_ntpi t l =
 -- | Encode an OSC packet.
 encodeOSC :: OSC -> B.ByteString
 encodeOSC (Message c l) = encode_message c l
+encodeOSC (Bundle _ []) = error "encodeOSC: empty bundle"
 encodeOSC (Bundle (NTPi t) l) = encode_bundle_ntpi t l
 encodeOSC (Bundle (NTPr t) l) = encode_bundle_ntpi (ntpr_ntpi t) l
 encodeOSC (Bundle (UTCr t) l) = encode_bundle_ntpi (utcr_ntpi t) l
