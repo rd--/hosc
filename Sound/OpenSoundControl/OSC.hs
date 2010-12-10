@@ -2,6 +2,8 @@
 --   functions.
 module Sound.OpenSoundControl.OSC ( OSC(..)
                                   , Datum(..)
+                                  , message
+                                  , bundle
                                   , encodeOSC
                                   , decodeOSC
                                   , osc_merge
@@ -120,7 +122,6 @@ encode_bundle_ntpi t l =
 -- | Encode an OSC packet.
 encodeOSC :: OSC -> B.ByteString
 encodeOSC (Message c l) = encode_message c l
-encodeOSC (Bundle _ []) = error "encodeOSC: empty bundle"
 encodeOSC (Bundle (NTPi t) l) = encode_bundle_ntpi t l
 encodeOSC (Bundle (NTPr t) l) = encode_bundle_ntpi (ntpr_ntpi t) l
 encodeOSC (Bundle (UTCr t) l) = encode_bundle_ntpi (utcr_ntpi t) l
@@ -187,6 +188,18 @@ decode_bundle b = Bundle timeStamp ms
 decodeOSC :: B.ByteString -> OSC
 decodeOSC b | bundle_header `B.isPrefixOf` b = decode_bundle b
             | otherwise = decode_message b
+
+bundle :: Time -> [OSC] -> OSC
+bundle t xs =
+    case xs of
+      [] -> error "bundle: empty?"
+      _ -> Bundle t xs
+
+message :: String -> [Datum] -> OSC
+message a xs =
+    case a of
+      ('/':_) -> Message a xs
+      _ -> error "message: ill-formed address"
 
 b_take :: Int -> B.ByteString -> B.ByteString
 b_take = B.take . fromIntegral
