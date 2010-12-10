@@ -5,9 +5,7 @@ module Sound.OpenSoundControl.OSC ( OSC(..)
                                   , message
                                   , bundle
                                   , encodeOSC
-                                  , decodeOSC
-                                  , osc_merge
-                                  , osc_coalesce ) where
+                                  , decodeOSC ) where
 
 import qualified Data.ByteString.Lazy as B
 import Data.List
@@ -36,29 +34,6 @@ data OSC = Message String [Datum]
 instance Ord OSC where
     compare (Bundle a _) (Bundle b _) = compare a b
     compare _ _ = EQ
-
--- | Messages can be merged into bundles both to the left and right,
---   and bundles with equal timestamps can be joined together.
-osc_merge :: OSC -> OSC -> Maybe OSC
-osc_merge p q =
-    case (p,q) of
-      (Message _ _, Message _ _) -> Nothing
-      (Message _ _,Bundle a xs) -> Just (Bundle a (p:xs))
-      (Bundle a xs,Message _ _) -> Just (Bundle a (xs++[q]))
-      (Bundle a xs,Bundle _ ys) ->
-          case compare p q of
-            EQ -> Just (Bundle a (xs++ys))
-            _ -> Nothing
-
--- | Left to right traversal of an OSC sequence merging adjacent
---   elements where possible.
-osc_coalesce :: [OSC] -> [OSC]
-osc_coalesce xs =
-    case xs of
-      (o0:o1:xs') -> case osc_merge o0 o1 of
-                       Nothing -> o0 : osc_coalesce (o1:xs')
-                       Just o2 -> osc_coalesce (o2:xs')
-      _ -> xs
 
 -- OSC types have single character identifiers.
 tag :: Datum -> Char
