@@ -22,6 +22,7 @@ data Datum = Int Int
            | String String
            | Blob [Word8]
            | TimeStamp Time
+           | Midi (Word8,Word8,Word8,Word8)
              deriving (Eq, Show)
 
 -- | An OSC packet.
@@ -43,6 +44,7 @@ tag (Double _) = 'd'
 tag (String _) = 's'
 tag (Blob _) = 'b'
 tag (TimeStamp _) = 't'
+tag (Midi _) = 'm'
 
 -- Command argument types are given by a descriptor.
 descriptor :: [Datum] -> Datum
@@ -63,6 +65,7 @@ encode_datum (Float f) = encode_f32 f
 encode_datum (Double d) = encode_f64 d
 encode_datum (TimeStamp t) = encode_u64 $ as_ntpi t
 encode_datum (String s) = B.pack (extend 0 (str_cstr s))
+encode_datum (Midi (b0,b1,b2,b3)) = B.pack [b0,b1,b2,b3]
 encode_datum (Blob b) = B.concat [encode_i32 (length b), B.pack (extend 0 b)]
 
 -- Encode an OSC message.
