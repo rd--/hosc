@@ -6,7 +6,7 @@ Description:       hosc provides Sound.OpenSoundControl, a haskell
                    Control byte protocol.
 License:           GPL
 Category:          Sound
-Copyright:         (c) Rohan Drape, 2006-2010
+Copyright:         (c) Rohan Drape and others, 2006-2011
 Author:            Rohan Drape
 Maintainer:        rd@slavepianos.org
 Stability:         Experimental
