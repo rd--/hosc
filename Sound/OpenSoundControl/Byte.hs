@@ -4,7 +4,6 @@ module Sound.OpenSoundControl.Byte where
 import Data.Binary
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.Char8 as BC
-import Data.Char
 import Data.Int
 import Sound.OpenSoundControl.Cast
 
@@ -42,7 +41,7 @@ encode_f64 = encode . f64_i64
 
 -- | Encode an ASCII string.
 encode_str :: String -> B.ByteString
-encode_str = B.pack . map (fromIntegral . ord)
+encode_str = BC.pack
 
 -- | Decode a signed 8-bit integer.
 decode_i8 :: B.ByteString -> Int
