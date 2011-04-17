@@ -41,6 +41,7 @@ encode_f64 = encode . f64_i64
 
 -- | Encode an ASCII string.
 encode_str :: String -> B.ByteString
+{-# INLINE encode_str #-}
 encode_str = BC.pack
 
 -- | Decode a signed 8-bit integer.
@@ -77,4 +78,5 @@ decode_f64 b = i64_f64 (decode b :: Int64)
 
 -- | Decode an ASCII string.
 decode_str :: B.ByteString -> String
+{-# INLINE decode_str #-}
 decode_str = BC.unpack
