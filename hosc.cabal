@@ -27,7 +27,7 @@ Library
                    blaze-builder >= 0.3,
                    bytestring,
                    binary,
-                   network,
+                   network >= 2.3,
                    time
   GHC-Options:     -Wall -fwarn-tabs
   Exposed-modules: Sound.OpenSoundControl

@@ -7,7 +7,8 @@ module Sound.OpenSoundControl.Transport.UDP ( UDP(udpSocket)
 
 import Control.Monad
 import qualified Network.Socket as N
-import Sound.OpenSoundControl.Byte
+import qualified Network.Socket.ByteString as NS
+import qualified Network.Socket.ByteString.Lazy as NL
 import Sound.OpenSoundControl.OSC
 import Sound.OpenSoundControl.Transport
 
@@ -16,8 +17,8 @@ data UDP = UDP { udpSocket :: N.Socket }
            deriving (Eq, Show)
 
 instance Transport UDP where
-   send  (UDP fd) msg = N.send fd (decode_str (encodeOSC msg)) >> return ()
-   recv  (UDP fd) = liftM (decodeOSC . encode_str) (N.recv fd 8192)
+   send  (UDP fd) msg = NL.send fd (encodeOSC msg) >> return ()
+   recv  (UDP fd) = liftM decodeOSC (NL.recv fd 8192)
    close (UDP fd) = N.sClose fd
 
 -- | Make a UDP connection.
@@ -41,14 +42,13 @@ udpServer host port = do
 
 sendTo :: UDP -> OSC -> N.SockAddr -> IO ()
 sendTo (UDP fd) o a = do
-  _ <- N.sendTo fd (decode_str (encodeOSC o)) a
+  _ <- NS.sendTo fd (encodeOSC o) a
   return ()
 
 recvFrom :: UDP -> IO (OSC, N.SockAddr)
 recvFrom (UDP fd) = do
-  (s, _, a) <- N.recvFrom fd 8192
-  let o = (decodeOSC . encode_str) s
-  return (o, a)
+  (s, a) <- NS.recvFrom fd 8192
+  return (decodeOSC s, a)
 
 udpPort :: Integral n => UDP -> IO n
 udpPort (UDP fd) = fmap fromIntegral (N.socketPort fd)
