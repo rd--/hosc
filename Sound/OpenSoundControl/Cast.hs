@@ -1,14 +1,10 @@
 -- | Bit-level type casts and byte layout string typecasts.
 module Sound.OpenSoundControl.Cast (f32_i32, i32_f32,
-                                    f64_i64, i64_f64,
-                                    str_cstr, cstr_str,
-                                    str_pstr, pstr_str) where
+                                    f64_i64, i64_f64) where
 
 import Control.Monad.ST
 import Data.Array.ST
-import Data.Char
 import Data.Int
-import Data.Word
 
 -- | The IEEE byte representation of a float packed into an integer.
 f32_i32 :: Float -> Int32
@@ -36,22 +32,6 @@ f64_i64 (D# x) = I64# (unsafeCoerce# x)
 -- | Inverse of 'f64_i64'.
 i64_f64 :: Int64 -> Double
 i64_f64 d = runST ((from_array =<< castSTUArray =<< unit_array d) :: ST s Double)
-
--- | Transform a haskell string into a C string (a null suffixed byte string).
-str_cstr :: String -> [Word8]
-str_cstr s = map (fromIntegral . ord) s ++ [0]
-
--- | Inverse of 'str_cstr'.
-cstr_str :: [Word8] -> String
-cstr_str = map (chr . fromIntegral) . takeWhile (/= 0)
-
--- | Transform a haskell string to a pascal string (a length prefixed byte string).
-str_pstr :: String -> [Word8]
-str_pstr s = fromIntegral (length s) : map (fromIntegral . ord) s
-
--- | Inverse of 'str_pstr'.
-pstr_str :: [Word8] -> String
-pstr_str = map (chr . fromIntegral) . drop 1
 
 -- One element marray.
 unit_array :: (MArray a e m) => e -> m (a Int e)
