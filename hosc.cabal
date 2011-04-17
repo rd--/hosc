@@ -20,6 +20,7 @@ Data-Files:        README
 Library
   Build-Depends:   array,
                    base == 4.*,
+                   blaze-builder >= 0.3,
                    bytestring,
                    binary,
                    network,
@@ -30,6 +31,11 @@ Library
                    Sound.OpenSoundControl.Cast
                    Sound.OpenSoundControl.Coerce
                    Sound.OpenSoundControl.OSC
+                   Sound.OpenSoundControl.OSC.Builder
+                   Sound.OpenSoundControl.OSC.Type
+                   Sound.OpenSoundControl.OSC.Decode
+                   Sound.OpenSoundControl.OSC.Encode
+                   Sound.OpenSoundControl.OSC.Encoding
                    Sound.OpenSoundControl.Time
                    Sound.OpenSoundControl.Transport
                    Sound.OpenSoundControl.Transport.TCP

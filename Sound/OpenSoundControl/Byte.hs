@@ -2,6 +2,7 @@
 module Sound.OpenSoundControl.Byte where
 
 import Data.Binary
+import Data.Bits
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.Char8 as BC
 import Data.Int
@@ -80,3 +81,13 @@ decode_f64 b = i64_f64 (decode b :: Int64)
 decode_str :: B.ByteString -> String
 {-# INLINE decode_str #-}
 decode_str = BC.unpack
+
+-- | Bundle header string.
+bundleHeader :: B.ByteString
+{-# INLINE bundleHeader #-}
+bundleHeader = BC.pack "#bundle\0"
+
+-- The number of bytes required to align an OSC value to the next 4-byte boundary.
+align :: Bits i => i -> i
+{-# INLINE align #-}
+align n = ((n + 3) .&. complement 3) - n
