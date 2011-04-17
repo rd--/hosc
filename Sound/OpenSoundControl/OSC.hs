@@ -13,14 +13,13 @@ import Data.Maybe
 import Data.Word
 import Sound.OpenSoundControl.Time
 import Sound.OpenSoundControl.Byte
-import Sound.OpenSoundControl.Cast
 
 -- | The basic elements of OSC messages.
 data Datum = Int Int
            | Float Double
            | Double Double
            | String String
-           | Blob [Word8]
+           | Blob B.ByteString
            | TimeStamp Time
            | Midi (Word8,Word8,Word8,Word8)
              deriving (Eq, Show)
@@ -51,12 +50,12 @@ descriptor :: [Datum] -> Datum
 descriptor l = String (',' : map tag l)
 
 -- The number of bytes required to align an OSC value.
-align :: Int -> Int
+align :: Integral i => i -> i
 align n = (-n) `mod` 4
 
 -- Align a byte string if required.
-extend :: a -> [a] -> [a]
-extend p s = s ++ replicate (align (length s)) p
+extend :: Word8 -> B.ByteString -> B.ByteString
+extend p s = B.append s (B.replicate (align (B.length s)) p)
 
 -- Encode an OSC datum.
 encode_datum :: Datum -> B.ByteString
@@ -64,9 +63,9 @@ encode_datum (Int i) = encode_i32 i
 encode_datum (Float f) = encode_f32 f
 encode_datum (Double d) = encode_f64 d
 encode_datum (TimeStamp t) = encode_u64 $ as_ntpi t
-encode_datum (String s) = B.pack (extend 0 (str_cstr s))
+encode_datum (String s) = extend 0 (B.snoc (encode_str s) 0)
 encode_datum (Midi (b0,b1,b2,b3)) = B.pack [b0,b1,b2,b3]
-encode_datum (Blob b) = B.concat [encode_i32 (length b), B.pack (extend 0 b)]
+encode_datum (Blob b) = B.append (encode_i32 (fromIntegral (B.length b))) (extend 0 b)
 
 -- Encode an OSC message.
 encode_message :: String -> [Datum] -> B.ByteString
@@ -77,7 +76,7 @@ encode_message c l =
 
 -- Encode an OSC packet as an OSC blob.
 encode_osc_blob :: OSC -> Datum
-encode_osc_blob = Blob . B.unpack . encodeOSC
+encode_osc_blob = Blob . encodeOSC
 
 -- Encode an OSC bundle.
 encode_bundle_ntpi :: Integer -> [OSC] -> B.ByteString
@@ -117,7 +116,7 @@ decode_datum 'i' b = Int (decode_i32 b)
 decode_datum 'f' b = Float (decode_f32 b)
 decode_datum 'd' b = Double (decode_f64 b)
 decode_datum 's' b = String (decode_str (b_take n b)) where n = size 's' b
-decode_datum 'b' b = Blob (B.unpack (b_take n (B.drop 4 b))) where n = size 'b' b
+decode_datum 'b' b = Blob (b_take n (B.drop 4 b)) where n = size 'b' b
 decode_datum 't' b = TimeStamp $ NTPi (decode_u64 b)
 decode_datum t _ = error ("decode_datum: illegal type (" ++ [t] ++ ")")
 
