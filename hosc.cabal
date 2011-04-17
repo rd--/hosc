@@ -17,6 +17,10 @@ Cabal-Version:     >= 1.6
 Data-Files:        README
                    Help/timer.hs
 
+Flag benchmark
+    Description: Enable benchmarks
+    Default: False
+
 Library
   Build-Depends:   array,
                    base == 4.*,
@@ -40,6 +44,19 @@ Library
                    Sound.OpenSoundControl.Transport
                    Sound.OpenSoundControl.Transport.TCP
                    Sound.OpenSoundControl.Transport.UDP
+
+Executable hosc-benchmark-encoding
+    if !flag(benchmark)
+        Buildable: False
+    Hs-Source-Dirs: benchmarks, .
+    Main-Is: encoding.hs
+    Other-Modules:
+        Sound.OpenSoundControl.NFData
+    Build-Depends:
+        criterion
+      , deepseq
+    GHC-Options:      -Wall -fwarn-tabs
+    GHC-Prof-Options: -Wall -fwarn-tabs -auto-all
 
 Test-Suite hosc-test
     Type: exitcode-stdio-1.0
