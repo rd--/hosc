@@ -37,7 +37,7 @@ build_datum (Float f) = B.fromInt32be (f32_i32 (realToFrac f))
 build_datum (Double d) = B.fromInt64be (f64_i64 d)
 build_datum (TimeStamp t) = B.fromWord64be (fromIntegral (as_ntpi t))
 build_datum (String s) = build_string s
-build_datum (Midi (b0,b1,b2,b3)) = B.fromLazyByteString (B.pack [b0,b1,b2,b3])
+build_datum (Midi (b0,b1,b2,b3)) = B.fromWord8s [b0,b1,b2,b3]
 build_datum (Blob b) = build_bytes b
 
 -- Encode an OSC message.

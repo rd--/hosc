@@ -15,6 +15,7 @@ size 'i' _ = 4
 size 'f' _ = 4
 size 'd' _ = 8
 size 't' _ = 8 -- timetag
+size 'm' _ = 4 -- MIDI message
 size 's' b = fromIntegral (fromMaybe
                            (error ("size: no terminating zero: " ++ show b))
                            (B.elemIndex 0 b))
@@ -35,7 +36,8 @@ decode_datum 'd' b = Double (decode_f64 b)
 decode_datum 's' b = String (decode_str (b_take n b)) where n = size 's' b
 decode_datum 'b' b = Blob (b_take n (B.drop 4 b)) where n = size 'b' b
 decode_datum 't' b = TimeStamp $ NTPi (decode_u64 b)
-decode_datum t _ = error ("decode_datum: illegal type (" ++ [t] ++ ")")
+decode_datum 'm' b = Midi (b0,b1,b2,b3) where [b0,b1,b2,b3] = B.unpack (B.take 4 b)
+decode_datum t _   = error ("decode_datum: illegal type (" ++ [t] ++ ")")
 
 -- Decode a sequence of OSC datum given a type descriptor string.
 decode_datum_seq :: [Char] -> B.ByteString -> [Datum]
