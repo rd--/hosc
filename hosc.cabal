@@ -47,11 +47,11 @@ Library
                    Sound.OpenSoundControl.Transport.TCP
                    Sound.OpenSoundControl.Transport.UDP
 
-Executable hosc-benchmark-encoding
+Executable hosc-benchmark
     if !flag(benchmark)
         Buildable: False
     Hs-Source-Dirs: benchmarks, .
-    Main-Is: encoding.hs
+    Main-Is: benchmark.hs
     Other-Modules:
         Sound.OpenSoundControl.NFData
     Build-Depends:
