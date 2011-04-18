@@ -14,16 +14,20 @@ instance Arbitrary Time where
 
 instance Arbitrary Datum where
     arbitrary = oneof [
-        Int <$> arbitrary
-      , Float <$> arbitrary
-      , Double <$> arbitrary
-      , String <$> resize 128 arbitrary
-      , Blob . B.pack <$> resize 128 arbitrary
+        Int       <$> arbitrary
+      , Float     <$> realToFrac <$> (arbitrary :: Gen Float)
+      , Double    <$> arbitrary
+      , String    <$> genString
+      , Blob      <$> B.pack <$> resize 128 arbitrary
       , TimeStamp <$> arbitrary
-      , Midi <$> arbitrary ]
+      , Midi      <$> arbitrary
+      ]
+
+genString :: Gen String
+genString = resize 128 (listOf (arbitrary `suchThat` (/= '\0')))
 
 genMessage :: Gen OSC
-genMessage = Message <$> ("/"++) <$> resize 32 (listOf1 arbitrary) <*> resize 32 (listOf1 arbitrary)
+genMessage = Message <$> ("/"++) <$> genString <*> resize 32 (listOf1 arbitrary)
 
 instance Arbitrary OSC where
     arbitrary = oneof [
