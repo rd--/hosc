@@ -50,10 +50,10 @@ build_message c l =
         ] ++ map build_datum l
 
 -- Encode an OSC bundle.
-build_bundle_ntpi :: Integer -> [OSC] -> B.Builder
+build_bundle_ntpi :: NTPi -> [OSC] -> B.Builder
 build_bundle_ntpi t l =
     mconcat $ [ B.fromLazyByteString bundleHeader
-              , B.fromWord64be (fromIntegral t) ]
+              , B.fromWord64be t ]
               ++ map (build_bytes . B.toLazyByteString . buildOSC) l
 
 -- | Builder monoid for an OSC packet.

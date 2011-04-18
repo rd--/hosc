@@ -25,12 +25,12 @@ encode_u32 :: Int -> B.ByteString
 encode_u32 n = encode (fromIntegral n :: Word32)
 
 -- | Encode a signed 64-bit integer.
-encode_i64 :: Integer -> B.ByteString
-encode_i64 n = encode (fromIntegral n :: Int64)
+encode_i64 :: Int64 -> B.ByteString
+encode_i64 n = encode n
 
 -- | Encode an unsigned 64-bit integer.
-encode_u64 :: Integer -> B.ByteString
-encode_u64 n = encode (fromIntegral n :: Word64)
+encode_u64 :: Word64 -> B.ByteString
+encode_u64 n = encode n
 
 -- | Encode a 32-bit IEEE floating point number.
 encode_f32 :: Double -> B.ByteString
@@ -62,12 +62,12 @@ decode_u32 :: B.ByteString -> Int
 decode_u32 b = fromIntegral (decode b :: Word32)
 
 -- | Decode a signed 64-bit integer.
-decode_i64 :: B.ByteString -> Integer
-decode_i64 b = fromIntegral (decode b :: Int64)
+decode_i64 :: B.ByteString -> Int64
+decode_i64 b = decode b
 
 -- | Decode an unsigned 64-bit integer.
-decode_u64 :: B.ByteString -> Integer
-decode_u64 b = fromIntegral (decode b :: Word64)
+decode_u64 :: B.ByteString -> Word64
+decode_u64 b = decode b
 
 -- | Decode a 32-bit IEEE floating point number.
 decode_f32 :: B.ByteString -> Double

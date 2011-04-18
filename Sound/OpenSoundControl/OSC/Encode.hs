@@ -38,7 +38,7 @@ encode_osc_blob :: OSC -> Datum
 encode_osc_blob = Blob . encodeOSC
 
 -- Encode an OSC bundle.
-encode_bundle_ntpi :: Integer -> [OSC] -> B.ByteString
+encode_bundle_ntpi :: NTPi -> [OSC] -> B.ByteString
 encode_bundle_ntpi t l =
     B.concat [ bundleHeader
              , encode_u64 t

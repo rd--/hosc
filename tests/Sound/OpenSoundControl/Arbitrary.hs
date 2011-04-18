@@ -2,14 +2,14 @@ module Sound.OpenSoundControl.Arbitrary () where
 
 import Control.Applicative
 import qualified Data.ByteString.Lazy as B
-import Sound.OpenSoundControl (Datum(..), OSC(..), Time(..))
+import Sound.OpenSoundControl (Datum(..), OSC(..), Time(..), NTPi)
 import Test.QuickCheck
 
 instance Arbitrary Time where
     arbitrary = oneof [
-        UTCr <$> arbitrary
-      , NTPr <$> arbitrary
-      , NTPi <$> arbitrary
+        UTCr <$> realToFrac   <$> (arbitrary :: Gen (NonNegative Double))
+      , NTPr <$> realToFrac   <$> (arbitrary :: Gen (NonNegative Double))
+      , NTPi <$> fromIntegral <$> (arbitrary :: Gen (Positive NTPi))
       ]
 
 instance Arbitrary Datum where

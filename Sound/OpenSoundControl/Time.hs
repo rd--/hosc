@@ -4,14 +4,21 @@ module Sound.OpenSoundControl.Time where
 
 import Control.Concurrent
 import Control.Monad
+import Data.Word (Word64)
 import qualified Data.Time as T
 
+type NTPi = Word64
+
 -- | Time is represented in either UTC or NTP form.
-data Time = UTCr Double | NTPr Double | NTPi Integer
-            deriving (Eq, Show)
+data Time = UTCr Double | NTPr Double | NTPi NTPi
+            deriving (Show)
+
+instance Eq Time where
+    a == b = as_ntpi a == as_ntpi b
+    a /= b = as_ntpi a /= as_ntpi b
 
 -- | Coerce to NTPi form.
-as_ntpi :: Time -> Integer
+as_ntpi :: Time -> NTPi
 as_ntpi (UTCr t) = utcr_ntpi t
 as_ntpi (NTPr t) = ntpr_ntpi t
 as_ntpi (NTPi t) = t
@@ -30,15 +37,15 @@ instance Ord Time where
     compare p q = compare (as_ntpi p) (as_ntpi q)
 
 -- | Convert a real-valued NTP timestamp to an NTP timestamp.
-ntpr_ntpi :: Double -> Integer
+ntpr_ntpi :: Double -> NTPi
 ntpr_ntpi t = round (t * 2^(32::Int))
 
 -- | Convert an NTP timestamp to a real-valued NTP timestamp.
-ntpi_ntpr :: Integer -> Double
+ntpi_ntpr :: NTPi -> Double
 ntpi_ntpr t = fromIntegral t / 2^(32::Int)
 
 -- | Convert UTC timestamp to NTP timestamp.
-utcr_ntpi :: Double -> Integer
+utcr_ntpi :: Double -> NTPi
 utcr_ntpi t = ntpr_ntpi (t + secdif)
     where secdif = (70 * 365 + 17) * 24 * 60 * 60
 
@@ -48,7 +55,7 @@ ntpr_utcr t = t - secdif
     where secdif = (70 * 365 + 17) * 24 * 60 * 60
 
 -- | Convert NTP timestamp to UTC timestamp.
-ntpi_utcr :: Integer -> Double
+ntpi_utcr :: NTPi -> Double
 ntpi_utcr = ntpr_utcr . ntpi_ntpr
 
 -- | The time at 1970-01-01:00:00:00.
@@ -63,7 +70,7 @@ utcr = do t <- T.getCurrentTime
           return (realToFrac (T.diffUTCTime t utc_base))
 
 -- | Read current NTP timestamp.
-ntpi :: IO Integer
+ntpi :: IO NTPi
 ntpi = liftM utcr_ntpi utcr
 
 -- | Pause current thread for the indicated duration, given in seconds.
