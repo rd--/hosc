@@ -17,12 +17,12 @@ data Datum = Int Int
            | Blob B.ByteString
            | TimeStamp Time
            | Midi (Word8,Word8,Word8,Word8)
-             deriving (Eq, Show)
+             deriving (Eq, Read, Show)
 
 -- | An OSC packet.
 data OSC = Message String [Datum]
          | Bundle Time [OSC]
-           deriving (Eq, Show)
+           deriving (Eq, Read, Show)
 
 -- | OSC bundles can be ordered (time ascending).  Bundles and
 --   messages compare EQ.

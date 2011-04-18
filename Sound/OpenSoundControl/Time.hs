@@ -11,7 +11,7 @@ type NTPi = Word64
 
 -- | Time is represented in either UTC or NTP form.
 data Time = UTCr Double | NTPr Double | NTPi NTPi
-            deriving (Show)
+            deriving (Read, Show)
 
 instance Eq Time where
     a == b = as_ntpi a == as_ntpi b

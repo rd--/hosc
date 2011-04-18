@@ -32,4 +32,5 @@ genMessage = Message <$> ("/"++) <$> genString <*> resize 32 (listOf1 arbitrary)
 instance Arbitrary OSC where
     arbitrary = oneof [
         genMessage
-      , Bundle <$> arbitrary <*> resize 32 (listOf1 genMessage) ]
+      , Bundle <$> arbitrary <*> resize 32 (listOf1 genMessage)
+      ]

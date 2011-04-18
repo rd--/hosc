@@ -24,9 +24,10 @@ Flag benchmark
 Library
   Build-Depends:   array,
                    base == 4.*,
+                   binary,
                    blaze-builder >= 0.3,
                    bytestring,
-                   binary,
+                   data-binary-ieee754,
                    network >= 2.3,
                    time
   GHC-Options:     -Wall -fwarn-tabs
@@ -35,6 +36,7 @@ Library
                    Sound.OpenSoundControl.Cast
                    Sound.OpenSoundControl.Coerce
                    Sound.OpenSoundControl.OSC
+                   Sound.OpenSoundControl.OSC.Binary
                    Sound.OpenSoundControl.OSC.Builder
                    Sound.OpenSoundControl.OSC.Type
                    Sound.OpenSoundControl.OSC.Decode
@@ -55,8 +57,8 @@ Executable hosc-benchmark-encoding
     Build-Depends:
         criterion
       , deepseq
-    GHC-Options:      -Wall -fwarn-tabs
-    GHC-Prof-Options: -Wall -fwarn-tabs -auto-all
+    GHC-Options:      -Wall -fwarn-tabs -rtsopts
+    GHC-Prof-Options: -Wall -fwarn-tabs -rtsopts -auto-all
 
 Test-Suite hosc-test
     Type: exitcode-stdio-1.0
@@ -68,8 +70,8 @@ Test-Suite hosc-test
         QuickCheck >= 2
       , test-framework >= 0.2
       , test-framework-quickcheck2 >= 0.2
-    GHC-Options:      -Wall -fwarn-tabs
-    GHC-Prof-Options: -Wall -fwarn-tabs -auto-all
+    GHC-Options:      -Wall -fwarn-tabs -rtsopts
+    GHC-Prof-Options: -Wall -fwarn-tabs -rtsopts -auto-all
 
 Source-Repository  head
   Type:            darcs

@@ -1,12 +1,11 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 module Sound.OpenSoundControl.OSC.Encoding ( Encoding(..) ) where
 
-import qualified Blaze.ByteString.Builder as Builder
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.Char8 as BC
-import Sound.OpenSoundControl.OSC.Type (OSC)
-import qualified Sound.OpenSoundControl.OSC.Decode as Decode
+import           Sound.OpenSoundControl.OSC.Type (OSC)
+import qualified Sound.OpenSoundControl.OSC.Binary as Binary
 import qualified Sound.OpenSoundControl.OSC.Builder as Builder
 
 -- | Converting from and to binary packet representations.
@@ -17,12 +16,12 @@ class Encoding a where
     decodeOSC :: a -> OSC
 
 instance Encoding BS.ByteString where
-    encodeOSC = Builder.toByteString . Builder.buildOSC
-    decodeOSC = Decode.decodeOSC . B.fromChunks . (:[])
+    encodeOSC = Builder.encodeOSC'
+    decodeOSC = Binary.decodeOSC'
 
 instance Encoding B.ByteString where
-    encodeOSC = Builder.toLazyByteString . Builder.buildOSC
-    decodeOSC = Decode.decodeOSC
+    encodeOSC = Builder.encodeOSC
+    decodeOSC = Binary.decodeOSC
 
 instance Encoding String where
     encodeOSC = BC.unpack . encodeOSC
