@@ -8,9 +8,8 @@ Control byte protocol.
   http://haskell.org/
   http://opensoundcontrol.org/
 
-(c) rohan drape and others, 2006-2011
+(c) rohan drape, stefan kersten and others, 2006-2011
     gpl, http://gnu.org/copyleft/
     with contributions by alex mclean
-                        & stefan kersten
                         & henning thielemann
     see darcs history for details
