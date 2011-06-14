@@ -11,15 +11,11 @@ Author:            Rohan Drape, Stefan Kersten
 Maintainer:        rd@slavepianos.org
 Stability:         Experimental
 Homepage:          http://slavepianos.org/rd/?t=hosc
-Tested-With:       GHC == 6.12.1
+Tested-With:       GHC == 7.0.3
 Build-Type:        Simple
-Cabal-Version:     >= 1.6
+Cabal-Version:     >= 1.8
 Data-Files:        README
                    Help/timer.hs
-
-Flag benchmark
-    Description: Enable benchmarks
-    Default: False
 
 Library
   Build-Depends:   array,
@@ -46,32 +42,6 @@ Library
                    Sound.OpenSoundControl.Transport
                    Sound.OpenSoundControl.Transport.TCP
                    Sound.OpenSoundControl.Transport.UDP
-
-Executable hosc-benchmark
-    if !flag(benchmark)
-        Buildable: False
-    Hs-Source-Dirs: benchmarks, .
-    Main-Is: benchmark.hs
-    Other-Modules:
-        Sound.OpenSoundControl.NFData
-    Build-Depends:
-        criterion
-      , deepseq
-    GHC-Options:      -Wall -fwarn-tabs -rtsopts
-    GHC-Prof-Options: -Wall -fwarn-tabs -rtsopts -auto-all
-
-Test-Suite hosc-test
-    Type: exitcode-stdio-1.0
-    Hs-Source-Dirs: tests, .
-    Main-Is: test.hs
-    Other-Modules:
-        Sound.OpenSoundControl.Arbitrary
-    Build-Depends:
-        QuickCheck >= 2
-      , test-framework >= 0.2
-      , test-framework-quickcheck2 >= 0.2
-    GHC-Options:      -Wall -fwarn-tabs -rtsopts
-    GHC-Prof-Options: -Wall -fwarn-tabs -rtsopts -auto-all
 
 Source-Repository  head
   Type:            darcs
