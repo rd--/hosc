@@ -4,7 +4,7 @@ module Sound.OpenSoundControl.Byte where
 import Data.Binary
 import Data.Bits
 import qualified Data.ByteString.Lazy as B
-import qualified Data.ByteString.Lazy.Char8 as BC
+import qualified Data.ByteString.Lazy.Char8 as C
 import Data.Int
 import Sound.OpenSoundControl.Cast
 
@@ -34,16 +34,16 @@ encode_u64 n = encode n
 
 -- | Encode a 32-bit IEEE floating point number.
 encode_f32 :: Double -> B.ByteString
-encode_f32 = encode . f32_i32 . realToFrac
+encode_f32 = encode . f32_w32 . realToFrac
 
 -- | Encode a 64-bit IEEE floating point number.
 encode_f64 :: Double -> B.ByteString
-encode_f64 = encode . f64_i64
+encode_f64 = encode . f64_w64
 
 -- | Encode an ASCII string.
 encode_str :: String -> B.ByteString
 {-# INLINE encode_str #-}
-encode_str = BC.pack
+encode_str = C.pack
 
 -- | Decode a signed 8-bit integer.
 decode_i8 :: B.ByteString -> Int
@@ -71,21 +71,21 @@ decode_u64 b = decode b
 
 -- | Decode a 32-bit IEEE floating point number.
 decode_f32 :: B.ByteString -> Double
-decode_f32 b = realToFrac (i32_f32 (decode b :: Int32))
+decode_f32 b = realToFrac (w32_f32 (decode b :: Word32))
 
 -- | Decode a 64-bit IEEE floating point number.
 decode_f64 :: B.ByteString -> Double
-decode_f64 b = i64_f64 (decode b :: Int64)
+decode_f64 b = w64_f64 (decode b :: Word64)
 
 -- | Decode an ASCII string.
 decode_str :: B.ByteString -> String
 {-# INLINE decode_str #-}
-decode_str = BC.unpack
+decode_str = C.unpack
 
 -- | Bundle header string.
 bundleHeader :: B.ByteString
 {-# INLINE bundleHeader #-}
-bundleHeader = BC.pack "#bundle\0"
+bundleHeader = C.pack "#bundle\0"
 
 -- The number of bytes required to align an OSC value to the next
 -- 4-byte boundary.

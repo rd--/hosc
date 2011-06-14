@@ -1,41 +1,28 @@
 -- | Bit-level type casts and byte layout string typecasts.
-module Sound.OpenSoundControl.Cast (f32_i32, i32_f32,
-                                    f64_i64, i64_f64,
+module Sound.OpenSoundControl.Cast (f32_w32, w32_f32,
+                                    f64_w64, w64_f64,
                                     str_cstr, cstr_str,
                                     str_pstr, pstr_str) where
 
-import Control.Monad.ST
-import Data.Array.ST
+import qualified Data.Binary.IEEE754 as I
 import Data.Char
-import Data.Int
 import Data.Word
 
--- | The IEEE byte representation of a float packed into an integer.
-f32_i32 :: Float -> Int32
-f32_i32 d = runST ((from_array =<< castSTUArray =<< unit_array d) :: ST s Int32)
+-- | The IEEE byte representation of a float.
+f32_w32 :: Float -> Word32
+f32_w32 = I.floatToWord
 
--- | Inverse of 'f32_i32'.
-i32_f32 :: Int32 -> Float
-i32_f32 d = runST ((from_array =<< castSTUArray =<< unit_array d) :: ST s Float)
+-- | Inverse of 'f32_w32'.
+w32_f32 :: Word32 -> Float
+w32_f32 = I.wordToFloat
 
--- | The IEEE byte representation of a double packed into an integer.
-f64_i64 :: Double -> Int64
-f64_i64 d = runST ((from_array =<< castSTUArray =<< unit_array d) :: ST s Int64)
-
-{-
-http://www.haskell.org/pipermail/haskell-cafe/2008-February/040000.html
-
-{-# LANGUAGE MagicHash #-}
-import Data.Int
-import GHC.Exts
-
-f64_i64 :: Double -> Int64 --ghc only
-f64_i64 (D# x) = I64# (unsafeCoerce# x)
--}
+-- | The IEEE byte representation of a double.
+f64_w64 :: Double -> Word64
+f64_w64 = I.doubleToWord
 
 -- | Inverse of 'f64_i64'.
-i64_f64 :: Int64 -> Double
-i64_f64 d = runST ((from_array =<< castSTUArray =<< unit_array d) :: ST s Double)
+w64_f64 :: Word64 -> Double
+w64_f64 = I.wordToDouble
 
 -- | Transform a haskell string into a C string (a null suffixed byte string).
 str_cstr :: String -> [Word8]
@@ -52,11 +39,3 @@ str_pstr s = fromIntegral (length s) : map (fromIntegral . ord) s
 -- | Inverse of 'str_pstr'.
 pstr_str :: [Word8] -> String
 pstr_str = map (chr . fromIntegral) . drop 1
-
--- One element marray.
-unit_array :: (MArray a e m) => e -> m (a Int e)
-unit_array = newArray (0, 0::Int)
-
--- Extract first element from array.
-from_array :: (MArray a e m) => a Int e -> m e
-from_array = flip readArray 0

@@ -18,8 +18,7 @@ Data-Files:        README
                    Help/timer.hs
 
 Library
-  Build-Depends:   array,
-                   base == 4.*,
+  Build-Depends:   base == 4.*,
                    binary,
                    blaze-builder >= 0.3,
                    bytestring,
