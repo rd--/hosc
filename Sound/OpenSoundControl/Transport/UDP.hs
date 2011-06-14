@@ -1,36 +1,39 @@
 -- | OSC over UDP implementation.
-module Sound.OpenSoundControl.Transport.UDP ( UDP(udpSocket)
-                                            , openUDP
-                                            , udpServer
-                                            , udpPort
-                                            , sendTo, recvFrom ) where
+module Sound.OpenSoundControl.Transport.UDP (UDP(..)
+                                            ,openUDP
+                                            ,udpServer
+                                            ,udpPort
+                                            ,sendTo,recvFrom) where
 
 import Control.Monad
+import qualified Data.ByteString as S
+import qualified Data.ByteString.Lazy as B
 import qualified Network.Socket as N
-import qualified Network.Socket.ByteString as NS
-import qualified Network.Socket.ByteString.Lazy as NL
-import Sound.OpenSoundControl.OSC.Encoding
+import qualified Network.Socket.ByteString as C (sendTo,recvFrom)
+import qualified Network.Socket.ByteString.Lazy as C (send,recv)
+import Sound.OpenSoundControl.OSC.Binary
+import Sound.OpenSoundControl.OSC.Builder
 import Sound.OpenSoundControl.OSC.Type
 import Sound.OpenSoundControl.Transport
 
 -- | The UDP transport handle data type.
-data UDP = UDP { udpSocket :: N.Socket }
-           deriving (Eq, Show)
+data UDP = UDP {udpEncode :: OSC -> B.ByteString
+               ,udpDecode :: B.ByteString -> OSC
+               ,udpSocket :: N.Socket}
 
 instance Transport UDP where
-   send  (UDP fd) msg = NL.send fd (encodeOSC msg) >> return ()
-   recv  (UDP fd) = liftM decodeOSC (NL.recv fd 8192)
-   close (UDP fd) = N.sClose fd
+   send  (UDP enc _ fd) msg = C.send fd (enc msg) >> return ()
+   recv  (UDP _ dec fd) = liftM dec (C.recv fd 8192)
+   close (UDP _ _ fd) = N.sClose fd
 
 -- | Make a UDP connection.
 openUDP :: String -> Int -> IO UDP
 openUDP host port = do
   fd <- N.socket N.AF_INET N.Datagram 0
-  a  <- N.inet_addr host
-  let sa = N.SockAddrInet (fromIntegral port) a
-  N.connect fd sa
+  a <- N.inet_addr host
+  N.connect fd (N.SockAddrInet (fromIntegral port) a)
   -- N.setSocketOption fd N.RecvTimeOut 1000
-  return (UDP fd)
+  return (UDP encodeOSC decodeOSC fd)
 
 -- | Trivial udp server.
 udpServer :: String -> Int -> IO UDP
@@ -39,17 +42,20 @@ udpServer host port = do
   a  <- N.inet_addr host
   let sa = N.SockAddrInet (fromIntegral port) a
   N.bindSocket fd sa
-  return (UDP fd)
+  return (UDP encodeOSC decodeOSC fd)
 
+-- Network.Socket.ByteString.Lazy.sendTo does not exist
 sendTo :: UDP -> OSC -> N.SockAddr -> IO ()
-sendTo (UDP fd) o a = do
-  _ <- NS.sendTo fd (encodeOSC o) a
-  return ()
+sendTo (UDP enc _ fd) o a = do
+  let o' = S.pack (B.unpack (enc o))
+  C.sendTo fd o' a >> return ()
 
+-- Network.Socket.ByteString.Lazy.recvFrom does not exist
 recvFrom :: UDP -> IO (OSC, N.SockAddr)
-recvFrom (UDP fd) = do
-  (s, a) <- NS.recvFrom fd 8192
-  return (decodeOSC s, a)
+recvFrom (UDP _ dec fd) = do
+  (s,a) <- C.recvFrom fd 8192
+  let s' = B.pack (S.unpack s)
+  return (dec s',a)
 
 udpPort :: Integral n => UDP -> IO n
-udpPort (UDP fd) = fmap fromIntegral (N.socketPort fd)
+udpPort (UDP _ _ fd) = fmap fromIntegral (N.socketPort fd)

@@ -18,15 +18,18 @@ class Transport t where
 
 -- Does the OSC message have the specified address.
 has_address :: String -> OSC -> Bool
-has_address x (Message y _) = x == y
-has_address _ _ = False
+has_address x o =
+    case o of
+      Message y _ -> x == y
+      _ -> False
 
 -- Repeat action until function does not give Nothing when applied to result.
 untilM :: Monad m => (a -> Maybe b) -> m a -> m b
-untilM f act = recurse
-    where g p = let q = f p in case q of { Nothing -> recurse
-                                         ; Just r -> return r }
-          recurse = act >>= g
+untilM f act =
+    let g p = let q = f p in case q of { Nothing -> rec
+                                       ; Just r -> return r }
+        rec = act >>= g
+    in rec
 
 -- | Wait for an OSC message where the supplied function does not give
 --   Nothing, discarding intervening messages.
