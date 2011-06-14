@@ -27,15 +27,15 @@ Library
                    time
   GHC-Options:     -Wall -fwarn-tabs
   Exposed-modules: Sound.OpenSoundControl
-                   Sound.OpenSoundControl.Byte
-                   Sound.OpenSoundControl.Cast
-                   Sound.OpenSoundControl.Coerce
-                   Sound.OpenSoundControl.OSC.Binary
-                   Sound.OpenSoundControl.OSC.Builder
-                   Sound.OpenSoundControl.OSC.Type
-                   Sound.OpenSoundControl.OSC.Decode
-                   Sound.OpenSoundControl.OSC.Encode
-                   Sound.OpenSoundControl.OSC.Encoding
+                   Sound.OpenSoundControl.Coding.Byte
+                   Sound.OpenSoundControl.Coding.Cast
+                   Sound.OpenSoundControl.Coding.Coerce
+                   Sound.OpenSoundControl.Coding.Decode.Base
+                   Sound.OpenSoundControl.Coding.Decode.Binary
+                   Sound.OpenSoundControl.Coding.Encode.Base
+                   Sound.OpenSoundControl.Coding.Encode.Builder
+                   Sound.OpenSoundControl.Type
+                   Sound.OpenSoundControl.Coding
                    Sound.OpenSoundControl.Time
                    Sound.OpenSoundControl.Transport
                    Sound.OpenSoundControl.Transport.TCP

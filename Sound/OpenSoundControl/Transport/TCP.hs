@@ -6,9 +6,9 @@ module Sound.OpenSoundControl.Transport.TCP (TCP(..)
 import qualified Data.ByteString.Lazy as B
 import Control.Monad
 import Network
+import Sound.OpenSoundControl.Coding.Byte
 import Sound.OpenSoundControl.Transport
-import Sound.OpenSoundControl.Byte
-import Sound.OpenSoundControl.OSC.Type
+import Sound.OpenSoundControl.Type
 import System.IO
 
 -- | The TCP transport handle data type.

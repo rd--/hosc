@@ -1,8 +1,8 @@
 -- | Bit-level type casts and byte layout string typecasts.
-module Sound.OpenSoundControl.Cast (f32_w32, w32_f32,
-                                    f64_w64, w64_f64,
-                                    str_cstr, cstr_str,
-                                    str_pstr, pstr_str) where
+module Sound.OpenSoundControl.Coding.Cast (f32_w32,w32_f32
+                                          ,f64_w64,w64_f64
+                                          ,str_cstr,cstr_str
+                                          ,str_pstr, pstr_str) where
 
 import qualified Data.Binary.IEEE754 as I
 import Data.Char

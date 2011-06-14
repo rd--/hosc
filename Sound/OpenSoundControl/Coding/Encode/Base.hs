@@ -1,11 +1,11 @@
 -- | Encode function for OSC packets.
-module Sound.OpenSoundControl.OSC.Encode (encodeOSC) where
+module Sound.OpenSoundControl.Coding.Encode.Base (encodeOSC) where
 
 import qualified Data.ByteString.Lazy as B
 import Data.Word
-import Sound.OpenSoundControl.OSC.Type
+import Sound.OpenSoundControl.Coding.Byte
+import Sound.OpenSoundControl.Type
 import Sound.OpenSoundControl.Time
-import Sound.OpenSoundControl.Byte
 
 -- Command argument types are given by a descriptor.
 descriptor :: [Datum] -> Datum

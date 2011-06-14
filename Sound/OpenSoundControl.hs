@@ -1,6 +1,6 @@
 -- | hosc implements a subset of the Open Sound Control byte protocol.
 --   The protocol is documented at <http://opensoundcontrol.org/>.
-module Sound.OpenSoundControl (module Sound.OpenSoundControl.OSC.Type
+module Sound.OpenSoundControl (module Sound.OpenSoundControl.Type
                               ,module Sound.OpenSoundControl.Time
                               ,module Sound.OpenSoundControl.Transport
                               ,module Sound.OpenSoundControl.Transport.UDP
@@ -9,9 +9,9 @@ module Sound.OpenSoundControl (module Sound.OpenSoundControl.OSC.Type
                               ,openUDP,udpServer
                               ,openTCP,tcpServer) where
 
-import qualified Sound.OpenSoundControl.OSC.Binary as C
-import qualified Sound.OpenSoundControl.OSC.Builder as C
-import Sound.OpenSoundControl.OSC.Type
+import qualified Sound.OpenSoundControl.Coding.Decode.Binary as C
+import qualified Sound.OpenSoundControl.Coding.Encode.Builder as C
+import Sound.OpenSoundControl.Type
 import Sound.OpenSoundControl.Time
 import Sound.OpenSoundControl.Transport
 import Sound.OpenSoundControl.Transport.UDP

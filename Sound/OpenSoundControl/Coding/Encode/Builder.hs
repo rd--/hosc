@@ -1,8 +1,7 @@
--- | Alegbraic data types for OSC packets and encode and decode
---   functions.
-module Sound.OpenSoundControl.OSC.Builder ( buildOSC
-                                          , encodeOSC
-                                          , encodeOSC' ) where
+-- | Encode functions for OSC packets.
+module Sound.OpenSoundControl.Coding.Encode.Builder ( buildOSC
+                                                    , encodeOSC
+                                                    , encodeOSC' ) where
 
 import qualified Data.Binary.IEEE754 as I
 import qualified Data.ByteString as BS
@@ -11,9 +10,9 @@ import qualified Blaze.ByteString.Builder as B
 import qualified Blaze.ByteString.Builder.Char8 as B
 import Data.Monoid (mappend, mconcat)
 import Data.Word (Word8)
-import Sound.OpenSoundControl.OSC.Type (Datum(..), OSC(..), tag)
-import Sound.OpenSoundControl.Byte (align, bundleHeader)
+import Sound.OpenSoundControl.Coding.Byte (align, bundleHeader)
 import Sound.OpenSoundControl.Time
+import Sound.OpenSoundControl.Type (Datum(..), OSC(..), tag)
 
 -- Command argument types are given by a descriptor.
 descriptor :: [Datum] -> String

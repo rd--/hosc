@@ -5,7 +5,7 @@ module Sound.OpenSoundControl.Transport ( Transport(..)
                                         , waitFor, wait ) where
 
 import Control.Exception
-import Sound.OpenSoundControl.OSC.Type
+import Sound.OpenSoundControl.Type
 
 -- | Abstract over the underlying transport protocol.
 class Transport t where

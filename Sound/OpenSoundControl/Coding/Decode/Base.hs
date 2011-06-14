@@ -1,12 +1,12 @@
 -- | Decode function for OSC packets.
-module Sound.OpenSoundControl.OSC.Decode (decodeOSC) where
+module Sound.OpenSoundControl.Coding.Decode.Base (decodeOSC) where
 
 import qualified Data.ByteString.Lazy as B
 import Data.List
 import Data.Maybe
-import Sound.OpenSoundControl.OSC.Type
+import Sound.OpenSoundControl.Coding.Byte
 import Sound.OpenSoundControl.Time
-import Sound.OpenSoundControl.Byte
+import Sound.OpenSoundControl.Type
 
 -- The plain byte count of an OSC value.
 size :: Char -> B.ByteString -> Int

@@ -1,12 +1,12 @@
 -- | Byte-level encoding and decoding functions.
-module Sound.OpenSoundControl.Byte where
+module Sound.OpenSoundControl.Coding.Byte where
 
 import Data.Binary
 import Data.Bits
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.Int
-import Sound.OpenSoundControl.Cast
+import Sound.OpenSoundControl.Coding.Cast
 
 -- | Encode a signed 8-bit integer.
 encode_i8 :: Int -> B.ByteString

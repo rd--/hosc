@@ -11,8 +11,8 @@ import qualified Data.ByteString.Lazy as B
 import qualified Network.Socket as N
 import qualified Network.Socket.ByteString as C (sendTo,recvFrom)
 import qualified Network.Socket.ByteString.Lazy as C (send,recv)
-import Sound.OpenSoundControl.OSC.Type
 import Sound.OpenSoundControl.Transport
+import Sound.OpenSoundControl.Type
 
 -- | The UDP transport handle data type.
 data UDP = UDP {udpEncode :: OSC -> B.ByteString

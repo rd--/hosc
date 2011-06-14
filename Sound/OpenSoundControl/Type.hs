@@ -1,9 +1,9 @@
 -- | Alegbraic data types for OSC datum and packets.
-module Sound.OpenSoundControl.OSC.Type ( OSC(..)
-                                       , Datum(..)
-                                       , message
-                                       , bundle
-                                       , tag ) where
+module Sound.OpenSoundControl.Type ( OSC(..)
+                                   , Datum(..)
+                                   , message
+                                   , bundle
+                                   , tag ) where
 
 import qualified Data.ByteString.Lazy as B
 import Data.Word

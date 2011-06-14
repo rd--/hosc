@@ -1,7 +1,7 @@
 -- | Binary get and put functions for 'OSC'.
-module Sound.OpenSoundControl.OSC.Binary ( getOSC
-                                         , decodeOSC
-                                         , decodeOSC' ) where
+module Sound.OpenSoundControl.Coding.Decode.Binary ( getOSC
+                                                   , decodeOSC
+                                                   , decodeOSC' ) where
 
 import Control.Applicative
 import Data.Binary.Get
@@ -11,9 +11,9 @@ import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.Char8 as BC
 import Data.Int (Int32)
 import Data.Word (Word32)
-import Sound.OpenSoundControl.Byte
-import Sound.OpenSoundControl.OSC.Type
+import Sound.OpenSoundControl.Coding.Byte
 import Sound.OpenSoundControl.Time
+import Sound.OpenSoundControl.Type
 
 -- | Isolate an action to operating within a fixed block of bytes. The action
 --   is required to consume all the bytes that it is isolated to.
