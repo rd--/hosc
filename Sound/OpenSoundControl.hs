@@ -5,12 +5,12 @@ module Sound.OpenSoundControl (module Sound.OpenSoundControl.OSC.Type
                               ,module Sound.OpenSoundControl.Transport
                               ,module Sound.OpenSoundControl.Transport.UDP
                               ,module Sound.OpenSoundControl.Transport.TCP
-                              ,encodeOSC,decodeOSC
+                              ,C.encodeOSC,C.decodeOSC
                               ,openUDP,udpServer
                               ,openTCP,tcpServer) where
 
-import Sound.OpenSoundControl.OSC.Binary
-import Sound.OpenSoundControl.OSC.Builder
+import qualified Sound.OpenSoundControl.OSC.Binary as C
+import qualified Sound.OpenSoundControl.OSC.Builder as C
 import Sound.OpenSoundControl.OSC.Type
 import Sound.OpenSoundControl.Time
 import Sound.OpenSoundControl.Transport
@@ -19,16 +19,16 @@ import Sound.OpenSoundControl.Transport.TCP
 
 -- | Make a UDP connection.
 openUDP :: String -> Int -> IO UDP
-openUDP = openUDP' (encodeOSC,decodeOSC)
+openUDP = openUDP' (C.encodeOSC,C.decodeOSC)
 
 -- | Trivial udp server.
 udpServer :: String -> Int -> IO UDP
-udpServer = udpServer' (encodeOSC,decodeOSC)
+udpServer = udpServer' (C.encodeOSC,C.decodeOSC)
 
 -- | Make a TCP connection.
 openTCP :: String -> Int -> IO TCP
-openTCP = openTCP' (encodeOSC,decodeOSC)
+openTCP = openTCP' (C.encodeOSC,C.decodeOSC)
 
 -- | A trivial TCP OSC server.
 tcpServer :: Int -> (TCP -> IO ()) -> IO ()
-tcpServer = tcpServer' (encodeOSC,decodeOSC)
+tcpServer = tcpServer' (C.encodeOSC,C.decodeOSC)
