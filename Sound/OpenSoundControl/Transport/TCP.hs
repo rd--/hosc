@@ -1,15 +1,13 @@
 -- | OSC over TCP implementation.
 module Sound.OpenSoundControl.Transport.TCP (TCP(..)
-                                            ,openTCP
-                                            ,tcpServer) where
+                                            ,openTCP'
+                                            ,tcpServer') where
 
 import qualified Data.ByteString.Lazy as B
 import Control.Monad
 import Network
 import Sound.OpenSoundControl.Transport
 import Sound.OpenSoundControl.Byte
-import Sound.OpenSoundControl.OSC.Binary
-import Sound.OpenSoundControl.OSC.Builder
 import Sound.OpenSoundControl.OSC.Type
 import System.IO
 
@@ -32,16 +30,20 @@ instance Transport TCP where
 
    close (TCP _ _ fd) = hClose fd
 
+type Coder = (OSC -> B.ByteString,B.ByteString -> OSC)
+
 -- | Make a TCP connection.
-openTCP :: String -> Int -> IO TCP
-openTCP host = liftM (TCP encodeOSC decodeOSC) .
-               connectTo host .
-               PortNumber .
-               fromIntegral
+openTCP' :: Coder -> String -> Int -> IO TCP
+openTCP' (enc,dec) host =
+    liftM (TCP enc dec) .
+    connectTo host .
+    PortNumber .
+    fromIntegral
 
 -- | A trivial TCP OSC server.
-tcpServer :: Int -> (TCP -> IO ()) -> IO ()
-tcpServer p f = do s <- listenOn (PortNumber (fromIntegral p))
-                   (sequence_ . repeat) (do (fd, _, _) <- accept s
-                                            f (TCP encodeOSC decodeOSC fd)
-                                            return ())
+tcpServer' :: Coder -> Int -> (TCP -> IO ()) -> IO ()
+tcpServer' (enc,dec) p f = do
+  s <- listenOn (PortNumber (fromIntegral p))
+  (sequence_ . repeat) (do (fd, _, _) <- accept s
+                           f (TCP enc dec fd)
+                           return ())

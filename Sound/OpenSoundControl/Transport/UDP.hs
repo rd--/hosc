@@ -1,7 +1,7 @@
 -- | OSC over UDP implementation.
 module Sound.OpenSoundControl.Transport.UDP (UDP(..)
-                                            ,openUDP
-                                            ,udpServer
+                                            ,openUDP'
+                                            ,udpServer'
                                             ,udpPort
                                             ,sendTo,recvFrom) where
 
@@ -11,8 +11,6 @@ import qualified Data.ByteString.Lazy as B
 import qualified Network.Socket as N
 import qualified Network.Socket.ByteString as C (sendTo,recvFrom)
 import qualified Network.Socket.ByteString.Lazy as C (send,recv)
-import Sound.OpenSoundControl.OSC.Binary
-import Sound.OpenSoundControl.OSC.Builder
 import Sound.OpenSoundControl.OSC.Type
 import Sound.OpenSoundControl.Transport
 
@@ -26,23 +24,25 @@ instance Transport UDP where
    recv  (UDP _ dec fd) = liftM dec (C.recv fd 8192)
    close (UDP _ _ fd) = N.sClose fd
 
+type Coder = (OSC -> B.ByteString,B.ByteString -> OSC)
+
 -- | Make a UDP connection.
-openUDP :: String -> Int -> IO UDP
-openUDP host port = do
+openUDP' :: Coder -> String -> Int -> IO UDP
+openUDP' (enc,dec) host port = do
   fd <- N.socket N.AF_INET N.Datagram 0
   a <- N.inet_addr host
   N.connect fd (N.SockAddrInet (fromIntegral port) a)
   -- N.setSocketOption fd N.RecvTimeOut 1000
-  return (UDP encodeOSC decodeOSC fd)
+  return (UDP enc dec fd)
 
 -- | Trivial udp server.
-udpServer :: String -> Int -> IO UDP
-udpServer host port = do
+udpServer' :: Coder -> String -> Int -> IO UDP
+udpServer' (enc,dec) host port = do
   fd <- N.socket N.AF_INET N.Datagram 0
   a  <- N.inet_addr host
   let sa = N.SockAddrInet (fromIntegral port) a
   N.bindSocket fd sa
-  return (UDP encodeOSC decodeOSC fd)
+  return (UDP enc dec fd)
 
 -- Network.Socket.ByteString.Lazy.sendTo does not exist
 sendTo :: UDP -> OSC -> N.SockAddr -> IO ()
