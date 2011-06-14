@@ -4,8 +4,8 @@ module Sound.OpenSoundControl.Coding.Encode.Builder ( buildOSC
                                                     , encodeOSC' ) where
 
 import qualified Data.Binary.IEEE754 as I
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Lazy as B
+import qualified Data.ByteString as S
+import qualified Data.ByteString.Lazy as L
 import qualified Blaze.ByteString.Builder as B
 import qualified Blaze.ByteString.Builder.Char8 as B
 import Data.Monoid (mappend, mconcat)
@@ -27,10 +27,10 @@ build_string :: String -> B.Builder
 build_string s = B.fromString s `mappend` B.fromWord8s (0:padding (align (length s + 1)))
 
 -- Encode a byte string with prepended length and zero padding.
-build_bytes :: B.ByteString -> B.Builder
-build_bytes s = B.fromInt32be (fromIntegral (B.length s))
+build_bytes :: L.ByteString -> B.Builder
+build_bytes s = B.fromInt32be (fromIntegral (L.length s))
                 `mappend` B.fromLazyByteString s
-                `mappend` B.fromWord8s (padding (align (B.length s)))
+                `mappend` B.fromWord8s (padding (align (L.length s)))
 
 -- Encode an OSC datum.
 build_datum :: Datum -> B.Builder
@@ -64,11 +64,11 @@ buildOSC (Bundle (NTPr t) l) = build_bundle_ntpi (ntpr_ntpi t) l
 buildOSC (Bundle (UTCr t) l) = build_bundle_ntpi (utcr_ntpi t) l
 
 -- | Encode an OSC packet to a lazy ByteString.
-encodeOSC :: OSC -> B.ByteString
+encodeOSC :: OSC -> L.ByteString
 {-# INLINE encodeOSC #-}
 encodeOSC = B.toLazyByteString . buildOSC
 
 -- | Encode an OSC packet to a strict ByteString.
-encodeOSC' :: OSC -> BS.ByteString
+encodeOSC' :: OSC -> S.ByteString
 {-# INLINE encodeOSC' #-}
 encodeOSC' = B.toByteString . buildOSC

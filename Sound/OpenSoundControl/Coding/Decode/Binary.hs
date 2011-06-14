@@ -6,9 +6,9 @@ module Sound.OpenSoundControl.Coding.Decode.Binary ( getOSC
 import Control.Applicative
 import Data.Binary.Get
 import qualified Data.Binary.IEEE754 as I
-import qualified Data.ByteString as BS
+import qualified Data.ByteString as S
 import qualified Data.ByteString.Lazy as B
-import qualified Data.ByteString.Lazy.Char8 as BC
+import qualified Data.ByteString.Lazy.Char8 as C
 import Data.Int (Int32)
 import Data.Word (Word32)
 import Sound.OpenSoundControl.Coding.Byte
@@ -34,7 +34,7 @@ get_string :: Get String
 get_string = do
     s <- getLazyByteStringNul
     skip (fromIntegral (align (B.length s + 1)))
-    return $ BC.unpack s
+    return $ C.unpack s
 
 -- | Get binary data prefixed by byte count.
 get_bytes :: Word32 -> Get B.ByteString
@@ -106,6 +106,6 @@ decodeOSC :: B.ByteString -> OSC
 {-# INLINE decodeOSC #-}
 decodeOSC = runGet getOSC
 
-decodeOSC' :: BS.ByteString -> OSC
+decodeOSC' :: S.ByteString -> OSC
 {-# INLINE decodeOSC' #-}
 decodeOSC' = runGet getOSC . B.fromChunks . (:[])

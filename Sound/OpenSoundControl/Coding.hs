@@ -1,9 +1,9 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 module Sound.OpenSoundControl.Coding (Coding(..) ) where
 
-import qualified Data.ByteString as BS
+import qualified Data.ByteString as S
 import qualified Data.ByteString.Lazy as B
-import qualified Data.ByteString.Lazy.Char8 as BC
+import qualified Data.ByteString.Lazy.Char8 as C
 import           Sound.OpenSoundControl.Type (OSC)
 import qualified Sound.OpenSoundControl.Coding.Decode.Binary as Binary
 import qualified Sound.OpenSoundControl.Coding.Encode.Builder as Builder
@@ -15,7 +15,7 @@ class Coding a where
     -- | Encode an OSC packet.
     decodeOSC :: a -> OSC
 
-instance Coding BS.ByteString where
+instance Coding S.ByteString where
     encodeOSC = Builder.encodeOSC'
     decodeOSC = Binary.decodeOSC'
 
@@ -24,5 +24,5 @@ instance Coding B.ByteString where
     decodeOSC = Binary.decodeOSC
 
 instance Coding String where
-    encodeOSC = BC.unpack . encodeOSC
-    decodeOSC = decodeOSC . BC.pack
+    encodeOSC = C.unpack . encodeOSC
+    decodeOSC = decodeOSC . C.pack
