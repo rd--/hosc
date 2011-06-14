@@ -4,7 +4,7 @@ module Sound.OpenSoundControl.Time where
 
 import Control.Concurrent
 import Control.Monad
-import Data.Word (Word64)
+import Data.Word
 import qualified Data.Time as T
 
 type NTPi = Word64
@@ -19,22 +19,28 @@ instance Eq Time where
 
 -- | Coerce to NTPi form.
 as_ntpi :: Time -> NTPi
-as_ntpi (UTCr t) = utcr_ntpi t
-as_ntpi (NTPr t) = ntpr_ntpi t
-as_ntpi (NTPi t) = t
+as_ntpi x =
+    case x of
+      UTCr t -> utcr_ntpi t
+      NTPr t -> ntpr_ntpi t
+      NTPi t -> t
 
 -- | Coerce to UTCr form.
 as_utcr :: Time -> Double
-as_utcr (UTCr t) = t
-as_utcr (NTPr t) = ntpr_utcr t
-as_utcr (NTPi t) = ntpi_utcr t
+as_utcr x =
+    case x of
+      UTCr t -> t
+      NTPr t -> ntpr_utcr t
+      NTPi t -> ntpi_utcr t
 
 -- | Times can be ordered, avoid coercion if not required.
 instance Ord Time where
-    compare (UTCr p) (UTCr q) = compare p q
-    compare (NTPr p) (NTPr q) = compare p q
-    compare (NTPi p) (NTPi q) = compare p q
-    compare p q = compare (as_ntpi p) (as_ntpi q)
+    compare p q =
+        case (p,q) of
+          (UTCr p',UTCr q') -> compare p' q'
+          (NTPr p',NTPr q') -> compare p' q'
+          (NTPi p',NTPi q') -> compare p' q'
+          _ -> compare (as_ntpi p) (as_ntpi q)
 
 -- | Convert a real-valued NTP timestamp to an NTP timestamp.
 ntpr_ntpi :: Double -> NTPi
@@ -46,13 +52,15 @@ ntpi_ntpr t = fromIntegral t / 2^(32::Int)
 
 -- | Convert UTC timestamp to NTP timestamp.
 utcr_ntpi :: Double -> NTPi
-utcr_ntpi t = ntpr_ntpi (t + secdif)
-    where secdif = (70 * 365 + 17) * 24 * 60 * 60
+utcr_ntpi t =
+    let secdif = (70 * 365 + 17) * 24 * 60 * 60
+    in ntpr_ntpi (t + secdif)
 
 -- | Convert NTP timestamp to UTC timestamp.
 ntpr_utcr :: Double -> Double
-ntpr_utcr t = t - secdif
-    where secdif = (70 * 365 + 17) * 24 * 60 * 60
+ntpr_utcr t =
+    let secdif = (70 * 365 + 17) * 24 * 60 * 60
+    in t - secdif
 
 -- | Convert NTP timestamp to UTC timestamp.
 ntpi_utcr :: NTPi -> Double
@@ -60,14 +68,16 @@ ntpi_utcr = ntpr_utcr . ntpi_ntpr
 
 -- | The time at 1970-01-01:00:00:00.
 utc_base :: T.UTCTime
-utc_base = T.UTCTime d s
-    where d = T.fromGregorian 1970 1 1
-          s = T.secondsToDiffTime 0
+utc_base =
+    let d = T.fromGregorian 1970 1 1
+        s = T.secondsToDiffTime 0
+    in T.UTCTime d s
 
 -- | Read current UTCr timestamp.
 utcr :: IO Double
-utcr = do t <- T.getCurrentTime
-          return (realToFrac (T.diffUTCTime t utc_base))
+utcr = do
+  t <- T.getCurrentTime
+  return (realToFrac (T.diffUTCTime t utc_base))
 
 -- | Read current NTP timestamp.
 ntpi :: IO NTPi
