@@ -1,7 +1,7 @@
 -- | OSC packet coercion and normalization.
 module Sound.OpenSoundControl.Coerce where
 
-import Sound.OpenSoundControl.OSC
+import Sound.OpenSoundControl.OSC.Type
 
 -- | Map a normalizing function over datum at an osc packet.
 coerce :: (Datum -> Datum) -> OSC -> OSC

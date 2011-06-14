@@ -9,7 +9,8 @@ import Control.Monad
 import qualified Network.Socket as N
 import qualified Network.Socket.ByteString as NS
 import qualified Network.Socket.ByteString.Lazy as NL
-import Sound.OpenSoundControl.OSC
+import Sound.OpenSoundControl.OSC.Encoding
+import Sound.OpenSoundControl.OSC.Type
 import Sound.OpenSoundControl.Transport
 
 -- | The UDP transport handle data type.

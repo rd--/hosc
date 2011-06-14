@@ -31,7 +31,6 @@ Library
                    Sound.OpenSoundControl.Byte
                    Sound.OpenSoundControl.Cast
                    Sound.OpenSoundControl.Coerce
-                   Sound.OpenSoundControl.OSC
                    Sound.OpenSoundControl.OSC.Binary
                    Sound.OpenSoundControl.OSC.Builder
                    Sound.OpenSoundControl.OSC.Type

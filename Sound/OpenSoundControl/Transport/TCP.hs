@@ -6,7 +6,7 @@ import Control.Monad
 import Network
 import Sound.OpenSoundControl.Transport
 import Sound.OpenSoundControl.Byte
-import Sound.OpenSoundControl.OSC
+import Sound.OpenSoundControl.OSC.Encoding
 import System.IO
 
 -- | The TCP transport handle data type.
