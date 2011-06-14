@@ -4,7 +4,7 @@ module Sound.OpenSoundControl.OSC.Builder ( buildOSC
                                           , encodeOSC
                                           , encodeOSC' ) where
 
-import Data.Binary.IEEE754
+import qualified Data.Binary.IEEE754 as I
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as B
 import qualified Blaze.ByteString.Builder as B
@@ -36,8 +36,8 @@ build_bytes s = B.fromInt32be (fromIntegral (B.length s))
 -- Encode an OSC datum.
 build_datum :: Datum -> B.Builder
 build_datum (Int i)              = B.fromInt32be (fromIntegral i)
-build_datum (Float f)            = B.fromWord32be (floatToWord (realToFrac f))
-build_datum (Double d)           = B.fromWord64be (doubleToWord d)
+build_datum (Float f)            = B.fromWord32be (I.floatToWord (realToFrac f))
+build_datum (Double d)           = B.fromWord64be (I.doubleToWord d)
 build_datum (TimeStamp t)        = B.fromWord64be (fromIntegral (as_ntpi t))
 build_datum (String s)           = build_string s
 build_datum (Midi (b0,b1,b2,b3)) = B.fromWord8s [b0,b1,b2,b3]

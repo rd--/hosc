@@ -5,7 +5,7 @@ module Sound.OpenSoundControl.OSC.Binary ( getOSC
 
 import Control.Applicative
 import Data.Binary.Get
-import Data.Binary.IEEE754
+import qualified Data.Binary.IEEE754 as I
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.Char8 as BC
@@ -48,8 +48,8 @@ get_bytes n = do
 -- | Get an OSC datum.
 get_datum :: Char -> Get Datum
 get_datum 'i' = Int    <$> fromIntegral <$> getInt32be
-get_datum 'f' = Float  <$> realToFrac <$> getFloat32be
-get_datum 'd' = Double <$> getFloat64be
+get_datum 'f' = Float  <$> realToFrac <$> I.getFloat32be
+get_datum 'd' = Double <$> I.getFloat64be
 get_datum 's' = String <$> get_string
 get_datum 'b' = Blob   <$> (get_bytes =<< getWord32be)
 get_datum 't' = TimeStamp <$> NTPi <$> getWord64be
