@@ -1,4 +1,4 @@
--- | Alegbraic data types for OSC packets.
+-- | Alegbraic data types for OSC datum and packets.
 module Sound.OpenSoundControl.OSC.Type ( OSC(..)
                                        , Datum(..)
                                        , message
@@ -32,13 +32,15 @@ instance Ord OSC where
 
 -- | Single character identifier of an OSC datum.
 tag :: Datum -> Char
-tag (Int _) = 'i'
-tag (Float _) = 'f'
-tag (Double _) = 'd'
-tag (String _) = 's'
-tag (Blob _) = 'b'
-tag (TimeStamp _) = 't'
-tag (Midi _) = 'm'
+tag dt =
+    case dt of
+      Int _ -> 'i'
+      Float _ -> 'f'
+      Double _ -> 'd'
+      String _ -> 's'
+      Blob _ -> 'b'
+      TimeStamp _ -> 't'
+      Midi _ -> 'm'
 
 -- | Bundle constructor.
 --
@@ -51,7 +53,8 @@ bundle t xs =
 
 -- | Message constructor
 --
--- Signals an error when the address @a@ doesn't conform to the OSC specification.
+-- Signals an error when the address @a@ doesn't conform to the OSC
+-- specification.
 message :: String -> [Datum] -> OSC
 message a xs =
     case a of
