@@ -1,4 +1,5 @@
--- | Decode function for OSC packets.
+-- | Base-level decode function for OSC packets (slow).  For ordinary
+--   use see 'Sound.OpenSoundControl.Coding.Decode.Binary'.
 module Sound.OpenSoundControl.Coding.Decode.Base (decodeOSC) where
 
 import qualified Data.ByteString.Lazy as B

@@ -1,7 +1,7 @@
--- | Binary get and put functions for 'OSC'.
-module Sound.OpenSoundControl.Coding.Decode.Binary ( getOSC
-                                                   , decodeOSC
-                                                   , decodeOSC' ) where
+-- | Optimised decode function for OSC packets.
+module Sound.OpenSoundControl.Coding.Decode.Binary (getOSC
+                                                   ,decodeOSC
+                                                   ,decodeOSC') where
 
 import Control.Applicative
 import Data.Binary.Get
@@ -102,10 +102,12 @@ get_bundle = do
 getOSC :: Get OSC
 getOSC = get_packet
 
+-- | Decode an OSC packet from a lazy ByteString.
 decodeOSC :: B.ByteString -> OSC
 {-# INLINE decodeOSC #-}
 decodeOSC = runGet getOSC
 
+-- | Decode an OSC packet from a strict ByteString.
 decodeOSC' :: S.ByteString -> OSC
 {-# INLINE decodeOSC' #-}
 decodeOSC' = runGet getOSC . B.fromChunks . (:[])

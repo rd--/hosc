@@ -7,9 +7,11 @@ import Control.Monad
 import Data.Word
 import qualified Data.Time as T
 
+-- | Type for integer representation of NTP time.
 type NTPi = Word64
 
--- | Time is represented in either UTC or NTP form.
+-- | Time is represented in either UTC or NTP form.  The NTP form may
+--   be either integral or real.
 data Time = UTCr Double | NTPr Double | NTPi NTPi
             deriving (Read, Show)
 

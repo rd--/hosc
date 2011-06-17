@@ -22,17 +22,15 @@ instance Transport TCP where
              n = fromIntegral (B.length b)
          B.hPut fd (B.append (encode_u32 n) b)
          hFlush fd
-
    recv (TCP _ dec fd) =
       do b0 <- B.hGet fd 4
          b1 <- B.hGet fd (fromIntegral (decode_u32 b0))
          return (dec b1)
-
    close (TCP _ _ fd) = hClose fd
 
 type Coder = (OSC -> B.ByteString,B.ByteString -> OSC)
 
--- | Make a TCP connection.
+-- | Make a TCP connection using specified coder.
 openTCP' :: Coder -> String -> Int -> IO TCP
 openTCP' (enc,dec) host =
     liftM (TCP enc dec) .
@@ -40,7 +38,7 @@ openTCP' (enc,dec) host =
     PortNumber .
     fromIntegral
 
--- | A trivial TCP OSC server.
+-- | A trivial TCP OSC server using specified coder.
 tcpServer' :: Coder -> Int -> (TCP -> IO ()) -> IO ()
 tcpServer' (enc,dec) p f = do
   s <- listenOn (PortNumber (fromIntegral p))

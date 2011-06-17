@@ -1,8 +1,7 @@
 -- | OSC over UDP implementation.
-module Sound.OpenSoundControl.Transport.UDP (UDP(..)
+module Sound.OpenSoundControl.Transport.UDP (UDP(..),udpPort
                                             ,openUDP'
                                             ,udpServer'
-                                            ,udpPort
                                             ,sendTo,recvFrom) where
 
 import Control.Monad
@@ -19,6 +18,10 @@ data UDP = UDP {udpEncode :: OSC -> B.ByteString
                ,udpDecode :: B.ByteString -> OSC
                ,udpSocket :: N.Socket}
 
+-- | Return the port number associated with the UDP socket.
+udpPort :: Integral n => UDP -> IO n
+udpPort (UDP _ _ fd) = fmap fromIntegral (N.socketPort fd)
+
 instance Transport UDP where
    send  (UDP enc _ fd) msg = C.send fd (enc msg) >> return ()
    recv  (UDP _ dec fd) = liftM dec (C.recv fd 8192)
@@ -26,7 +29,7 @@ instance Transport UDP where
 
 type Coder = (OSC -> B.ByteString,B.ByteString -> OSC)
 
--- | Make a UDP connection.
+-- | Make a UDP connection with specified coder.
 openUDP' :: Coder -> String -> Int -> IO UDP
 openUDP' (enc,dec) host port = do
   fd <- N.socket N.AF_INET N.Datagram 0
@@ -35,7 +38,7 @@ openUDP' (enc,dec) host port = do
   -- N.setSocketOption fd N.RecvTimeOut 1000
   return (UDP enc dec fd)
 
--- | Trivial udp server.
+-- | Trivial udp server with specified coder.
 udpServer' :: Coder -> String -> Int -> IO UDP
 udpServer' (enc,dec) host port = do
   fd <- N.socket N.AF_INET N.Datagram 0
@@ -44,18 +47,17 @@ udpServer' (enc,dec) host port = do
   N.bindSocket fd sa
   return (UDP enc dec fd)
 
--- Network.Socket.ByteString.Lazy.sendTo does not exist
+-- | Send variant to send to specified address.
 sendTo :: UDP -> OSC -> N.SockAddr -> IO ()
 sendTo (UDP enc _ fd) o a = do
+  -- Network.Socket.ByteString.Lazy.sendTo does not exist
   let o' = S.pack (B.unpack (enc o))
   C.sendTo fd o' a >> return ()
 
--- Network.Socket.ByteString.Lazy.recvFrom does not exist
+-- | Recv variant to collect message source address.
 recvFrom :: UDP -> IO (OSC, N.SockAddr)
 recvFrom (UDP _ dec fd) = do
+  -- Network.Socket.ByteString.Lazy.recvFrom does not exist
   (s,a) <- C.recvFrom fd 8192
   let s' = B.pack (S.unpack s)
   return (dec s',a)
-
-udpPort :: Integral n => UDP -> IO n
-udpPort (UDP _ _ fd) = fmap fromIntegral (N.socketPort fd)

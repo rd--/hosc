@@ -1,4 +1,4 @@
--- | Byte-level encoding and decoding functions.
+-- | Byte-level coding utility functions.
 module Sound.OpenSoundControl.Coding.Byte where
 
 import Data.Binary
@@ -87,8 +87,8 @@ bundleHeader :: B.ByteString
 {-# INLINE bundleHeader #-}
 bundleHeader = C.pack "#bundle\0"
 
--- The number of bytes required to align an OSC value to the next
--- 4-byte boundary.
+-- | The number of bytes required to align an OSC value to the next
+--   4-byte boundary.
 align :: Bits i => i -> i
 {-# INLINE align #-}
 align n = ((n + 3) .&. complement 3) - n

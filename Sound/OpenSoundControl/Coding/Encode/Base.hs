@@ -1,4 +1,5 @@
--- | Encode function for OSC packets.
+-- | Base-level encode function for OSC packets (slow).  For ordinary
+--   use see 'Sound.OpenSoundControl.Coding.Encode.Builder'.
 module Sound.OpenSoundControl.Coding.Encode.Base (encodeOSC) where
 
 import qualified Data.ByteString.Lazy as B

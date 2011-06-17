@@ -1,5 +1,5 @@
--- | An abstract transport layer with implementations for UDP and TCP
---   transport.
+-- | An abstract transport layer. hosc provides implementations for
+--   UDP and TCP transport.
 module Sound.OpenSoundControl.Transport ( Transport(..)
                                         , withTransport
                                         , waitFor, wait ) where
@@ -23,7 +23,7 @@ has_address x o =
       Message y _ -> x == y
       _ -> False
 
--- Repeat action until function does not give Nothing when applied to result.
+-- Repeat action until `f' does not give Nothing when applied to result.
 untilM :: Monad m => (a -> Maybe b) -> m a -> m b
 untilM f act =
     let g p = let q = f p in case q of { Nothing -> rec
@@ -36,7 +36,8 @@ untilM f act =
 waitFor :: Transport t => t -> (OSC -> Maybe a) -> IO a
 waitFor t f = untilM f (recv t)
 
--- | A 'waitFor' for variant matching on address string of messages.
+-- | A 'waitFor' for variant matching on the address string of
+--   incoming messages.
 wait :: Transport t => t -> String -> IO OSC
 wait t s = waitFor t (\o -> if has_address s o then Just o else Nothing)
 

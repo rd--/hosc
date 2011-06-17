@@ -1,4 +1,6 @@
 {-# LANGUAGE TypeSynonymInstances #-}
+-- | A type-class to provide coding operations to different data types
+--   using the same function names.
 module Sound.OpenSoundControl.Coding (Coding(..) ) where
 
 import qualified Data.ByteString as S

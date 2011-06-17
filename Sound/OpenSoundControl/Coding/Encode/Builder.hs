@@ -1,7 +1,7 @@
--- | Encode functions for OSC packets.
-module Sound.OpenSoundControl.Coding.Encode.Builder ( buildOSC
-                                                    , encodeOSC
-                                                    , encodeOSC' ) where
+-- | Optimised encode function for OSC packets.
+module Sound.OpenSoundControl.Coding.Encode.Builder (buildOSC
+                                                    ,encodeOSC
+                                                    ,encodeOSC') where
 
 import qualified Data.Binary.IEEE754 as I
 import qualified Data.ByteString as S
