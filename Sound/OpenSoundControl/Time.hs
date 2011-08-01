@@ -85,21 +85,36 @@ utcr = do
 ntpi :: IO NTPi
 ntpi = liftM utcr_ntpi utcr
 
--- | The thread pause limit (in seconds).  Values larger than this
---   require a different thread delay mechanism.  The value is the
---   number of microseconds in maxBound::Int.
-threadPauseLimit :: Double
-threadPauseLimit = fromIntegral (maxBound::Int) / 1e6
+-- | The pauseThread limit (in seconds).  Values larger than this
+--   require a different thread delay mechanism, see sleepThread.  The
+--   value is the number of microseconds in maxBound::Int.
+pauseThreadLimit :: Double
+pauseThreadLimit = fromIntegral (maxBound::Int) / 1e6
 
 -- | Pause current thread for the indicated duration (in seconds), see
---   threadPauseLimit.
+--   pauseThreadLimit.  Note also that this function does not attempt
+--   pauses less than 1e-4.
 pauseThread :: Double -> IO ()
 pauseThread n = when (n > 1e-4) (threadDelay (floor (n * 1e6)))
 
 -- | Pause current thread until the given utcr time, see
---   threadPauseLimit.
+--   pauseThreadLimit.
 pauseThreadUntil :: Double -> IO ()
 pauseThreadUntil t = pauseThread . (t -) =<< utcr
+
+-- | Sleep current thread for the indicated duration (in seconds).
+--   Divides long sleeps into parts smaller than pauseThreadLimit.
+sleepThread :: Double -> IO ()
+sleepThread n =
+    if n >= pauseThreadLimit
+    then let n' = pauseThreadLimit - 1
+         in pauseThread n >> sleepThread (n - n')
+    else pauseThread n
+
+-- | Sleep current thread until the given utcr time.  Divides long
+--   sleeps into parts smaller than pauseThreadLimit.
+sleepThreadUntil :: Double -> IO ()
+sleepThreadUntil t = sleepThread . (t -) =<< utcr
 
 -- | Execute the bundle immediately.
 immediately :: Time
