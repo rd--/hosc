@@ -85,11 +85,19 @@ utcr = do
 ntpi :: IO NTPi
 ntpi = liftM utcr_ntpi utcr
 
--- | Pause current thread for the indicated duration, given in seconds.
+-- | The thread pause limit (in seconds).  Values larger than this
+--   require a different thread delay mechanism.  The value is the
+--   number of microseconds in maxBound::Int.
+threadPauseLimit :: Double
+threadPauseLimit = fromIntegral (maxBound::Int) / 1e6
+
+-- | Pause current thread for the indicated duration (in seconds), see
+--   threadPauseLimit.
 pauseThread :: Double -> IO ()
 pauseThread n = when (n > 1e-4) (threadDelay (floor (n * 1e6)))
 
--- | Pause current thread until the given utcr time.
+-- | Pause current thread until the given utcr time, see
+--   threadPauseLimit.
 pauseThreadUntil :: Double -> IO ()
 pauseThreadUntil t = pauseThread . (t -) =<< utcr
 
