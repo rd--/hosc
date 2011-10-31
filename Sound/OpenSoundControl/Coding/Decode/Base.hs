@@ -46,7 +46,7 @@ decode_datum ty b =
       _ -> error ("decode_datum: illegal type (" ++ [ty] ++ ")")
 
 -- Decode a sequence of OSC datum given a type descriptor string.
-decode_datum_seq :: [Char] -> B.ByteString -> [Datum]
+decode_datum_seq :: String -> B.ByteString -> [Datum]
 decode_datum_seq cs b =
     let swap (x,y) = (y,x)
         f b' c = swap (B.splitAt (fromIntegral (storage c b')) b')

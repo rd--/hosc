@@ -23,7 +23,7 @@ isolate n m = do
     let (a, s', _) = runGetState m s 0
     if B.null s'
         then return a
-        else fail ("isolate: not all bytes consumed")
+        else fail "isolate: not all bytes consumed"
 
 -- | Get a 32 biut integer in big-endian byte order.
 getInt32be :: Get Int32
@@ -41,7 +41,7 @@ get_bytes :: Word32 -> Get B.ByteString
 get_bytes n = do
     b <- getLazyByteString (fromIntegral n)
     if n /= fromIntegral (B.length b)
-        then fail ("get_bytes: end of stream")
+        then fail "get_bytes: end of stream"
         else skip (fromIntegral (align n))
     return b
 
@@ -70,7 +70,7 @@ get_message = do
         (',':tags) -> do
             arg <- mapM get_datum tags
             return $ Message cmd arg
-        _ -> fail ("get_message: invalid type descriptor string")
+        _ -> fail "get_message: invalid type descriptor string"
 
 -- | Get an OSC packet.
 get_packet :: Get OSC
