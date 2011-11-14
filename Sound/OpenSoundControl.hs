@@ -14,6 +14,8 @@ import Sound.OpenSoundControl.Transport.UDP as O
 import Sound.OpenSoundControl.Transport.TCP as O
 
 -- | Make a UDP connection.
+--
+-- > withTransport (openUDP "127.0.0.1" 57110) (\fd -> recvT 0.5 fd >>= print)
 openUDP :: String -> Int -> IO UDP
 openUDP = openUDP' (C.encodeOSC,C.decodeOSC)
 

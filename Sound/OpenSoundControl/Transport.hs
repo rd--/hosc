@@ -1,11 +1,13 @@
 -- | An abstract transport layer. hosc provides implementations for
 --   UDP and TCP transport.
-module Sound.OpenSoundControl.Transport ( Transport(..)
-                                        , withTransport
-                                        , waitFor, wait ) where
+module Sound.OpenSoundControl.Transport (Transport(..)
+                                        ,withTransport
+                                        ,recvT
+                                        ,waitFor,wait) where
 
 import Control.Exception
 import Sound.OpenSoundControl.Type
+import System.Timeout
 
 -- | Abstract over the underlying transport protocol.
 class Transport t where
@@ -30,6 +32,14 @@ untilM f act =
                                        ; Just r -> return r }
         rec = act >>= g
     in rec
+
+-- | Real valued variant of 'timeout'.
+timeout_r :: Double -> IO a -> IO (Maybe a)
+timeout_r t = timeout (floor (t * 1000000))
+
+-- | Variant that wraps 'recv' in an /n/ second 'timeout'.
+recvT :: Transport t => Double -> t -> IO (Maybe OSC)
+recvT n fd = timeout_r n (recv fd)
 
 -- | Wait for an OSC message where the supplied function does not give
 --   Nothing, discarding intervening messages.
