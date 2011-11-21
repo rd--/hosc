@@ -1,10 +1,9 @@
 Name:              hosc
 Version:           0.11
 Synopsis:          Haskell Open Sound Control
-Description:       hosc provides "Sound.OpenSoundControl", a haskell
-                   module implementing a subset of the Open Sound
-                   Control byte protocol documented at
-                   <http://opensoundcontrol.org/>.
+Description:       @hosc@ provides "Sound.OpenSoundControl", an
+                   implementation of a subset of the /Open Sound Control/
+                   byte protocol documented at <http://opensoundcontrol.org/>.
 License:           GPL
 Category:          Sound
 Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2006-2011
