@@ -1,9 +1,9 @@
 -- | Alegbraic data types for OSC datum and packets.
-module Sound.OpenSoundControl.Type ( OSC(..)
-                                   , Datum(..)
-                                   , message
-                                   , bundle
-                                   , tag ) where
+module Sound.OpenSoundControl.Type (OSC(..)
+                                   ,Datum(..)
+                                   ,message
+                                   ,bundle
+                                   ,tag) where
 
 import qualified Data.ByteString.Lazy as B
 import Data.Word
@@ -17,15 +17,15 @@ data Datum = Int Int
            | Blob B.ByteString
            | TimeStamp Time
            | Midi (Word8,Word8,Word8,Word8)
-             deriving (Eq, Read, Show)
+             deriving (Eq,Read,Show)
 
 -- | An OSC packet.
 data OSC = Message String [Datum]
          | Bundle Time [OSC]
-           deriving (Eq, Read, Show)
+           deriving (Eq,Read,Show)
 
 -- | OSC bundles can be ordered (time ascending).  Bundles and
---   messages compare EQ.
+--   messages compare 'EQ'.
 instance Ord OSC where
     compare (Bundle a _) (Bundle b _) = compare a b
     compare _ _ = EQ
@@ -42,21 +42,17 @@ tag dt =
       TimeStamp _ -> 't'
       Midi _ -> 'm'
 
--- | Bundle constructor.
---
--- Signals an error when @xs@ is empty.
+-- | Bundle constructor. It is an 'error' if the 'OSC' list is empty.
 bundle :: Time -> [OSC] -> OSC
 bundle t xs =
     case xs of
       [] -> error "bundle: empty?"
       _ -> Bundle t xs
 
--- | Message constructor
---
--- Signals an error when the address @a@ doesn't conform to the OSC
--- specification.
+-- | Message constructor.  It is an 'error' if the address doesn't
+-- conform to the OSC specification.
 message :: String -> [Datum] -> OSC
 message a xs =
     case a of
-      ('/':_) -> Message a xs
+      '/':_ -> Message a xs
       _ -> error "message: ill-formed address"

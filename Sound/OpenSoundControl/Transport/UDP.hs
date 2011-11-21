@@ -10,6 +10,7 @@ import qualified Data.ByteString.Lazy as B
 import qualified Network.Socket as N
 import qualified Network.Socket.ByteString as C (sendTo,recvFrom)
 import qualified Network.Socket.ByteString.Lazy as C (send,recv)
+import Sound.OpenSoundControl.Coding
 import Sound.OpenSoundControl.Transport
 import Sound.OpenSoundControl.Type
 
@@ -26,8 +27,6 @@ instance Transport UDP where
    send  (UDP enc _ fd) msg = C.send fd (enc msg) >> return ()
    recv  (UDP _ dec fd) = liftM dec (C.recv fd 8192)
    close (UDP _ _ fd) = N.sClose fd
-
-type Coder = (OSC -> B.ByteString,B.ByteString -> OSC)
 
 -- | Make a UDP connection with specified coder.
 openUDP' :: Coder -> String -> Int -> IO UDP

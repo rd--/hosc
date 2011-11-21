@@ -7,10 +7,12 @@ import Control.Monad
 import Data.Word
 import qualified Data.Time as T
 
+-- * Temporal types
+
 -- | Type for integer representation of NTP time.
 type NTPi = Word64
 
--- | Time is represented in either UTC or NTP form.  The NTP form may
+-- | Time is represented in either @UTC@ or @NTP@ form.  The @NTP@ form may
 --   be either integral or real.
 data Time = UTCr Double | NTPr Double | NTPi NTPi
             deriving (Read, Show)
@@ -19,7 +21,7 @@ instance Eq Time where
     a == b = as_ntpi a == as_ntpi b
     a /= b = as_ntpi a /= as_ntpi b
 
--- | Coerce to NTPi form.
+-- | Coerce 'Time' to integral @NTP@ form.
 as_ntpi :: Time -> NTPi
 as_ntpi x =
     case x of
@@ -27,7 +29,7 @@ as_ntpi x =
       NTPr t -> ntpr_ntpi t
       NTPi t -> t
 
--- | Coerce to UTCr form.
+-- | Coerce 'Time' to real-valued @UTC@ form.
 as_utcr :: Time -> Double
 as_utcr x =
     case x of
@@ -44,27 +46,27 @@ instance Ord Time where
           (NTPi p',NTPi q') -> compare p' q'
           _ -> compare (as_ntpi p) (as_ntpi q)
 
--- | Convert a real-valued NTP timestamp to an NTP timestamp.
+-- | Convert a real-valued NTP timestamp to an 'NTPi' timestamp.
 ntpr_ntpi :: Double -> NTPi
 ntpr_ntpi t = round (t * 2^(32::Int))
 
--- | Convert an NTP timestamp to a real-valued NTP timestamp.
+-- | Convert an 'NTPi' timestamp to a real-valued NTP timestamp.
 ntpi_ntpr :: NTPi -> Double
 ntpi_ntpr t = fromIntegral t / 2^(32::Int)
 
--- | Convert UTC timestamp to NTP timestamp.
+-- | Convert a real-valued UTC timestamp to an 'NTPi' timestamp.
 utcr_ntpi :: Double -> NTPi
 utcr_ntpi t =
     let secdif = (70 * 365 + 17) * 24 * 60 * 60
     in ntpr_ntpi (t + secdif)
 
--- | Convert NTP timestamp to UTC timestamp.
+-- | Convert a real-valued NTP timestamp to a real-valued UTC timestamp.
 ntpr_utcr :: Double -> Double
 ntpr_utcr t =
     let secdif = (70 * 365 + 17) * 24 * 60 * 60
     in t - secdif
 
--- | Convert NTP timestamp to UTC timestamp.
+-- | Convert an 'NTPi' timestamp to a real-valued UTC timestamp.
 ntpi_utcr :: NTPi -> Double
 ntpi_utcr = ntpr_utcr . ntpi_ntpr
 
@@ -75,19 +77,25 @@ utc_base =
         s = T.secondsToDiffTime 0
     in T.UTCTime d s
 
--- | Read current UTCr timestamp.
+-- | Constant indicating the bundle is to be executed immediately.
+immediately :: Time
+immediately = NTPi 1
+
+-- * Clock operations
+
+-- | Read current real-valued UTC timestamp.
 utcr :: IO Double
 utcr = do
   t <- T.getCurrentTime
   return (realToFrac (T.diffUTCTime t utc_base))
 
--- | Read current NTP timestamp.
+-- | Read current 'NTPi' timestamp.
 ntpi :: IO NTPi
 ntpi = liftM utcr_ntpi utcr
 
 -- | The pauseThread limit (in seconds).  Values larger than this
 --   require a different thread delay mechanism, see sleepThread.  The
---   value is the number of microseconds in maxBound::Int.
+--   value is the number of microseconds in @maxBound::Int@.
 pauseThreadLimit :: Double
 pauseThreadLimit = fromIntegral (maxBound::Int) / 1e6
 
@@ -115,7 +123,3 @@ sleepThread n =
 --   sleeps into parts smaller than pauseThreadLimit.
 sleepThreadUntil :: Double -> IO ()
 sleepThreadUntil t = sleepThread . (t -) =<< utcr
-
--- | Execute the bundle immediately.
-immediately :: Time
-immediately = NTPi 1

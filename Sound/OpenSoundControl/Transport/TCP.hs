@@ -6,6 +6,7 @@ module Sound.OpenSoundControl.Transport.TCP (TCP(..)
 import qualified Data.ByteString.Lazy as B
 import Control.Monad
 import Network
+import Sound.OpenSoundControl.Coding
 import Sound.OpenSoundControl.Coding.Byte
 import Sound.OpenSoundControl.Transport
 import Sound.OpenSoundControl.Type
@@ -27,8 +28,6 @@ instance Transport TCP where
          b1 <- B.hGet fd (fromIntegral (decode_u32 b0))
          return (dec b1)
    close (TCP _ _ fd) = hClose fd
-
-type Coder = (OSC -> B.ByteString,B.ByteString -> OSC)
 
 -- | Make a TCP connection using specified coder.
 openTCP' :: Coder -> String -> Int -> IO TCP
