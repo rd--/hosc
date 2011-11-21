@@ -79,6 +79,9 @@ decode_bundle b =
     in Bundle timeStamp ms
 
 -- | Decode an OSC packet.
+--
+-- > let b = B.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
+-- > in decodeOSC b == Message "/g_free" [Int 0]
 decodeOSC :: B.ByteString -> OSC
 decodeOSC b =
     if bundleHeader `B.isPrefixOf` b

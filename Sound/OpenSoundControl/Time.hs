@@ -83,7 +83,7 @@ immediately = NTPi 1
 
 -- * Clock operations
 
--- | Read current real-valued UTC timestamp.
+-- | Read current real-valued @UTC@ timestamp.
 utcr :: IO Double
 utcr = do
   t <- T.getCurrentTime
@@ -93,25 +93,25 @@ utcr = do
 ntpi :: IO NTPi
 ntpi = liftM utcr_ntpi utcr
 
--- | The pauseThread limit (in seconds).  Values larger than this
---   require a different thread delay mechanism, see sleepThread.  The
---   value is the number of microseconds in @maxBound::Int@.
+-- | The 'pauseThread' limit (in seconds).  Values larger than this
+-- require a different thread delay mechanism, see 'sleepThread'.  The
+-- value is the number of microseconds in @maxBound::Int@.
 pauseThreadLimit :: Double
 pauseThreadLimit = fromIntegral (maxBound::Int) / 1e6
 
 -- | Pause current thread for the indicated duration (in seconds), see
---   pauseThreadLimit.  Note also that this function does not attempt
---   pauses less than 1e-4.
+--   'pauseThreadLimit'.  Note also that this function does not
+--   attempt pauses less than @1e-4@.
 pauseThread :: Double -> IO ()
 pauseThread n = when (n > 1e-4) (threadDelay (floor (n * 1e6)))
 
--- | Pause current thread until the given utcr time, see
---   pauseThreadLimit.
+-- | Pause current thread until the given real-valued @UTC@ time, see
+-- 'pauseThreadLimit'.
 pauseThreadUntil :: Double -> IO ()
 pauseThreadUntil t = pauseThread . (t -) =<< utcr
 
 -- | Sleep current thread for the indicated duration (in seconds).
---   Divides long sleeps into parts smaller than pauseThreadLimit.
+--   Divides long sleeps into parts smaller than 'pauseThreadLimit'.
 sleepThread :: Double -> IO ()
 sleepThread n =
     if n >= pauseThreadLimit
@@ -119,7 +119,7 @@ sleepThread n =
          in pauseThread n >> sleepThread (n - n')
     else pauseThread n
 
--- | Sleep current thread until the given utcr time.  Divides long
---   sleeps into parts smaller than pauseThreadLimit.
+-- | Sleep current thread until the given real-valued @UTC@ time.
+-- Divides long sleeps into parts smaller than 'pauseThreadLimit'.
 sleepThreadUntil :: Double -> IO ()
 sleepThreadUntil t = sleepThread . (t -) =<< utcr

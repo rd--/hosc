@@ -7,7 +7,7 @@ import Control.Applicative
 import Data.Binary.Get
 import qualified Data.Binary.IEEE754 as I
 import qualified Data.ByteString as S
-import qualified Data.ByteString.Lazy as B
+import qualified Data.ByteString.Lazy as L
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.Int (Int32)
 import Data.Word (Word32)
@@ -21,7 +21,7 @@ isolate :: Word32 -> Get a -> Get a
 isolate n m = do
     s <- get_bytes n
     let (a, s', _) = runGetState m s 0
-    if B.null s'
+    if L.null s'
         then return a
         else fail "isolate: not all bytes consumed"
 
@@ -33,14 +33,14 @@ getInt32be = fromIntegral <$> getWord32be
 get_string :: Get String
 get_string = do
     s <- getLazyByteStringNul
-    skip (fromIntegral (align (B.length s + 1)))
+    skip (fromIntegral (align (L.length s + 1)))
     return $ C.unpack s
 
 -- | Get binary data prefixed by byte count.
-get_bytes :: Word32 -> Get B.ByteString
+get_bytes :: Word32 -> Get L.ByteString
 get_bytes n = do
     b <- getLazyByteString (fromIntegral n)
-    if n /= fromIntegral (B.length b)
+    if n /= fromIntegral (L.length b)
         then fail "get_bytes: end of stream"
         else skip (fromIntegral (align n))
     return b
@@ -75,7 +75,7 @@ get_message = do
 -- | Get an OSC packet.
 get_packet :: Get OSC
 get_packet = do
-    h <- uncheckedLookAhead (B.length bundleHeader)
+    h <- uncheckedLookAhead (L.length bundleHeader)
     if h == bundleHeader
         then get_bundle
         else get_message
@@ -93,7 +93,7 @@ get_packet_seq = do
 
 get_bundle :: Get OSC
 get_bundle = do
-    skip (fromIntegral (B.length bundleHeader))
+    skip (fromIntegral (L.length bundleHeader))
     t <- NTPi <$> getWord64be
     ps <- get_packet_seq
     return $ Bundle t ps
@@ -103,11 +103,14 @@ getOSC :: Get OSC
 getOSC = get_packet
 
 -- | Decode an OSC packet from a lazy ByteString.
-decodeOSC :: B.ByteString -> OSC
+--
+-- > let b = L.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
+-- > in decodeOSC b == Message "/g_free" [Int 0]
+decodeOSC :: L.ByteString -> OSC
 {-# INLINE decodeOSC #-}
 decodeOSC = runGet getOSC
 
 -- | Decode an OSC packet from a strict ByteString.
 decodeOSC' :: S.ByteString -> OSC
 {-# INLINE decodeOSC' #-}
-decodeOSC' = runGet getOSC . B.fromChunks . (:[])
+decodeOSC' = runGet getOSC . L.fromChunks . (:[])

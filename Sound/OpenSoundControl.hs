@@ -1,5 +1,14 @@
--- | hosc implements a subset of the Open Sound Control byte protocol.
---   The protocol is documented at <http://opensoundcontrol.org/>.
+-- | @hosc@ implements a subset of the /Open Sound Control/ byte
+-- protocol, documented at <http://opensoundcontrol.org/>.
+--
+-- For the most part this top-level module is the only import
+-- required.  It provides the 'Datum' and 'OSC' types, encoding and
+-- decoding functions, basic 'UDP' and 'TCP' 'Transport' layers, and
+-- basic temporal operations 'utcr' to access the current time and
+-- 'pauseThread' to delay the current thread.
+--
+-- > let o = Bundle immediately [Message "/g_free" [Int 0]]
+-- > in decodeOSC (encodeOSC o) == o
 module Sound.OpenSoundControl (module Sound.OpenSoundControl.Type
                               ,module Sound.OpenSoundControl.Time
                               ,module Sound.OpenSoundControl.Transport
@@ -9,8 +18,8 @@ module Sound.OpenSoundControl (module Sound.OpenSoundControl.Type
                               ,openUDP,udpServer
                               ,openTCP,tcpServer) where
 
-import qualified Sound.OpenSoundControl.Coding.Decode.Binary as C
-import qualified Sound.OpenSoundControl.Coding.Encode.Builder as C
+import Sound.OpenSoundControl.Coding.Decode.Binary as C
+import Sound.OpenSoundControl.Coding.Encode.Builder as C
 import Sound.OpenSoundControl.Type
 import Sound.OpenSoundControl.Time
 import Sound.OpenSoundControl.Transport
@@ -19,7 +28,8 @@ import Sound.OpenSoundControl.Transport.TCP
 
 -- | Make a UDP connection.
 --
--- > withTransport (openUDP "127.0.0.1" 57110) (\fd -> recvT 0.5 fd >>= print)
+-- > let t = openUDP "127.0.0.1" 57110
+-- > in withTransport t (\fd -> recvT 0.5 fd >>= print)
 openUDP :: String -> Int -> IO UDP
 openUDP = openUDP' (C.encodeOSC,C.decodeOSC)
 

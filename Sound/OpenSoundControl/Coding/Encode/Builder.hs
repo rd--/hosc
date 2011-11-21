@@ -64,6 +64,9 @@ buildOSC (Bundle (NTPr t) l) = build_bundle_ntpi (ntpr_ntpi t) l
 buildOSC (Bundle (UTCr t) l) = build_bundle_ntpi (utcr_ntpi t) l
 
 -- | Encode an OSC packet to a lazy ByteString.
+--
+-- > let b = L.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
+-- > in encodeOSC (Message "/g_free" [Int 0]) == b
 encodeOSC :: OSC -> L.ByteString
 {-# INLINE encodeOSC #-}
 encodeOSC = B.toLazyByteString . buildOSC
