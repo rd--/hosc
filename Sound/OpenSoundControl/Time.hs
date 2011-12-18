@@ -77,6 +77,9 @@ utc_base =
         s = T.secondsToDiffTime 0
     in T.UTCTime d s
 
+utc_utcr :: T.UTCTime -> Double
+utc_utcr t = realToFrac (T.diffUTCTime t utc_base)
+
 -- | Constant indicating the bundle is to be executed immediately.
 immediately :: Time
 immediately = NTPi 1
@@ -85,9 +88,7 @@ immediately = NTPi 1
 
 -- | Read current real-valued @UTC@ timestamp.
 utcr :: IO Double
-utcr = do
-  t <- T.getCurrentTime
-  return (realToFrac (T.diffUTCTime t utc_base))
+utcr = fmap utc_utcr T.getCurrentTime
 
 -- | Read current 'NTPi' timestamp.
 ntpi :: IO NTPi
