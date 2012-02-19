@@ -1,11 +1,8 @@
 -- | Alegbraic data types for OSC datum and packets.
-module Sound.OpenSoundControl.Type (OSC(..)
-                                   ,Datum(..)
-                                   ,message
-                                   ,bundle
-                                   ,tag) where
+module Sound.OpenSoundControl.Type where
 
 import qualified Data.ByteString.Lazy as B
+import Data.Maybe
 import Data.Word
 import Sound.OpenSoundControl.Time
 
@@ -56,3 +53,38 @@ message a xs =
     case a of
       '/':_ -> Message a xs
       _ -> error "message: ill-formed address"
+
+-- * Datum
+
+-- | 'Datum' as real number if 'Double', 'Float' or 'Int', else 'Nothing'.
+--
+-- > map datum_real [Int 5,Float 5,String "5"] == [Just 5,Just 5,Nothing]
+datum_real :: Datum -> Maybe Double
+datum_real d =
+    case d of
+      Double n -> Just n
+      Float n -> Just n
+      Int n -> Just (fromIntegral n)
+      _ -> Nothing
+
+-- | A 'fromJust' variant of 'datum_r'.
+--
+-- > map datum_real' [Int 5,Float 5] == [5,5]
+datum_real' :: Datum -> Double
+datum_real' = fromJust . datum_real
+
+-- | 'Datum' as 'String' if 'String' or 'Blob', else 'Nothing'.
+--
+-- > map datum_string [String "5",Blob (B.pack [53])] == [Just "5",Just "5"]
+datum_string :: Datum -> Maybe String
+datum_string d =
+    case d of
+      Blob s -> Just (map (toEnum . fromIntegral) (B.unpack s))
+      String s -> Just s
+      _ -> Nothing
+
+-- | A 'fromJust' variant of 'datum_string'.
+--
+-- > map datum_string' [String "5",Blob (B.pack [53])] == ["5","5"]
+datum_string' :: Datum -> String
+datum_string' = fromJust . datum_string
