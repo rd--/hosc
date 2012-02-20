@@ -73,6 +73,24 @@ datum_real d =
 datum_real' :: Datum -> Double
 datum_real' = fromJust . datum_real
 
+-- | 'Datum' as integral number if 'Double', 'Float' or 'Int', else
+-- 'Nothing'.
+--
+-- > map datum_int [Int 5,Float 5.5,String "5"] == [Just 5,Just 5,Nothing]
+datum_int :: Integral i => Datum -> Maybe i
+datum_int d =
+    case d of
+      Int x -> Just (fromIntegral x)
+      Float x -> Just (floor x)
+      Double x -> Just (floor x)
+      _ -> Nothing
+
+-- | A 'fromJust' variant of 'datum_int'.
+--
+-- > map datum_int' [Int 5,Float 5.5] == [5,5]
+datum_int' :: Integral i => Datum -> i
+datum_int' = fromJust . datum_int
+
 -- | 'Datum' as 'String' if 'String' or 'Blob', else 'Nothing'.
 --
 -- > map datum_string [String "5",Blob (B.pack [53])] == [Just "5",Just "5"]
