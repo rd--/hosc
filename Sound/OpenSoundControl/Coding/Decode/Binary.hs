@@ -1,7 +1,8 @@
 -- | Optimised decode function for OSC packets.
-module Sound.OpenSoundControl.Coding.Decode.Binary (getOSC
-                                                   ,decodeOSC
-                                                   ,decodeOSC') where
+module Sound.OpenSoundControl.Coding.Decode.Binary
+    (getPacket
+    ,decodePacket
+    ,decodePacket_strict) where
 
 import Control.Applicative
 import Data.Binary.Get
@@ -61,8 +62,8 @@ get_datum 'm' = do
     return $ Midi (b0,b1,b2,b3)
 get_datum t = fail ("get_datum: illegal type " ++ show t)
 
--- | Get an OSC message.
-get_message :: Get OSC
+-- | Get an OSC 'Message'.
+get_message :: Get Message
 get_message = do
     cmd <- get_string
     dsc <- get_string
@@ -72,45 +73,42 @@ get_message = do
             return $ Message cmd arg
         _ -> fail "get_message: invalid type descriptor string"
 
--- | Get an OSC packet.
-get_packet :: Get OSC
-get_packet = do
-    h <- uncheckedLookAhead (L.length bundleHeader)
-    if h == bundleHeader
-        then get_bundle
-        else get_message
-
--- | Get a sequence of OSC messages, each one headed by its length.
-get_packet_seq :: Get [OSC]
-get_packet_seq = do
+-- | Get a sequence of OSC 'Message's, each one headed by its length.
+get_message_seq :: Get [Message]
+get_message_seq = do
     b <- isEmpty
     if b
         then return []
         else do
-            p <- flip isolate get_packet =<< getWord32be
-            ps <- get_packet_seq
+            p <- flip isolate get_message =<< getWord32be
+            ps <- get_message_seq
             return (p:ps)
 
-get_bundle :: Get OSC
+get_bundle :: Get Bundle
 get_bundle = do
     skip (fromIntegral (L.length bundleHeader))
     t <- NTPi <$> getWord64be
-    ps <- get_packet_seq
+    ps <- get_message_seq
     return $ Bundle t ps
 
--- | Get an OSC packet.
-getOSC :: Get OSC
-getOSC = get_packet
+-- | Get an OSC 'Packet'.
+getPacket :: Get Packet
+getPacket = do
+    h <- uncheckedLookAhead (L.length bundleHeader)
+    if h == bundleHeader
+        then fmap Right get_bundle
+        else fmap Left get_message
+
 
 -- | Decode an OSC packet from a lazy ByteString.
 --
 -- > let b = L.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
 -- > in decodeOSC b == Message "/g_free" [Int 0]
-decodeOSC :: L.ByteString -> OSC
-{-# INLINE decodeOSC #-}
-decodeOSC = runGet getOSC
+decodePacket :: L.ByteString -> Packet
+{-# INLINE decodePacket #-}
+decodePacket = runGet getPacket
 
 -- | Decode an OSC packet from a strict ByteString.
-decodeOSC' :: S.ByteString -> OSC
-{-# INLINE decodeOSC' #-}
-decodeOSC' = runGet getOSC . L.fromChunks . (:[])
+decodePacket_strict :: S.ByteString -> Either Message Bundle
+{-# INLINE decodePacket_strict #-}
+decodePacket_strict = runGet getPacket . L.fromChunks . (:[])

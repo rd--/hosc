@@ -1,7 +1,10 @@
 -- | Optimised encode function for OSC packets.
-module Sound.OpenSoundControl.Coding.Encode.Builder (buildOSC
-                                                    ,encodeOSC
-                                                    ,encodeOSC') where
+module Sound.OpenSoundControl.Coding.Encode.Builder
+    (build_packet
+    ,encodeMessage
+    ,encodeBundle
+    ,encodePacket
+    ,encodePacket_strict) where
 
 import qualified Data.Binary.IEEE754 as I
 import qualified Data.ByteString as S
@@ -12,7 +15,7 @@ import Data.Monoid (mappend, mconcat)
 import Data.Word (Word8)
 import Sound.OpenSoundControl.Coding.Byte (align, bundleHeader)
 import Sound.OpenSoundControl.Time
-import Sound.OpenSoundControl.Type (Datum(..), OSC(..), tag)
+import Sound.OpenSoundControl.Type
 
 -- Command argument types are given by a descriptor.
 descriptor :: [Datum] -> String
@@ -34,44 +37,59 @@ build_bytes s = B.fromInt32be (fromIntegral (L.length s))
 
 -- Encode an OSC datum.
 build_datum :: Datum -> B.Builder
-build_datum (Int i)              = B.fromInt32be (fromIntegral i)
-build_datum (Float f)            = B.fromWord32be (I.floatToWord (realToFrac f))
-build_datum (Double d)           = B.fromWord64be (I.doubleToWord d)
-build_datum (TimeStamp t)        = B.fromWord64be (fromIntegral (as_ntpi t))
-build_datum (String s)           = build_string s
-build_datum (Midi (b0,b1,b2,b3)) = B.fromWord8s [b0,b1,b2,b3]
-build_datum (Blob b)             = build_bytes b
+build_datum d =
+    case d of
+      Int i -> B.fromInt32be (fromIntegral i)
+      Float n -> B.fromWord32be (I.floatToWord (realToFrac n))
+      Double n -> B.fromWord64be (I.doubleToWord n)
+      TimeStamp t -> B.fromWord64be (fromIntegral (as_ntpi t))
+      String s -> build_string s
+      Midi (b0,b1,b2,b3) -> B.fromWord8s [b0,b1,b2,b3]
+      Blob b -> build_bytes b
 
--- Encode an OSC message.
-build_message :: String -> [Datum] -> B.Builder
-build_message c l =
-    mconcat [ build_string c
-            , build_string (descriptor l)
-            , mconcat $ map build_datum l ]
+-- Encode an OSC 'Message'.
+build_message :: Message -> B.Builder
+build_message (Message c l) =
+    mconcat [build_string c
+            ,build_string (descriptor l)
+            ,mconcat $ map build_datum l]
 
--- Encode an OSC bundle.
-build_bundle_ntpi :: NTPi -> [OSC] -> B.Builder
+-- Encode an OSC 'Bundle'.
+build_bundle_ntpi :: NTPi -> [Message] -> B.Builder
 build_bundle_ntpi t l =
-    mconcat [ B.fromLazyByteString bundleHeader
-            , B.fromWord64be t
-            , mconcat $ map (build_bytes . B.toLazyByteString . buildOSC) l ]
+    mconcat [B.fromLazyByteString bundleHeader
+            ,B.fromWord64be t
+            ,mconcat $ map (build_bytes . B.toLazyByteString . build_message) l]
 
--- | Builder monoid for an OSC packet.
-buildOSC :: OSC -> B.Builder
-buildOSC (Message c l)       = build_message c l
-buildOSC (Bundle (NTPi t) l) = build_bundle_ntpi t l
-buildOSC (Bundle (NTPr t) l) = build_bundle_ntpi (ntpr_ntpi t) l
-buildOSC (Bundle (UTCr t) l) = build_bundle_ntpi (utcr_ntpi t) l
+-- | Builder monoid for an OSC 'Packet'.
+build_packet :: Packet -> B.Builder
+build_packet o =
+    case o of
+      Left m -> build_message m
+      Right (Bundle (NTPi t) l) -> build_bundle_ntpi t l
+      Right (Bundle (NTPr t) l) -> build_bundle_ntpi (ntpr_ntpi t) l
+      Right (Bundle (UTCr t) l) -> build_bundle_ntpi (utcr_ntpi t) l
 
--- | Encode an OSC packet to a lazy ByteString.
+{-# INLINE encodeMessage #-}
+{-# INLINE encodeBundle #-}
+{-# INLINE encodePacket #-}
+{-# INLINE encodePacket_strict #-}
+
+-- | Encode an OSC 'Message'.
+encodeMessage :: Message -> L.ByteString
+encodeMessage = B.toLazyByteString . build_packet . Left
+
+-- | Encode an OSC 'Bundle'.
+encodeBundle :: Bundle -> L.ByteString
+encodeBundle = B.toLazyByteString . build_packet . Right
+
+-- | Encode an OSC 'Packet' to a lazy 'L.ByteString'.
 --
 -- > let b = L.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
 -- > in encodeOSC (Message "/g_free" [Int 0]) == b
-encodeOSC :: OSC -> L.ByteString
-{-# INLINE encodeOSC #-}
-encodeOSC = B.toLazyByteString . buildOSC
+encodePacket :: Packet -> L.ByteString
+encodePacket = B.toLazyByteString . build_packet
 
--- | Encode an OSC packet to a strict ByteString.
-encodeOSC' :: OSC -> S.ByteString
-{-# INLINE encodeOSC' #-}
-encodeOSC' = B.toByteString . buildOSC
+-- | Encode an Packet packet to a strict ByteString.
+encodePacket_strict :: Packet -> S.ByteString
+encodePacket_strict = B.toByteString . build_packet

@@ -26,6 +26,7 @@ Library
                    time
   GHC-Options:     -Wall -fwarn-tabs
   Exposed-modules: Sound.OpenSoundControl
+                   Sound.OpenSoundControl.Class
                    Sound.OpenSoundControl.Coding.Byte
                    Sound.OpenSoundControl.Coding.Cast
                    Sound.OpenSoundControl.Coding.Coerce

@@ -1,6 +1,8 @@
 -- | Base-level encode function for OSC packets (slow).  For ordinary
 --   use see 'Sound.OpenSoundControl.Coding.Encode.Builder'.
-module Sound.OpenSoundControl.Coding.Encode.Base (encodeOSC) where
+module Sound.OpenSoundControl.Coding.Encode.Base (encodeMessage
+                                                 ,encodeBundle
+                                                 ,encodePacket) where
 
 import qualified Data.ByteString.Lazy as B
 import Data.Word
@@ -29,29 +31,35 @@ encode_datum dt =
       Blob b -> let n = encode_i32 (fromIntegral (B.length b))
                 in B.append n (extend 0 b)
 
--- Encode an OSC message.
-encode_message :: String -> [Datum] -> B.ByteString
-encode_message c l =
+-- | Encode an OSC 'Message'.
+encodeMessage :: Message -> B.ByteString
+encodeMessage (Message c l) =
     B.concat [encode_datum (String c)
              ,encode_datum (descriptor l)
              ,B.concat (map encode_datum l) ]
 
--- Encode an OSC packet as an OSC blob.
-encode_osc_blob :: OSC -> Datum
-encode_osc_blob = Blob . encodeOSC
+-- Encode an OSC 'Message' as an OSC blob.
+encode_message_blob :: Message -> Datum
+encode_message_blob = Blob . encodeMessage
 
 -- Encode an OSC bundle.
-encode_bundle_ntpi :: NTPi -> [OSC] -> B.ByteString
+encode_bundle_ntpi :: NTPi -> [Message] -> B.ByteString
 encode_bundle_ntpi t l =
     B.concat [bundleHeader
              ,encode_u64 t
-             ,B.concat (map (encode_datum . encode_osc_blob) l) ]
+             ,B.concat (map (encode_datum . encode_message_blob) l) ]
 
--- | Encode an OSC packet.
-encodeOSC :: OSC -> B.ByteString
-encodeOSC o =
-    case o of
-      Message c l -> encode_message c l
+-- | Encode an OSC 'Bundle'.
+encodeBundle :: Bundle -> B.ByteString
+encodeBundle b =
+    case b of
       Bundle (NTPi t) l -> encode_bundle_ntpi t l
       Bundle (NTPr t) l -> encode_bundle_ntpi (ntpr_ntpi t) l
       Bundle (UTCr t) l -> encode_bundle_ntpi (utcr_ntpi t) l
+
+-- | Encode an OSC 'Packet'.
+encodePacket :: Packet -> B.ByteString
+encodePacket o =
+    case o of
+      Left m -> encodeMessage m
+      Right b -> encodeBundle b

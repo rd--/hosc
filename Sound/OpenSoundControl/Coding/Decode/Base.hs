@@ -1,6 +1,8 @@
 -- | Base-level decode function for OSC packets (slow).  For ordinary
 --   use see 'Sound.OpenSoundControl.Coding.Decode.Binary'.
-module Sound.OpenSoundControl.Coding.Decode.Base (decodeOSC) where
+module Sound.OpenSoundControl.Coding.Decode.Base (decodeMessage
+                                                 ,decodeBundle
+                                                 ,decodePacket) where
 
 import qualified Data.ByteString.Lazy as B
 import Data.List
@@ -41,7 +43,7 @@ decode_datum ty b =
       'd' -> Double (decode_f64 b)
       's' -> String (decode_str (b_take (size 's' b) b))
       'b' -> Blob (b_take (size 'b' b) (B.drop 4 b))
-      't' -> TimeStamp $ NTPi (decode_u64 b)
+      't' -> TimeStamp (NTPi (decode_u64 b))
       'm' -> let [b0,b1,b2,b3] = B.unpack (B.take 4 b) in Midi (b0,b1,b2,b3)
       _ -> error ("decode_datum: illegal type (" ++ [ty] ++ ")")
 
@@ -52,9 +54,9 @@ decode_datum_seq cs b =
         f b' c = swap (B.splitAt (fromIntegral (storage c b')) b')
     in zipWith decode_datum cs (snd (mapAccumL f b cs))
 
--- Decode an OSC message.
-decode_message :: B.ByteString -> OSC
-decode_message b =
+-- | Decode an OSC 'Message'.
+decodeMessage :: B.ByteString -> Message
+decodeMessage b =
     let n = storage 's' b
         (String cmd) = decode_datum 's' b
         m = storage 's' (b_drop n b)
@@ -63,30 +65,31 @@ decode_message b =
     in Message cmd arg
 
 -- Decode a sequence of OSC messages, each one headed by its length
-decode_message_seq :: B.ByteString -> [OSC]
+decode_message_seq :: B.ByteString -> [Message]
 decode_message_seq b =
     let s = decode_i32 b
-        m = decode_message $ b_drop 4 b
-        nxt = decode_message_seq $ b_drop (4+s) b
+        m = decodeMessage (b_drop 4 b)
+        nxt = decode_message_seq (b_drop (4+s) b)
     in if B.length b == 0 then [] else m:nxt
 
-decode_bundle :: B.ByteString -> OSC
-decode_bundle b =
+-- | Decode an OSC 'Bundle'.
+decodeBundle :: B.ByteString -> Bundle
+decodeBundle b =
     let h = storage 's' b -- header (should be '#bundle')
         t = storage 't' (b_drop h b) -- time tag
         (TimeStamp timeStamp) = decode_datum 't' (b_drop h b)
-        ms = decode_message_seq $ b_drop (h+t) b
+        ms = decode_message_seq (b_drop (h+t) b)
     in Bundle timeStamp ms
 
--- | Decode an OSC packet.
+-- | Decode an OSC 'Packet'.
 --
 -- > let b = B.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
--- > in decodeOSC b == Message "/g_free" [Int 0]
-decodeOSC :: B.ByteString -> OSC
-decodeOSC b =
+-- > in decodePacket b == Message "/g_free" [Int 0]
+decodePacket :: B.ByteString -> Either Message Bundle
+decodePacket b =
     if bundleHeader `B.isPrefixOf` b
-    then decode_bundle b
-    else decode_message b
+    then Right (decodeBundle b)
+    else Left (decodeMessage b)
 
 b_take :: Int -> B.ByteString -> B.ByteString
 b_take = B.take . fromIntegral
