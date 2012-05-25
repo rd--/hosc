@@ -75,11 +75,11 @@ datum_real d =
       Int n -> Just (fromIntegral n)
       _ -> Nothing
 
--- | A 'fromJust' variant of 'datum_r'.
+-- | A 'fromJust' variant of 'datum_real'.
 --
--- > map datum_real' [Int 5,Float 5] == [5,5]
-datum_real' :: Datum -> Double
-datum_real' = fromJust . datum_real
+-- > map datum_real_err [Int 5,Float 5] == [5,5]
+datum_real_err :: Datum -> Double
+datum_real_err = fromJust . datum_real
 
 -- | 'Datum' as integral number if 'Double', 'Float' or 'Int', else
 -- 'Nothing'.
@@ -95,9 +95,9 @@ datum_int d =
 
 -- | A 'fromJust' variant of 'datum_int'.
 --
--- > map datum_int' [Int 5,Float 5.5] == [5,5]
-datum_int' :: Integral i => Datum -> i
-datum_int' = fromJust . datum_int
+-- > map datum_int_err [Int 5,Float 5.5] == [5,5]
+datum_int_err :: Integral i => Datum -> i
+datum_int_err = fromJust . datum_int
 
 -- | 'Datum' as 'String' if 'String' or 'Blob', else 'Nothing'.
 --
@@ -111,15 +111,16 @@ datum_string d =
 
 -- | A 'fromJust' variant of 'datum_string'.
 --
--- > map datum_string' [String "5",Blob (B.pack [53])] == ["5","5"]
-datum_string' :: Datum -> String
-datum_string' = fromJust . datum_string
+-- > map datum_string_err [String "5",Blob (B.pack [53])] == ["5","5"]
+datum_string_err :: Datum -> String
+datum_string_err = fromJust . datum_string
 
--- | Does the OSC 'Message' have the specified 'Address_Pattern'.
+-- | Does 'Message' have the specified 'Address_Pattern'.
 message_has_address :: Address_Pattern -> Message -> Bool
 message_has_address x (Message y _) = x == y
 
--- | Does the OSC 'Message' have the specified 'Address_Pattern'.
+-- | Does the first 'Message' at 'Bundle' have the specified
+-- 'Address_Pattern'.
 bundle_has_address :: Address_Pattern -> Bundle -> Bool
 bundle_has_address x b =
     case b of
@@ -128,18 +129,31 @@ bundle_has_address x b =
 
 -- | Does 'Packet' have the specified 'Address_Pattern'.
 packet_has_address :: Address_Pattern -> Packet -> Bool
-packet_has_address x p =
-    case p of
-      Left m -> message_has_address x m
-      Right b -> bundle_has_address x b
+packet_has_address x = either (message_has_address x) (bundle_has_address x)
 
-packet_to_message :: Packet -> Message
+-- | If 'Packet' is a 'Message' or a 'Bundle' with one element, return
+-- the 'Message', else 'Nothing'.
+packet_to_messages :: Packet -> [Message]
+packet_to_messages p =
+    case p of
+      Left m -> [m]
+      Right (Bundle _ m) -> m
+
+-- | 'Nothing' if packet has does not have singular 'Message'.
+packet_to_message :: Packet -> Maybe Message
 packet_to_message p =
-    case p of
-      Left m -> m
-      Right (Bundle _ (m:_)) -> m
-      Right _ -> error "packet_to_message: empty bundle?"
+    case packet_to_messages p of
+      [m] -> Just m
+      _ -> Nothing
 
+-- | Variant of 'packet_to_messages' discarding all but initial message.
+packet_to_message_discard :: Packet -> Message
+packet_to_message_discard p =
+    case packet_to_messages p of
+      m:_ -> m
+      _ -> error "packet_to_message_discard: empty bundle?"
+
+-- | If 'Packet' is a 'Message' add 'immediately' timestamp, else 'id'.
 packet_to_bundle :: Packet -> Bundle
 packet_to_bundle p =
     case p of

@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleInstances,TypeSynonymInstances #-}
 -- | A type-class to provide coding operations to different data types
 --   using the same function names.
-module Sound.OpenSoundControl.Coding (Coding(..),Coder) where
+module Sound.OpenSoundControl.Coding where
 
 import qualified Data.ByteString as S
 import qualified Data.ByteString.Lazy as B
@@ -31,3 +31,15 @@ instance Coding String where
 
 -- | An 'encodePacket' and 'decodePacket' pair over 'B.ByteString'.
 type Coder = (Packet -> B.ByteString,B.ByteString -> Packet)
+
+encodeMessage :: Coding c => Message -> c
+encodeMessage = encodePacket . Left
+
+encodeBundle :: Coding c => Bundle -> c
+encodeBundle = encodePacket . Right
+
+decodeMessage :: Coding c => c -> Maybe Message
+decodeMessage = packet_to_message . decodePacket
+
+decodeBundle :: Coding c => c -> Bundle
+decodeBundle = packet_to_bundle . decodePacket

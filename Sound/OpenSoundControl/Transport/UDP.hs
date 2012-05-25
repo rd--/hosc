@@ -20,8 +20,8 @@ udpPort :: Integral n => UDP -> IO n
 udpPort (UDP fd) = fmap fromIntegral (N.socketPort fd)
 
 instance Transport UDP where
-   send (UDP fd) msg = C.send fd (encodeOSC msg) >> return ()
-   recv (UDP fd) = liftM decodePacket (C.recv fd 8192)
+   sendOSC (UDP fd) msg = C.send fd (encodeOSC msg) >> return ()
+   recvPacket (UDP fd) = liftM decodePacket (C.recv fd 8192)
    close (UDP fd) = N.sClose fd
 
 -- | Make a 'UDP' connection.

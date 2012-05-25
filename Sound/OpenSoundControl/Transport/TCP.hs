@@ -15,12 +15,12 @@ import System.IO
 data TCP = TCP {tcpHandle :: Handle}
 
 instance Transport TCP where
-   send (TCP fd) msg =
+   sendOSC (TCP fd) msg =
       do let b = encodeOSC msg
              n = fromIntegral (B.length b)
          B.hPut fd (B.append (encode_u32 n) b)
          hFlush fd
-   recv (TCP fd) =
+   recvPacket (TCP fd) =
       do b0 <- B.hGet fd 4
          b1 <- B.hGet fd (fromIntegral (decode_u32 b0))
          return (decodePacket b1)
