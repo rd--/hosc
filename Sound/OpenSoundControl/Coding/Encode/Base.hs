@@ -12,7 +12,7 @@ import Sound.OpenSoundControl.Time
 
 -- Command argument types are given by a descriptor.
 descriptor :: [Datum] -> Datum
-descriptor l = String (',' : map tag l)
+descriptor l = String (',' : map datum_tag l)
 
 -- Align a byte string if required.
 extend :: Word8 -> B.ByteString -> B.ByteString
@@ -61,5 +61,5 @@ encodeBundle b =
 encodePacket :: Packet -> B.ByteString
 encodePacket o =
     case o of
-      Left m -> encodeMessage m
-      Right b -> encodeBundle b
+      P_Message m -> encodeMessage m
+      P_Bundle b -> encodeBundle b

@@ -85,11 +85,11 @@ decodeBundle b =
 --
 -- > let b = B.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
 -- > in decodePacket b == Message "/g_free" [Int 0]
-decodePacket :: B.ByteString -> Either Message Bundle
+decodePacket :: B.ByteString -> Packet
 decodePacket b =
     if bundleHeader `B.isPrefixOf` b
-    then Right (decodeBundle b)
-    else Left (decodeMessage b)
+    then P_Bundle (decodeBundle b)
+    else P_Message (decodeMessage b)
 
 b_take :: Int -> B.ByteString -> B.ByteString
 b_take = B.take . fromIntegral

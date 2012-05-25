@@ -19,7 +19,7 @@ import Sound.OpenSoundControl.Type
 
 -- Command argument types are given by a descriptor.
 descriptor :: [Datum] -> String
-descriptor l = ',' : map tag l
+descriptor l = ',' : map datum_tag l
 
 -- Generate a list of zero bytes for padding.
 padding :: Integral i => i -> [Word8]
@@ -65,10 +65,10 @@ build_bundle_ntpi t l =
 build_packet :: Packet -> B.Builder
 build_packet o =
     case o of
-      Left m -> build_message m
-      Right (Bundle (NTPi t) l) -> build_bundle_ntpi t l
-      Right (Bundle (NTPr t) l) -> build_bundle_ntpi (ntpr_ntpi t) l
-      Right (Bundle (UTCr t) l) -> build_bundle_ntpi (utcr_ntpi t) l
+      P_Message m -> build_message m
+      P_Bundle (Bundle (NTPi t) l) -> build_bundle_ntpi t l
+      P_Bundle (Bundle (NTPr t) l) -> build_bundle_ntpi (ntpr_ntpi t) l
+      P_Bundle (Bundle (UTCr t) l) -> build_bundle_ntpi (utcr_ntpi t) l
 
 {-# INLINE encodeMessage #-}
 {-# INLINE encodeBundle #-}
@@ -77,11 +77,11 @@ build_packet o =
 
 -- | Encode an OSC 'Message'.
 encodeMessage :: Message -> L.ByteString
-encodeMessage = B.toLazyByteString . build_packet . Left
+encodeMessage = B.toLazyByteString . build_packet . P_Message
 
 -- | Encode an OSC 'Bundle'.
 encodeBundle :: Bundle -> L.ByteString
-encodeBundle = B.toLazyByteString . build_packet . Right
+encodeBundle = B.toLazyByteString . build_packet . P_Bundle
 
 -- | Encode an OSC 'Packet' to a lazy 'L.ByteString'.
 --

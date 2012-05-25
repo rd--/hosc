@@ -28,23 +28,12 @@ data Bundle = Bundle Time [Message]
               deriving (Eq,Read,Show)
 
 -- | An OSC 'Packet' is either a 'Message' or a 'Bundle'.
-type Packet = Either Message Bundle
+data Packet = P_Message Message | P_Bundle Bundle
+              deriving (Eq,Read,Show)
 
 -- | OSC 'Bundle's can be ordered (time ascending).
 instance Ord Bundle where
     compare (Bundle a _) (Bundle b _) = compare a b
-
--- | Single character identifier of an OSC datum.
-tag :: Datum -> Char
-tag dt =
-    case dt of
-      Int _ -> 'i'
-      Float _ -> 'f'
-      Double _ -> 'd'
-      String _ -> 's'
-      Blob _ -> 'b'
-      TimeStamp _ -> 't'
-      Midi _ -> 'm'
 
 -- | 'Bundle' constructor. It is an 'error' if the 'Message' list is
 -- empty.
@@ -63,6 +52,18 @@ message a xs =
       _ -> error "message: ill-formed address pattern"
 
 -- * Datum
+
+-- | Single character identifier of an OSC datum.
+datum_tag :: Datum -> Char
+datum_tag dt =
+    case dt of
+      Int _ -> 'i'
+      Float _ -> 'f'
+      Double _ -> 'd'
+      String _ -> 's'
+      Blob _ -> 'b'
+      TimeStamp _ -> 't'
+      Midi _ -> 'm'
 
 -- | 'Datum' as real number if 'Double', 'Float' or 'Int', else 'Nothing'.
 --
@@ -129,15 +130,18 @@ bundle_has_address x b =
 
 -- | Does 'Packet' have the specified 'Address_Pattern'.
 packet_has_address :: Address_Pattern -> Packet -> Bool
-packet_has_address x = either (message_has_address x) (bundle_has_address x)
+packet_has_address x p =
+    case p of
+      P_Message m -> message_has_address x m
+      P_Bundle b -> bundle_has_address x b
 
 -- | If 'Packet' is a 'Message' or a 'Bundle' with one element, return
 -- the 'Message', else 'Nothing'.
 packet_to_messages :: Packet -> [Message]
 packet_to_messages p =
     case p of
-      Left m -> [m]
-      Right (Bundle _ m) -> m
+      P_Message m -> [m]
+      P_Bundle (Bundle _ m) -> m
 
 -- | 'Nothing' if packet has does not have singular 'Message'.
 packet_to_message :: Packet -> Maybe Message
@@ -157,5 +161,5 @@ packet_to_message_discard p =
 packet_to_bundle :: Packet -> Bundle
 packet_to_bundle p =
     case p of
-      Left m -> Bundle immediately [m]
-      Right b -> b
+      P_Message m -> Bundle immediately [m]
+      P_Bundle b -> b

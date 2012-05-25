@@ -33,10 +33,10 @@ instance Coding String where
 type Coder = (Packet -> B.ByteString,B.ByteString -> Packet)
 
 encodeMessage :: Coding c => Message -> c
-encodeMessage = encodePacket . Left
+encodeMessage = encodePacket . P_Message
 
 encodeBundle :: Coding c => Bundle -> c
-encodeBundle = encodePacket . Right
+encodeBundle = encodePacket . P_Bundle
 
 decodeMessage :: Coding c => c -> Maybe Message
 decodeMessage = packet_to_message . decodePacket

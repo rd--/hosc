@@ -1,4 +1,4 @@
--- | Typeclass for encoding OSC packets.
+-- | Typeclass for encoding and decoding OSC packets.
 module Sound.OpenSoundControl.Class where
 
 import Sound.OpenSoundControl.Type
@@ -9,16 +9,13 @@ class OSC o where
     decodeOSC :: Coding c => c -> Maybe o
 
 instance OSC Message where
-    encodeOSC = encodePacket . Left
+    encodeOSC = encodePacket . P_Message
     decodeOSC = packet_to_message . decodePacket
 
 instance OSC Bundle where
-    encodeOSC = encodePacket . Right
+    encodeOSC = encodePacket . P_Bundle
     decodeOSC = Just . packet_to_bundle . decodePacket
 
-{-
-LANGUAGE TypeSynonymInstances
 instance OSC Packet where
     encodeOSC = encodePacket
     decodeOSC = Just . decodePacket
--}
