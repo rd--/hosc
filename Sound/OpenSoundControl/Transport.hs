@@ -21,7 +21,7 @@ sendMessage :: Transport t => t -> Message -> IO ()
 sendMessage = sendOSC
 
 -- | Type specified synonym for 'sendOSC'.
-sendBundle :: Transport t => t -> Message -> IO ()
+sendBundle :: Transport t => t -> Bundle -> IO ()
 sendBundle = sendOSC
 
 -- | Repeat action until /f/ does not give 'Nothing' when applied to

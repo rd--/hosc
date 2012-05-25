@@ -163,3 +163,10 @@ packet_to_bundle p =
     case p of
       P_Message m -> Bundle immediately [m]
       P_Bundle b -> b
+
+-- | Variant of 'either' for 'Packet'.
+at_packet :: (Message -> a) -> (Bundle -> a) -> Packet -> a
+at_packet f g p =
+    case p of
+      P_Message m -> f m
+      P_Bundle b -> g b
