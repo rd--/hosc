@@ -5,17 +5,24 @@ import Sound.OpenSoundControl.Type
 import Sound.OpenSoundControl.Coding
 
 class OSC o where
-    encodeOSC :: Coding c => o -> c
-    decodeOSC :: Coding c => c -> Maybe o
+    toPacket :: o -> Packet
+    fromPacket :: Packet -> Maybe o
 
 instance OSC Message where
-    encodeOSC = encodePacket . P_Message
-    decodeOSC = packet_to_message . decodePacket
+    toPacket = P_Message
+    fromPacket = packet_to_message
 
 instance OSC Bundle where
-    encodeOSC = encodePacket . P_Bundle
-    decodeOSC = Just . packet_to_bundle . decodePacket
+    toPacket = P_Bundle
+    fromPacket = Just . packet_to_bundle
 
 instance OSC Packet where
-    encodeOSC = encodePacket
-    decodeOSC = Just . decodePacket
+    toPacket = id
+    fromPacket = Just
+
+encodeOSC :: (Coding c,OSC o) => o -> c
+encodeOSC = encodePacket . toPacket
+
+decodeOSC :: (Coding c,OSC o) => c -> Maybe o
+decodeOSC = fromPacket . decodePacket
+

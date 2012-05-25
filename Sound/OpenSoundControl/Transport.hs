@@ -37,6 +37,11 @@ untilM f act =
 timeout_r :: Double -> IO a -> IO (Maybe a)
 timeout_r t = timeout (floor (t * 1000000))
 
+recvOSC :: (Transport t,OSC o) => t -> IO (Maybe o)
+recvOSC t = do
+  p <- recvPacket t
+  return (fromPacket p)
+
 -- | Variant of 'recvPacket' that implements an /n/ second 'timeout'.
 recvPacketTimeout :: (Transport t) => Double -> t -> IO (Maybe Packet)
 recvPacketTimeout n fd = timeout_r n (recvPacket fd)
