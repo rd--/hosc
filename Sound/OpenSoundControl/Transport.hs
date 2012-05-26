@@ -96,21 +96,26 @@ untilM f act =
 waitFor :: (Transport t) => t -> (Packet -> Maybe a) -> IO a
 waitFor t f = untilM f (recvPacket t)
 
+-- | 'waitFor' 'packet_to_message', ie. an incoming 'Message' or
+-- immediate mode 'Bundle' with one element.
+waitMsg :: Transport t => t -> IO Message
+waitMsg t = waitFor t packet_to_message
+
 -- | A 'waitFor' for variant using 'packet_has_address' to match on
 -- the 'Address_Pattern' of incoming 'Packets'.
-wait :: Transport t => t -> Address_Pattern -> IO Packet
-wait t s =
+waitAddress :: Transport t => t -> Address_Pattern -> IO Packet
+waitAddress t s =
     let f o = if packet_has_address s o then Just o else Nothing
     in waitFor t f
 
--- | Variant on 'wait' that returns matching 'Message'.
-waitMessage :: Transport t => t -> Address_Pattern -> IO Message
-waitMessage t s =
-    let f = fromMaybe (error "waitMessage: message not located?") .
+-- | Variant on 'waitAddress' that returns matching 'Message'.
+waitAddressMessage :: Transport t => t -> Address_Pattern -> IO Message
+waitAddressMessage t s =
+    let f = fromMaybe (error "waitAddressMessage: message not located?") .
             find (message_has_address s) .
             packetMessages
-    in fmap f (wait t s)
+    in fmap f (waitAddress t s)
 
--- | Variant of 'waitMessage' that runs 'messageDatum'.
-waitMessageDatum :: Transport t => t -> Address_Pattern -> IO [Datum]
-waitMessageDatum t = fmap messageDatum . waitMessage t
+-- | Variant of 'waitAddressMessage' that runs 'messageDatum'.
+waitAddressDatum :: Transport t => t -> Address_Pattern -> IO [Datum]
+waitAddressDatum t = fmap messageDatum . waitAddressMessage t

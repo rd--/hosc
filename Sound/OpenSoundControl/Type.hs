@@ -152,13 +152,16 @@ packetMessages = at_packet return bundleMessages
 packet_to_bundle :: Packet -> Bundle
 packet_to_bundle = at_packet (\m -> Bundle immediately [m]) id
 
--- | If 'Packet' is a 'Message' or a 'Bundle' with one element, return
--- the 'Message', else 'Nothing'.
+-- | If 'Packet' is a 'Message' or a 'Bundle' with an /immediate/ time
+-- tag and with one element, return the 'Message', else 'Nothing'.
 packet_to_message :: Packet -> Maybe Message
 packet_to_message p =
-    case packetMessages p of
-      [m] -> Just m
-      _ -> Nothing
+    case p of
+      P_Bundle b ->
+          case b of
+            Bundle t [m] -> if t == immediately then Just m else Nothing
+            _ -> Nothing
+      P_Message m -> Just m
 
 -- | Is 'Packet' immediate, ie. a 'Bundle' with timestamp
 -- 'immediately', or a plain Message.
