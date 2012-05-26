@@ -50,6 +50,10 @@ recvMessage = fmap packet_to_message . recvPacket
 recvMessages :: (Transport t) => t -> IO [Message]
 recvMessages = fmap packetMessages . recvPacket
 
+-- | Variant of 'recvMessages' that runs 'head'.
+recvMsg :: (Transport t) => t -> IO Message
+recvMsg = fmap head . recvMessages
+
 -- * Timeout
 
 -- | Real valued variant of 'timeout'.
