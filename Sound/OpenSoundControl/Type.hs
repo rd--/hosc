@@ -130,13 +130,14 @@ message_has_address x = (== x) . messageAddress
 bundle_has_address :: Address_Pattern -> Bundle -> Bool
 bundle_has_address x = any (message_has_address x) . bundleMessages
 
--- | Does 'Packet' have the specified 'Address_Pattern'.
+-- * Packet
+
+-- | Does 'Packet' have the specified 'Address_Pattern', ie.
+-- 'message_has_address' or 'bundle_has_address'.
 packet_has_address :: Address_Pattern -> Packet -> Bool
 packet_has_address x =
     at_packet (message_has_address x)
               (bundle_has_address x)
-
--- * Packet
 
 -- | The 'Time' of 'Packet', if the 'Packet' is a 'Message' this is
 -- 'immediately'.
@@ -158,6 +159,11 @@ packet_to_message p =
     case packetMessages p of
       [m] -> Just m
       _ -> Nothing
+
+-- | Is 'Packet' immediate, ie. a 'Bundle' with timestamp
+-- 'immediately', or a plain Message.
+packet_is_immediate :: Packet -> Bool
+packet_is_immediate = (== immediately) . packetTime
 
 -- | Variant of 'either' for 'Packet'.
 at_packet :: (Message -> a) -> (Bundle -> a) -> Packet -> a

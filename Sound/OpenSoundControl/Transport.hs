@@ -52,15 +52,6 @@ recvMessages = fmap packetMessages . recvPacket
 
 -- * Timeout
 
--- | Repeat action until /f/ does not give 'Nothing' when applied to
--- result.
-untilM :: Monad m => (a -> Maybe b) -> m a -> m b
-untilM f act =
-    let g p = let q = f p in case q of {Nothing -> rec
-                                       ;Just r -> return r}
-        rec = act >>= g
-    in rec
-
 -- | Real valued variant of 'timeout'.
 timeout_r :: Double -> IO a -> IO (Maybe a)
 timeout_r t = timeout (floor (t * 1000000))
@@ -70,6 +61,31 @@ recvPacketTimeout :: (Transport t) => Double -> t -> IO (Maybe Packet)
 recvPacketTimeout n fd = timeout_r n (recvPacket fd)
 
 -- * Wait
+
+-- | Repeat action until predicate /f/ is 'True' when applied to
+-- result.
+untilP :: Monad m => (a -> Bool) -> m a -> m a
+untilP f act =
+    let g p = if f p then rec else return p
+        rec = act >>= g
+    in rec
+
+-- | Wait for a 'Packet' where the supplied predicate is 'True',
+-- discarding intervening packets.
+waitUntil :: (Transport t) => t -> (Packet -> Bool) -> IO Packet
+waitUntil t f = untilP f (recvPacket t)
+
+-- | 'waitUntil' 'packet_is_immediate'.
+waitImmediate :: Transport t => t -> IO Packet
+waitImmediate t = waitUntil t packet_is_immediate
+
+-- | Repeat action until /f/ does not give 'Nothing' when applied to
+-- result.
+untilM :: Monad m => (a -> Maybe b) -> m a -> m b
+untilM f act =
+    let g p = case f p of {Nothing -> rec;Just r -> return r}
+        rec = act >>= g
+    in rec
 
 -- | Wait for a 'Packet' where the supplied function does not give
 -- 'Nothing', discarding intervening packets.
