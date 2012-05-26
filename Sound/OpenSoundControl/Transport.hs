@@ -3,6 +3,8 @@
 module Sound.OpenSoundControl.Transport where
 
 import Control.Exception
+import Data.List
+import Data.Maybe
 import Sound.OpenSoundControl.Class
 import Sound.OpenSoundControl.Type
 import System.Timeout
@@ -16,6 +18,12 @@ class Transport t where
    -- | Close an existing connection.
    close :: t -> IO ()
 
+-- | Bracket OSC communication.
+withTransport :: Transport t => IO t -> (t -> IO a) -> IO a
+withTransport u = bracket u close
+
+-- * Send
+
 -- | Type specified synonym for 'sendOSC'.
 sendMessage :: Transport t => t -> Message -> IO ()
 sendMessage = sendOSC
@@ -24,12 +32,32 @@ sendMessage = sendOSC
 sendBundle :: Transport t => t -> Bundle -> IO ()
 sendBundle = sendOSC
 
+-- * Receive
+
+-- | Variant of 'recvPacket' that runs 'fromPacket'.
+recvOSC :: (Transport t,OSC o) => t -> IO (Maybe o)
+recvOSC = fmap fromPacket . recvPacket
+
+-- | Variant of 'recvPacket' that runs 'packet_to_bundle'.
+recvBundle :: (Transport t) => t -> IO Bundle
+recvBundle = fmap packet_to_bundle . recvPacket
+
+-- | Variant of 'recvPacket' that runs 'packet_to_message'.
+recvMessage :: (Transport t) => t -> IO (Maybe Message)
+recvMessage = fmap packet_to_message . recvPacket
+
+-- | Variant of 'recvPacket' that runs 'packetMessages'.
+recvMessages :: (Transport t) => t -> IO [Message]
+recvMessages = fmap packetMessages . recvPacket
+
+-- * Timeout
+
 -- | Repeat action until /f/ does not give 'Nothing' when applied to
 -- result.
 untilM :: Monad m => (a -> Maybe b) -> m a -> m b
 untilM f act =
-    let g p = let q = f p in case q of { Nothing -> rec
-                                       ; Just r -> return r }
+    let g p = let q = f p in case q of {Nothing -> rec
+                                       ;Just r -> return r}
         rec = act >>= g
     in rec
 
@@ -37,18 +65,11 @@ untilM f act =
 timeout_r :: Double -> IO a -> IO (Maybe a)
 timeout_r t = timeout (floor (t * 1000000))
 
-recvOSC :: (Transport t,OSC o) => t -> IO (Maybe o)
-recvOSC t = do
-  p <- recvPacket t
-  return (fromPacket p)
-
 -- | Variant of 'recvPacket' that implements an /n/ second 'timeout'.
 recvPacketTimeout :: (Transport t) => Double -> t -> IO (Maybe Packet)
 recvPacketTimeout n fd = timeout_r n (recvPacket fd)
 
--- | Variant of 'recvPacket' that runs 'packet_to_message_discard'.
-recvMessage :: (Transport t) => t -> IO Message
-recvMessage = fmap packet_to_message_discard . recvPacket
+-- * Wait
 
 -- | Wait for a 'Packet' where the supplied function does not give
 -- 'Nothing', discarding intervening packets.
@@ -62,10 +83,14 @@ wait t s =
     let f o = if packet_has_address s o then Just o else Nothing
     in waitFor t f
 
--- | Variant on 'wait' that returns matching 'Packet' as a 'Message'.
+-- | Variant on 'wait' that returns matching 'Message'.
 waitMessage :: Transport t => t -> Address_Pattern -> IO Message
-waitMessage t = fmap packet_to_message_discard . wait t
+waitMessage t s =
+    let f = fromMaybe (error "waitMessage: message not located?") .
+            find (message_has_address s) .
+            packetMessages
+    in fmap f (wait t s)
 
--- | Bracket OSC communication.
-withTransport :: Transport t => IO t -> (t -> IO a) -> IO a
-withTransport u = bracket u close
+-- | Variant of 'waitMessage' that runs 'messageDatum'.
+waitMessageDatum :: Transport t => t -> Address_Pattern -> IO [Datum]
+waitMessageDatum t = fmap messageDatum . waitMessage t

@@ -20,15 +20,18 @@ data Datum = Int Int
 type Address_Pattern = String
 
 -- | An OSC message.
-data Message = Message Address_Pattern [Datum]
+data Message = Message {messageAddress :: Address_Pattern
+                       ,messageDatum :: [Datum]}
                deriving (Eq,Read,Show)
 
 -- | An OSC bundle.
-data Bundle = Bundle Time [Message]
+data Bundle = Bundle {bundleTime :: Time
+                     ,bundleMessages :: [Message]}
               deriving (Eq,Read,Show)
 
 -- | An OSC 'Packet' is either a 'Message' or a 'Bundle'.
-data Packet = P_Message Message | P_Bundle Bundle
+data Packet = P_Message {packetMessage :: Message}
+            | P_Bundle {packetBundle :: Bundle}
               deriving (Eq,Read,Show)
 
 -- | OSC 'Bundle's can be ordered (time ascending).
@@ -116,53 +119,45 @@ datum_string d =
 datum_string_err :: Datum -> String
 datum_string_err = fromJust . datum_string
 
+-- * Address
+
 -- | Does 'Message' have the specified 'Address_Pattern'.
 message_has_address :: Address_Pattern -> Message -> Bool
-message_has_address x (Message y _) = x == y
+message_has_address x = (== x) . messageAddress
 
--- | Does the first 'Message' at 'Bundle' have the specified
+-- | Do any of the 'Message's at 'Bundle' have the specified
 -- 'Address_Pattern'.
 bundle_has_address :: Address_Pattern -> Bundle -> Bool
-bundle_has_address x b =
-    case b of
-      Bundle _ (m:_) -> message_has_address x m
-      _ -> error "bundle_has_address: empty bundle?"
+bundle_has_address x = any (message_has_address x) . bundleMessages
 
 -- | Does 'Packet' have the specified 'Address_Pattern'.
 packet_has_address :: Address_Pattern -> Packet -> Bool
-packet_has_address x p =
-    case p of
-      P_Message m -> message_has_address x m
-      P_Bundle b -> bundle_has_address x b
+packet_has_address x =
+    at_packet (message_has_address x)
+              (bundle_has_address x)
 
--- | If 'Packet' is a 'Message' or a 'Bundle' with one element, return
--- the 'Message', else 'Nothing'.
-packet_to_messages :: Packet -> [Message]
-packet_to_messages p =
-    case p of
-      P_Message m -> [m]
-      P_Bundle (Bundle _ m) -> m
+-- * Packet
 
--- | 'Nothing' if packet has does not have singular 'Message'.
-packet_to_message :: Packet -> Maybe Message
-packet_to_message p =
-    case packet_to_messages p of
-      [m] -> Just m
-      _ -> Nothing
+-- | The 'Time' of 'Packet', if the 'Packet' is a 'Message' this is
+-- 'immediately'.
+packetTime :: Packet -> Time
+packetTime = at_packet (const immediately) bundleTime
 
--- | Variant of 'packet_to_messages' discarding all but initial message.
-packet_to_message_discard :: Packet -> Message
-packet_to_message_discard p =
-    case packet_to_messages p of
-      m:_ -> m
-      _ -> error "packet_to_message_discard: empty bundle?"
+-- | Retrieve the set of 'Message's from a 'Packet'.
+packetMessages :: Packet -> [Message]
+packetMessages = at_packet return bundleMessages
 
 -- | If 'Packet' is a 'Message' add 'immediately' timestamp, else 'id'.
 packet_to_bundle :: Packet -> Bundle
-packet_to_bundle p =
-    case p of
-      P_Message m -> Bundle immediately [m]
-      P_Bundle b -> b
+packet_to_bundle = at_packet (\m -> Bundle immediately [m]) id
+
+-- | If 'Packet' is a 'Message' or a 'Bundle' with one element, return
+-- the 'Message', else 'Nothing'.
+packet_to_message :: Packet -> Maybe Message
+packet_to_message p =
+    case packetMessages p of
+      [m] -> Just m
+      _ -> Nothing
 
 -- | Variant of 'either' for 'Packet'.
 at_packet :: (Message -> a) -> (Bundle -> a) -> Packet -> a
