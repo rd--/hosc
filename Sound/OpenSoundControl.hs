@@ -12,6 +12,7 @@
 module Sound.OpenSoundControl (module O) where
 
 import Sound.OpenSoundControl.Class as O
+import Sound.OpenSoundControl.Coding as O
 import Sound.OpenSoundControl.Type as O
 import Sound.OpenSoundControl.Time as O
 import Sound.OpenSoundControl.Transport as O
