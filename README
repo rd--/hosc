@@ -1,15 +1,21 @@
 hosc - haskell open sound control
+---------------------------------
 
-hosc provides Sound.OpenSoundControl, a haskell
-module implementing a subset of the Open Sound
-Control byte protocol.
+[hosc][hosc] provides Sound.OpenSoundControl, a [haskell][hs]
+module implementing a subset of the [Open Sound Control][osc] byte protocol.
 
-  http://slavepianos.org/rd/?t=hosc
-  http://haskell.org/
-  http://opensoundcontrol.org/
+hosc is (c) [rohan drape][rd], stefan kersten and others, 2006-2012,
+[gpl][gpl]. with contributions by:
 
-(c) rohan drape, stefan kersten and others, 2006-2011
-    gpl, http://gnu.org/copyleft/
-    with contributions by alex mclean
-                        & henning thielemann
-    see darcs history for details
+- alex mclean
+- henning thielemann
+
+see the [darcs][darcs] [history][hosc-history] for details
+
+[hosc]: http://rd.slavepianos.org/?t=hosc
+[hs]: http://haskell.org/
+[osc]: http://opensoundcontrol.org/
+[rd]:  http://rd.slavepianos.org/
+[darcs]: http://darcs.net/
+[gpl]: http://gnu.org/copyleft/
+[hosc-history]:  http://rd.slavepianos.org/r/d/darcsweb.cgi?r=hosc
