@@ -23,7 +23,8 @@ Library
                    bytestring,
                    data-binary-ieee754,
                    network >= 2.3,
-                   time
+                   time,
+                   transformers
   GHC-Options:     -Wall -fwarn-tabs
   Exposed-modules: Sound.OpenSoundControl
                    Sound.OpenSoundControl.Class
@@ -37,9 +38,13 @@ Library
                    Sound.OpenSoundControl.Type
                    Sound.OpenSoundControl.Coding
                    Sound.OpenSoundControl.Time
-                   Sound.OpenSoundControl.Transport
+                   Sound.OpenSoundControl.Transport.FD
+                   Sound.OpenSoundControl.Transport.Monad
                    Sound.OpenSoundControl.Transport.TCP
                    Sound.OpenSoundControl.Transport.UDP
+                   Sound.OpenSoundControl.Wait
+                   Sound.OpenSoundControl.Wait.FD
+                   Sound.OpenSoundControl.Wait.Monad
 
 Source-Repository  head
   Type:            darcs

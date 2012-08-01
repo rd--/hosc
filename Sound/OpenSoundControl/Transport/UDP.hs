@@ -9,7 +9,7 @@ import qualified Network.Socket.ByteString as C (sendTo,recvFrom)
 import qualified Network.Socket.ByteString.Lazy as C (send,recv)
 import Sound.OpenSoundControl.Class
 import Sound.OpenSoundControl.Coding
-import Sound.OpenSoundControl.Transport
+import Sound.OpenSoundControl.Transport.FD
 import Sound.OpenSoundControl.Type
 
 -- | The UDP transport handle data type.

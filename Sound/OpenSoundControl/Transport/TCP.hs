@@ -8,7 +8,7 @@ import Network
 import Sound.OpenSoundControl.Class
 import Sound.OpenSoundControl.Coding
 import Sound.OpenSoundControl.Coding.Byte
-import Sound.OpenSoundControl.Transport
+import Sound.OpenSoundControl.Transport.FD
 import System.IO
 
 -- | The TCP transport handle data type.

@@ -15,6 +15,8 @@ import Sound.OpenSoundControl.Class as O
 import Sound.OpenSoundControl.Coding as O
 import Sound.OpenSoundControl.Type as O
 import Sound.OpenSoundControl.Time as O
-import Sound.OpenSoundControl.Transport as O
+import Sound.OpenSoundControl.Transport.FD as O
 import Sound.OpenSoundControl.Transport.UDP as O
 import Sound.OpenSoundControl.Transport.TCP as O
+import Sound.OpenSoundControl.Wait as O
+import Sound.OpenSoundControl.Wait.FD as O
