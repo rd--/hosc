@@ -1,5 +1,5 @@
 -- | OSC over UDP implementation.
-module Sound.OpenSoundControl.Transport.UDP where
+module Sound.OpenSoundControl.Transport.FD.UDP where
 
 import Control.Monad
 import qualified Data.ByteString as S

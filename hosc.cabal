@@ -1,17 +1,17 @@
 Name:              hosc
 Version:           0.12
 Synopsis:          Haskell Open Sound Control
-Description:       @hosc@ provides "Sound.OpenSoundControl", an
-                   implementation of a subset of the /Open Sound Control/
-                   byte protocol documented at <http://opensoundcontrol.org/>.
+Description:       @hosc@ provides "Sound.OSC" and "Sound.OSC.FD",
+                   implementations of a subset of the /Open Sound Control/
+                   byte protocol, <http://opensoundcontrol.org/>.
 License:           GPL
 Category:          Sound
-Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2006-2011
+Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2006-2012
 Author:            Rohan Drape, Stefan Kersten
 Maintainer:        rd@slavepianos.org
 Stability:         Experimental
-Homepage:          http://slavepianos.org/rd/?t=hosc
-Tested-With:       GHC == 7.2.2
+Homepage:          http://rd.slavepianos.org/?t=hosc
+Tested-With:       GHC == 7.0.4
 Build-Type:        Simple
 Cabal-Version:     >= 1.8
 Data-Files:        README
@@ -39,14 +39,13 @@ Library
                    Sound.OpenSoundControl.Coding
                    Sound.OpenSoundControl.Time
                    Sound.OpenSoundControl.Transport.FD
+                   Sound.OpenSoundControl.Transport.FD.TCP
+                   Sound.OpenSoundControl.Transport.FD.UDP
                    Sound.OpenSoundControl.Transport.Monad
-                   Sound.OpenSoundControl.Transport.TCP
-                   Sound.OpenSoundControl.Transport.UDP
                    Sound.OpenSoundControl.Wait
-                   Sound.OpenSoundControl.Wait.FD
-                   Sound.OpenSoundControl.Wait.Monad
                    Sound.OSC
+                   Sound.OSC.FD
 
 Source-Repository  head
   Type:            darcs
-  Location:        http://slavepianos.org/rd/sw/hosc/
+  Location:        http://rd.slavepianos.org/sw/hosc/

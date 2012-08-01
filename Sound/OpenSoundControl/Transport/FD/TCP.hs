@@ -1,6 +1,6 @@
 {-# Language Rank2Types #-}
 -- | OSC over TCP implementation.
-module Sound.OpenSoundControl.Transport.TCP where
+module Sound.OpenSoundControl.Transport.FD.TCP where
 
 import qualified Data.ByteString.Lazy as B
 import Control.Monad

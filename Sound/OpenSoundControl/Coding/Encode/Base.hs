@@ -61,5 +61,5 @@ encodeBundle b =
 encodePacket :: Packet -> B.ByteString
 encodePacket o =
     case o of
-      P_Message m -> encodeMessage m
-      P_Bundle b -> encodeBundle b
+      Packet_Message m -> encodeMessage m
+      Packet_Bundle b -> encodeBundle b

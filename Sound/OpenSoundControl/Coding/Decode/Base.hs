@@ -88,8 +88,8 @@ decodeBundle b =
 decodePacket :: B.ByteString -> Packet
 decodePacket b =
     if bundleHeader `B.isPrefixOf` b
-    then P_Bundle (decodeBundle b)
-    else P_Message (decodeMessage b)
+    then Packet_Bundle (decodeBundle b)
+    else Packet_Message (decodeMessage b)
 
 b_take :: Int -> B.ByteString -> B.ByteString
 b_take = B.take . fromIntegral

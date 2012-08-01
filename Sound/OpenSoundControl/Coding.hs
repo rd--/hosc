@@ -12,10 +12,8 @@ import qualified Sound.OpenSoundControl.Coding.Encode.Builder as Builder
 
 -- | Converting from and to binary packet representations.
 class Coding a where
-    -- | Decode an OSC packet.
-    encodePacket :: Packet -> a
-    -- | Encode an OSC packet.
-    decodePacket :: a -> Packet
+    encodePacket :: Packet -> a -- ^ Decode an OSC packet.
+    decodePacket :: a -> Packet -- ^ Encode an OSC packet.
 
 instance Coding S.ByteString where
     encodePacket = Builder.encodePacket_strict
@@ -32,14 +30,18 @@ instance Coding String where
 -- | An 'encodePacket' and 'decodePacket' pair over 'B.ByteString'.
 type Coder = (Packet -> B.ByteString,B.ByteString -> Packet)
 
+-- | 'encodePacket' '.' 'Packet_Message'.
 encodeMessage :: Coding c => Message -> c
-encodeMessage = encodePacket . P_Message
+encodeMessage = encodePacket . Packet_Message
 
+-- | 'encodePacket' '.' 'Packet_Bundle'.
 encodeBundle :: Coding c => Bundle -> c
-encodeBundle = encodePacket . P_Bundle
+encodeBundle = encodePacket . Packet_Bundle
 
+-- | 'packet_to_message' '.' 'decodePacket'.
 decodeMessage :: Coding c => c -> Maybe Message
 decodeMessage = packet_to_message . decodePacket
 
+-- | 'packet_to_bundle' '.' 'decodePacket'.
 decodeBundle :: Coding c => c -> Bundle
 decodeBundle = packet_to_bundle . decodePacket

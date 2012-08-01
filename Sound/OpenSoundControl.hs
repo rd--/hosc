@@ -1,22 +1,18 @@
--- | An implementation of a subset of the /Open Sound Control/ byte
--- protocol, documented at <http://opensoundcontrol.org/>.
+-- | Composite of non-transport related modules.
 --
--- For the most part this top-level module is the only import
--- required.  It provides the 'Datum' and 'OSC' types, 'encodeOSC' and
--- 'decodeOSC' functions, basic 'UDP' and 'TCP' 'Transport' layers,
--- and basic temporal operations 'utcr' to access the current time and
--- 'pauseThread' to delay the current thread.
+-- Provides the 'Datum', 'Message', 'Bundle' and 'Packet' types and
+-- the 'OSC' type-class.
 --
+-- The byte encoding functions are 'encodeOSC' and 'decodeOSC'.
+--
+-- > import Sound.OpenSoundControl
+-- >
 -- > let o = Bundle immediately [Message "/g_free" [Int 0]]
 -- > in decodeOSC (encodeOSC o) == o
-module Sound.OpenSoundControl (module O) where
+module Sound.OpenSoundControl (module M) where
 
-import Sound.OpenSoundControl.Class as O
-import Sound.OpenSoundControl.Coding as O
-import Sound.OpenSoundControl.Type as O
-import Sound.OpenSoundControl.Time as O
-import Sound.OpenSoundControl.Transport.FD as O
-import Sound.OpenSoundControl.Transport.UDP as O
-import Sound.OpenSoundControl.Transport.TCP as O
-import Sound.OpenSoundControl.Wait as O
-import Sound.OpenSoundControl.Wait.FD as O
+import Sound.OpenSoundControl.Class as M
+import Sound.OpenSoundControl.Coding as M
+import Sound.OpenSoundControl.Type as M
+import Sound.OpenSoundControl.Time as M
+import Sound.OpenSoundControl.Wait as M

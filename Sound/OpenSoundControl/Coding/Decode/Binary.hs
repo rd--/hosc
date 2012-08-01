@@ -96,8 +96,8 @@ getPacket :: Get Packet
 getPacket = do
     h <- uncheckedLookAhead (L.length bundleHeader)
     if h == bundleHeader
-        then fmap P_Bundle get_bundle
-        else fmap P_Message get_message
+        then fmap Packet_Bundle get_bundle
+        else fmap Packet_Message get_message
 
 
 -- | Decode an OSC packet from a lazy ByteString.

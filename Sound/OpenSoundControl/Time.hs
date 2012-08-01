@@ -1,5 +1,12 @@
--- | Temporal representations and clock operations (read current time
---   and pause thread).
+-- | OSC related timing functions.
+--
+-- OSC timestamps are @NTP@ values, <http://ntp.org/>.
+-- 'T.getCurrentTime' gives @UTC@ values.  The 'Time' type is a union
+-- of the different representations.
+--
+-- 'utcr' reads the current time as real valued @UTC@ and
+-- 'pauseThread' suspends the current thread for a real valued number
+-- of seconds.
 module Sound.OpenSoundControl.Time where
 
 import Control.Concurrent
@@ -78,6 +85,7 @@ utc_base =
         s = T.secondsToDiffTime 0
     in T.UTCTime d s
 
+-- | Convert an 'T.UTCTime' timestamp to a real-valued UTC timestamp.
 utc_utcr :: T.UTCTime -> Double
 utc_utcr t = realToFrac (T.diffUTCTime t utc_base)
 
@@ -94,6 +102,8 @@ utcr = liftIO (fmap utc_utcr T.getCurrentTime)
 -- | Read current 'NTPi' timestamp.
 ntpi ::  MonadIO m => m NTPi
 ntpi = liftM utcr_ntpi utcr
+
+-- * Thread operations.
 
 -- | The 'pauseThread' limit (in seconds).  Values larger than this
 -- require a different thread delay mechanism, see 'sleepThread'.  The

@@ -30,8 +30,8 @@ data Bundle = Bundle {bundleTime :: Time
               deriving (Eq,Read,Show)
 
 -- | An OSC 'Packet' is either a 'Message' or a 'Bundle'.
-data Packet = P_Message {packetMessage :: Message}
-            | P_Bundle {packetBundle :: Bundle}
+data Packet = Packet_Message {packetMessage :: Message}
+            | Packet_Bundle {packetBundle :: Bundle}
               deriving (Eq,Read,Show)
 
 -- | OSC 'Bundle's can be ordered (time ascending).
@@ -157,11 +157,11 @@ packet_to_bundle = at_packet (\m -> Bundle immediately [m]) id
 packet_to_message :: Packet -> Maybe Message
 packet_to_message p =
     case p of
-      P_Bundle b ->
+      Packet_Bundle b ->
           case b of
             Bundle t [m] -> if t == immediately then Just m else Nothing
             _ -> Nothing
-      P_Message m -> Just m
+      Packet_Message m -> Just m
 
 -- | Is 'Packet' immediate, ie. a 'Bundle' with timestamp
 -- 'immediately', or a plain Message.
@@ -172,5 +172,5 @@ packet_is_immediate = (== immediately) . packetTime
 at_packet :: (Message -> a) -> (Bundle -> a) -> Packet -> a
 at_packet f g p =
     case p of
-      P_Message m -> f m
-      P_Bundle b -> g b
+      Packet_Message m -> f m
+      Packet_Bundle b -> g b

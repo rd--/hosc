@@ -65,10 +65,10 @@ build_bundle_ntpi t l =
 build_packet :: Packet -> B.Builder
 build_packet o =
     case o of
-      P_Message m -> build_message m
-      P_Bundle (Bundle (NTPi t) l) -> build_bundle_ntpi t l
-      P_Bundle (Bundle (NTPr t) l) -> build_bundle_ntpi (ntpr_ntpi t) l
-      P_Bundle (Bundle (UTCr t) l) -> build_bundle_ntpi (utcr_ntpi t) l
+      Packet_Message m -> build_message m
+      Packet_Bundle (Bundle (NTPi t) l) -> build_bundle_ntpi t l
+      Packet_Bundle (Bundle (NTPr t) l) -> build_bundle_ntpi (ntpr_ntpi t) l
+      Packet_Bundle (Bundle (UTCr t) l) -> build_bundle_ntpi (utcr_ntpi t) l
 
 {-# INLINE encodeMessage #-}
 {-# INLINE encodeBundle #-}
@@ -77,11 +77,11 @@ build_packet o =
 
 -- | Encode an OSC 'Message'.
 encodeMessage :: Message -> L.ByteString
-encodeMessage = B.toLazyByteString . build_packet . P_Message
+encodeMessage = B.toLazyByteString . build_packet . Packet_Message
 
 -- | Encode an OSC 'Bundle'.
 encodeBundle :: Bundle -> L.ByteString
-encodeBundle = B.toLazyByteString . build_packet . P_Bundle
+encodeBundle = B.toLazyByteString . build_packet . Packet_Bundle
 
 -- | Encode an OSC 'Packet' to a lazy 'L.ByteString'.
 --
