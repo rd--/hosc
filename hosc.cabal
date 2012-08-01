@@ -45,6 +45,7 @@ Library
                    Sound.OpenSoundControl.Wait
                    Sound.OpenSoundControl.Wait.FD
                    Sound.OpenSoundControl.Wait.Monad
+                   Sound.OSC
 
 Source-Repository  head
   Type:            darcs
