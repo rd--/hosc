@@ -2,7 +2,7 @@
 module Sound.OpenSoundControl.Transport.Monad where
 
 import Control.Monad.Trans.Reader {- transformers -}
-import Control.Monad.IO.Class
+import Control.Monad.IO.Class as M
 
 import Sound.OpenSoundControl.Class
 import Sound.OpenSoundControl.Type
@@ -15,8 +15,12 @@ class (Functor m,Monad m,MonadIO m) => Transport m where
    recvPacket :: m Packet
 
 instance (T.Transport t,Functor io,MonadIO io) => Transport (ReaderT t io) where
-   sendOSC o = ReaderT (liftIO . flip T.sendOSC o)
-   recvPacket = ReaderT (liftIO . T.recvPacket)
+   sendOSC o = ReaderT (M.liftIO . flip T.sendOSC o)
+   recvPacket = ReaderT (M.liftIO . T.recvPacket)
+
+-- | 'M.liftIO'
+liftIO :: Transport m => IO a -> m a
+liftIO = M.liftIO
 
 -- | Transport connection.
 type Connection t a = ReaderT t IO a
