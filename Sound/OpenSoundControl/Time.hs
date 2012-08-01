@@ -4,6 +4,7 @@ module Sound.OpenSoundControl.Time where
 
 import Control.Concurrent
 import Control.Monad
+import Control.Monad.IO.Class
 import Data.Word
 import qualified Data.Time as T
 
@@ -87,11 +88,11 @@ immediately = NTPi 1
 -- * Clock operations
 
 -- | Read current real-valued @UTC@ timestamp.
-utcr :: IO Double
-utcr = fmap utc_utcr T.getCurrentTime
+utcr :: MonadIO m => m Double
+utcr = liftIO (fmap utc_utcr T.getCurrentTime)
 
 -- | Read current 'NTPi' timestamp.
-ntpi :: IO NTPi
+ntpi ::  MonadIO m => m NTPi
 ntpi = liftM utcr_ntpi utcr
 
 -- | The 'pauseThread' limit (in seconds).  Values larger than this
@@ -103,17 +104,17 @@ pauseThreadLimit = fromIntegral (maxBound::Int) / 1e6
 -- | Pause current thread for the indicated duration (in seconds), see
 --   'pauseThreadLimit'.  Note also that this function does not
 --   attempt pauses less than @1e-4@.
-pauseThread :: Double -> IO ()
-pauseThread n = when (n > 1e-4) (threadDelay (floor (n * 1e6)))
+pauseThread :: MonadIO m => Double -> m ()
+pauseThread n = when (n > 1e-4) (liftIO (threadDelay (floor (n * 1e6))))
 
 -- | Pause current thread until the given real-valued @UTC@ time, see
 -- 'pauseThreadLimit'.
-pauseThreadUntil :: Double -> IO ()
+pauseThreadUntil :: MonadIO m => Double -> m ()
 pauseThreadUntil t = pauseThread . (t -) =<< utcr
 
 -- | Sleep current thread for the indicated duration (in seconds).
 --   Divides long sleeps into parts smaller than 'pauseThreadLimit'.
-sleepThread :: Double -> IO ()
+sleepThread :: MonadIO m => Double -> m ()
 sleepThread n =
     if n >= pauseThreadLimit
     then let n' = pauseThreadLimit - 1
@@ -122,5 +123,5 @@ sleepThread n =
 
 -- | Sleep current thread until the given real-valued @UTC@ time.
 -- Divides long sleeps into parts smaller than 'pauseThreadLimit'.
-sleepThreadUntil :: Double -> IO ()
+sleepThreadUntil :: MonadIO m => Double -> m ()
 sleepThreadUntil t = sleepThread . (t -) =<< utcr
