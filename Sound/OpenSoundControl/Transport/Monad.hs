@@ -8,7 +8,7 @@ import Sound.OpenSoundControl.Class
 import Sound.OpenSoundControl.Type
 import qualified Sound.OpenSoundControl.Transport.FD as T
 
-class (Functor m,Monad m) => Transport m where
+class (Functor m,Monad m,MonadIO m) => Transport m where
    -- | Encode and send an OSC packet.
    sendOSC :: OSC o => o -> m ()
    -- | Receive and decode an OSC packet.
