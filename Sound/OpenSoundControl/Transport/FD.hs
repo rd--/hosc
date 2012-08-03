@@ -1,5 +1,5 @@
--- | An abstract transport layer. hosc provides implementations for
---   UDP and TCP transport.
+-- | An abstract transport layer with implementations for @UDP@ and
+-- @TCP@ transport.
 module Sound.OpenSoundControl.Transport.FD where
 
 import Control.Exception

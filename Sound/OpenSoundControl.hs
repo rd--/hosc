@@ -1,14 +1,16 @@
 -- | Composite of non-transport related modules.
 --
 -- Provides the 'Datum', 'Message', 'Bundle' and 'Packet' types and
--- the 'OSC' type-class.
+-- the 'OSC' and 'Coding' type-classes.
 --
--- The byte encoding functions are 'encodeOSC' and 'decodeOSC'.
+-- The basic constructors are 'message' and 'bundle', the basic coding
+-- functions are 'encodePacket' and 'decodePacket'.
 --
 -- > import Sound.OpenSoundControl
 -- >
--- > let o = Bundle immediately [Message "/g_free" [Int 0]]
--- > in decodeOSC (encodeOSC o) == o
+-- > let {o = bundle immediately [message "/g_free" [Int 0]]
+-- >     ;e = encodeBundle o :: String}
+-- > in decodeBundle e == o
 module Sound.OpenSoundControl (module M) where
 
 import Sound.OpenSoundControl.Class as M
