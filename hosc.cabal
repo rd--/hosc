@@ -6,11 +6,11 @@ Description:       @hosc@ implements a subset of the /Open Sound Control/
                    .
                    "Sound.OpenSoundControl" implements the actual protocol.
                    .
-                   "Sound.OpenSoundControl.Transport.FD" implements a
+                   "Sound.OSC.Transport.FD" implements a
                    /file descriptor/ based transport layer for @UDP@
                    and @TCP@.
                    .
-                   "Sound.OpenSoundControl.Transport.Monad" implements a
+                   "Sound.OSC.Transport.Monad" implements a
                    monadic interface to the @FD@ transport layer.
                    .
                    Composite modules are at "Sound.OSC" and "Sound.OSC.FD".
@@ -48,13 +48,13 @@ Library
                    Sound.OpenSoundControl.Type
                    Sound.OpenSoundControl.Coding
                    Sound.OpenSoundControl.Time
-                   Sound.OpenSoundControl.Transport.FD
-                   Sound.OpenSoundControl.Transport.FD.TCP
-                   Sound.OpenSoundControl.Transport.FD.UDP
-                   Sound.OpenSoundControl.Transport.Monad
                    Sound.OpenSoundControl.Wait
                    Sound.OSC
                    Sound.OSC.FD
+                   Sound.OSC.Transport.FD
+                   Sound.OSC.Transport.FD.TCP
+                   Sound.OSC.Transport.FD.UDP
+                   Sound.OSC.Transport.Monad
 
 Source-Repository  head
   Type:            darcs

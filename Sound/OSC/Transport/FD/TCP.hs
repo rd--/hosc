@@ -1,14 +1,13 @@
-{-# Language Rank2Types #-}
 -- | OSC over TCP implementation.
-module Sound.OpenSoundControl.Transport.FD.TCP where
+module Sound.OSC.Transport.FD.TCP where
 
-import qualified Data.ByteString.Lazy as B
+import qualified Data.ByteString.Lazy as B {- bytestring -}
 import Control.Monad
-import Network
+import Network {- network -}
 import Sound.OpenSoundControl.Class
 import Sound.OpenSoundControl.Coding
 import Sound.OpenSoundControl.Coding.Byte
-import Sound.OpenSoundControl.Transport.FD
+import Sound.OSC.Transport.FD
 import System.IO
 
 -- | The TCP transport handle data type.

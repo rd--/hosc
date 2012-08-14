@@ -1,5 +1,5 @@
 -- | OSC over UDP implementation.
-module Sound.OpenSoundControl.Transport.FD.UDP where
+module Sound.OSC.Transport.FD.UDP where
 
 import Control.Monad
 import qualified Data.ByteString as S
@@ -9,8 +9,8 @@ import qualified Network.Socket.ByteString as C (sendTo,recvFrom)
 import qualified Network.Socket.ByteString.Lazy as C (send,recv)
 import Sound.OpenSoundControl.Class
 import Sound.OpenSoundControl.Coding
-import Sound.OpenSoundControl.Transport.FD
 import Sound.OpenSoundControl.Type
+import Sound.OSC.Transport.FD
 
 -- | The UDP transport handle data type.
 data UDP = UDP {udpSocket :: N.Socket}

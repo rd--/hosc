@@ -1,12 +1,12 @@
 -- | Monad class implementing an Open Sound Control transport.
-module Sound.OpenSoundControl.Transport.Monad where
+module Sound.OSC.Transport.Monad where
 
 import Control.Monad.Trans.Reader {- transformers -}
 import Control.Monad.IO.Class as M
 import Data.List
 import Data.Maybe
 import Sound.OpenSoundControl.Class
-import qualified Sound.OpenSoundControl.Transport.FD as T
+import qualified Sound.OSC.Transport.FD as T
 import Sound.OpenSoundControl.Type
 import Sound.OpenSoundControl.Wait
 
@@ -19,10 +19,6 @@ class (Functor m,Monad m,MonadIO m) => Transport m where
 instance (T.Transport t,Functor io,MonadIO io) => Transport (ReaderT t io) where
    sendOSC o = ReaderT (M.liftIO . flip T.sendOSC o)
    recvPacket = ReaderT (M.liftIO . T.recvPacket)
-
--- | 'M.liftIO'
-liftIO :: Transport m => IO a -> m a
-liftIO = M.liftIO
 
 -- | Transport connection.
 type Connection t a = ReaderT t IO a

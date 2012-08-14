@@ -1,6 +1,6 @@
 -- | An abstract transport layer with implementations for @UDP@ and
 -- @TCP@ transport.
-module Sound.OpenSoundControl.Transport.FD where
+module Sound.OSC.Transport.FD where
 
 import Control.Exception
 import Data.List
