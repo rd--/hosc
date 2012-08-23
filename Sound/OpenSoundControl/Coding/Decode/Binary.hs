@@ -47,20 +47,21 @@ get_bytes n = do
     return b
 
 -- | Get an OSC datum.
-get_datum :: Char -> Get Datum
-get_datum 'i' = Int    <$> fromIntegral <$> getInt32be
-get_datum 'f' = Float  <$> realToFrac <$> I.getFloat32be
-get_datum 'd' = Double <$> I.getFloat64be
-get_datum 's' = String <$> get_string
-get_datum 'b' = Blob   <$> (get_bytes =<< getWord32be)
-get_datum 't' = TimeStamp <$> NTPi <$> getWord64be
-get_datum 'm' = do
-    b0 <- getWord8
-    b1 <- getWord8
-    b2 <- getWord8
-    b3 <- getWord8
-    return $ Midi (b0,b1,b2,b3)
-get_datum t = fail ("get_datum: illegal type " ++ show t)
+get_datum :: Datum_Type -> Get Datum
+get_datum ty =
+    case ty of
+      'i' -> Int    <$> fromIntegral <$> getInt32be
+      'f' -> Float  <$> realToFrac <$> I.getFloat32be
+      'd' -> Double <$> I.getFloat64be
+      's' -> String <$> get_string
+      'b' -> Blob   <$> (get_bytes =<< getWord32be)
+      't' -> TimeStamp <$> NTPi <$> getWord64be
+      'm' -> do b0 <- getWord8
+                b1 <- getWord8
+                b2 <- getWord8
+                b3 <- getWord8
+                return $ Midi (b0,b1,b2,b3)
+      _ -> fail ("get_datum: illegal type " ++ show ty)
 
 -- | Get an OSC 'Message'.
 get_message :: Get Message

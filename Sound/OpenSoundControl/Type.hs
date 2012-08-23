@@ -6,6 +6,9 @@ import Data.Maybe
 import Data.Word
 import Sound.OpenSoundControl.Time
 
+-- | Type enumerating Datum categories.
+type Datum_Type = Char
+
 -- | The basic elements of OSC messages.
 data Datum = Int Int
            | Float Double
@@ -57,7 +60,7 @@ message a xs =
 -- * Datum
 
 -- | Single character identifier of an OSC datum.
-datum_tag :: Datum -> Char
+datum_tag :: Datum -> Datum_Type
 datum_tag dt =
     case dt of
       Int _ -> 'i'
@@ -67,6 +70,33 @@ datum_tag dt =
       Blob _ -> 'b'
       TimeStamp _ -> 't'
       Midi _ -> 'm'
+
+-- | Variant of 'read'.
+readMaybe :: (Read a) => String -> Maybe a
+readMaybe s =
+    case reads s of
+      [(x, "")] -> Just x
+      _ -> Nothing
+
+-- | Given 'Datum_Type' attempt to parse 'Datum' at 'String'.
+--
+-- > parse_datum 'i' "42" == Just (Int 42)
+-- > parse_datum 'f' "3.14159" == Just (Float 3.14159)
+-- > parse_datum 'd' "3.14159" == Just (Double 3.14159)
+-- > parse_datum 's' "\"pi\"" == Just (String "pi")
+-- > parse_datum 'b' "pi" == Just (Blob (B.pack [112,105]))
+-- > parse_datum 'm' "(0,144,60,90)" == Just (Midi (0,144,60,90))
+parse_datum :: Datum_Type -> String -> Maybe Datum
+parse_datum ty =
+    case ty of
+      'i' -> fmap Int . readMaybe
+      'f' -> fmap Float . readMaybe
+      'd' -> fmap Double . readMaybe
+      's' -> fmap String . readMaybe
+      'b' -> Just . Blob . B.pack . map (fromIntegral . fromEnum)
+      't' -> error "parse_datum: timestamp"
+      'm' -> fmap Midi . readMaybe
+      _ -> error "parse_datum: type"
 
 -- | 'Datum' as real number if 'Double', 'Float' or 'Int', else 'Nothing'.
 --

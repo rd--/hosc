@@ -12,7 +12,7 @@ import Sound.OpenSoundControl.Time
 import Sound.OpenSoundControl.Type
 
 -- The plain byte count of an OSC value.
-size :: Char -> B.ByteString -> Int
+size :: Datum_Type -> B.ByteString -> Int
 size ty b =
     case ty of
       'i' -> 4
@@ -27,7 +27,7 @@ size ty b =
       _ -> error "size: illegal type"
 
 -- The storage byte count of an OSC value.
-storage :: Char -> B.ByteString -> Int
+storage :: Datum_Type -> B.ByteString -> Int
 storage ty b =
     case ty of
       's' -> let n = size 's' b + 1 in n + align n
@@ -35,7 +35,7 @@ storage ty b =
       _ -> size ty B.empty
 
 -- Decode an OSC datum
-decode_datum :: Char -> B.ByteString -> Datum
+decode_datum :: Datum_Type -> B.ByteString -> Datum
 decode_datum ty b =
     case ty of
       'i' -> Int (decode_i32 b)
