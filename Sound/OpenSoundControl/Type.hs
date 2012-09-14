@@ -2,6 +2,7 @@
 module Sound.OpenSoundControl.Type where
 
 import qualified Data.ByteString.Lazy as B
+import Data.List
 import Data.Maybe
 import Data.Word
 import Sound.OpenSoundControl.Time
@@ -204,3 +205,46 @@ at_packet f g p =
     case p of
       Packet_Message m -> f m
       Packet_Bundle b -> g b
+
+-- * Pretty printing
+
+-- | Pretty printer for 'Time'.
+--
+-- > map timePP [UTCr 0,NTPr 0,NTPi 0]
+timePP :: Time -> String
+timePP t =
+    case t of
+      UTCr n -> 'U' : show n
+      NTPr n -> 'N' : show n
+      NTPi i -> 'N' : show (ntpi_ntpr i)
+
+-- | Pretty printer for 'Datum'.
+--
+-- > map datumPP [Float 1.2,String "str",Midi (0,0x90,0x40,0x60)]
+datumPP :: Datum -> String
+datumPP d =
+    case d of
+      Int n -> show n
+      Float n -> show n
+      Double n -> show n
+      String s -> show s
+      Blob s -> show s
+      TimeStamp t -> timePP t
+      Midi (p,q,r,s) -> '<' : intercalate "," (map show [p,q,r,s]) ++ ">"
+
+-- | Pretty printer for 'Message'.
+messagePP :: Message -> String
+messagePP (Message a d) = unwords ("#message" : a : map datumPP d)
+
+-- | Pretty printer for 'Bundle'.
+bundlePP :: Bundle -> String
+bundlePP (Bundle t m) =
+    let m' = intersperse ";" (map messagePP m)
+    in unwords ("#bundle" : timePP t : m')
+
+-- | Pretty printer for 'Packet'.
+packetPP :: Packet -> String
+packetPP p =
+    case p of
+      Packet_Message m -> messagePP m
+      Packet_Bundle b -> bundlePP b
