@@ -36,7 +36,16 @@ openUDP host port = do
   -- N.setSocketOption fd N.RecvTimeOut 1000
   return (UDP fd)
 
--- | Trivial 'UDP' server.
+-- | Trivial 'UDP' server socket.
+--
+-- > import Control.Concurrent
+--
+-- > let {f fd = forever (recvMessage fd >>= print)
+-- >     ;t = udpServer "127.0.0.1" 57300}
+-- > in void (forkIO (withTransport t f))
+--
+-- > let t = openUDP "127.0.0.1" 57300
+-- > in withTransport t (\fd -> sendMessage fd (message "/n" []))
 udpServer :: String -> Int -> IO UDP
 udpServer host port = do
   fd <- N.socket N.AF_INET N.Datagram 0
