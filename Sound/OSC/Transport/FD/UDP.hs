@@ -25,12 +25,12 @@ instance Transport UDP where
    close (UDP fd) = N.sClose fd
 
 -- | Create and initialise UDP socket.
-udp_socket :: (N.Socket -> N.SockAddr -> IO t) -> String -> Int -> IO UDP
+udp_socket :: (N.Socket -> N.SockAddr -> IO ()) -> String -> Int -> IO UDP
 udp_socket f host port = do
   fd <- N.socket N.AF_INET N.Datagram 0
   a <- N.inet_addr host
   let sa = N.SockAddrInet (fromIntegral port) a
-  _ <- f fd sa
+  f fd sa
   return (UDP fd)
 
 -- | Make a 'UDP' connection.
