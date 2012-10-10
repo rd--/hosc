@@ -24,17 +24,22 @@ instance Transport UDP where
    recvPacket (UDP fd) = liftM decodePacket (C.recv fd 8192)
    close (UDP fd) = N.sClose fd
 
+-- | Create and initialise UDP socket.
+udp_socket :: (N.Socket -> N.SockAddr -> IO t) -> String -> Int -> IO UDP
+udp_socket f host port = do
+  fd <- N.socket N.AF_INET N.Datagram 0
+  a <- N.inet_addr host
+  let sa = N.SockAddrInet (fromIntegral port) a
+  _ <- f fd sa
+  return (UDP fd)
+
 -- | Make a 'UDP' connection.
 --
 -- > let t = openUDP "127.0.0.1" 57110
 -- > in withTransport t (\fd -> recvT 0.5 fd >>= print)
 openUDP :: String -> Int -> IO UDP
-openUDP host port = do
-  fd <- N.socket N.AF_INET N.Datagram 0
-  a <- N.inet_addr host
-  N.connect fd (N.SockAddrInet (fromIntegral port) a)
-  -- N.setSocketOption fd N.RecvTimeOut 1000
-  return (UDP fd)
+openUDP = udp_socket N.connect
+-- N.setSocketOption fd N.RecvTimeOut 1000
 
 -- | Trivial 'UDP' server socket.
 --
@@ -47,12 +52,7 @@ openUDP host port = do
 -- > let t = openUDP "127.0.0.1" 57300
 -- > in withTransport t (\fd -> sendMessage fd (message "/n" []))
 udpServer :: String -> Int -> IO UDP
-udpServer host port = do
-  fd <- N.socket N.AF_INET N.Datagram 0
-  a  <- N.inet_addr host
-  let sa = N.SockAddrInet (fromIntegral port) a
-  N.bindSocket fd sa
-  return (UDP fd)
+udpServer = udp_socket N.bindSocket
 
 -- | Send variant to send to specified address.
 sendTo :: OSC o => UDP -> o -> N.SockAddr -> IO ()
