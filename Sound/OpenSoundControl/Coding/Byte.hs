@@ -89,6 +89,6 @@ bundleHeader = C.pack "#bundle\0"
 
 -- | The number of bytes required to align an OSC value to the next
 --   4-byte boundary.
-align :: Bits i => i -> i
+align :: (Num i,Bits i) => i -> i
 {-# INLINE align #-}
 align n = ((n + 3) .&. complement 3) - n
