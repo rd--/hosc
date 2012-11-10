@@ -20,7 +20,7 @@ udpPort :: Integral n => UDP -> IO n
 udpPort (UDP fd) = fmap fromIntegral (N.socketPort fd)
 
 instance Transport UDP where
-   sendOSC (UDP fd) msg = C.send fd (encodeOSC msg) >> return ()
+   sendOSC (UDP fd) msg = void (C.send fd (encodeOSC msg))
    recvPacket (UDP fd) = liftM decodePacket (C.recv fd 8192)
    close (UDP fd) = N.sClose fd
 
@@ -59,7 +59,7 @@ sendTo :: OSC o => UDP -> o -> N.SockAddr -> IO ()
 sendTo (UDP fd) o a = do
   -- Network.Socket.ByteString.Lazy.sendTo does not exist
   let o' = S.pack (B.unpack (encodeOSC o))
-  C.sendTo fd o' a >> return ()
+  void (C.sendTo fd o' a)
 
 -- | Recv variant to collect message source address.
 recvFrom :: UDP -> IO (Packet, N.SockAddr)
