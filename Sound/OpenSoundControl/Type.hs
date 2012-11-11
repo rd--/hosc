@@ -58,6 +58,14 @@ message a xs =
       '/':_ -> Message a xs
       _ -> error "message: ill-formed address pattern"
 
+-- | 'Packet_Bundle' '.' 'bundle'.
+p_bundle :: Time -> [Message] -> Packet
+p_bundle t = Packet_Bundle . bundle t
+
+-- | 'Packet_Message' '.' 'message'.
+p_message :: Address_Pattern -> [Datum] -> Packet
+p_message a = Packet_Message . message a
+
 -- * Datum
 
 -- | Single character identifier of an OSC datum.
