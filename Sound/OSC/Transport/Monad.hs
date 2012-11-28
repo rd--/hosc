@@ -21,15 +21,19 @@ class Monad m => RecvOSC m where
    -- | Receive and decode an OSC packet.
    recvPacket :: m Packet
 
--- | 'Transport' is the union of 'SendOSC' and 'RecvOSC' and
--- incorporates a 'MonadIO' constraint.
-class (SendOSC m,RecvOSC m,MonadIO m) => Transport m where
+-- | 'DuplexOSC' is the union of 'SendOSC' and 'RecvOSC'.
+class (SendOSC m,RecvOSC m) => DuplexOSC m where
+
+-- | 'Transport' is 'DuplexOSC' with a 'MonadIO' constraint.
+class (DuplexOSC m,MonadIO m) => Transport m where
 
 instance (T.Transport t,MonadIO io) => SendOSC (ReaderT t io) where
    sendOSC o = ReaderT (M.liftIO . flip T.sendOSC o)
 
 instance (T.Transport t,MonadIO io) => RecvOSC (ReaderT t io) where
    recvPacket = ReaderT (M.liftIO . T.recvPacket)
+
+instance (T.Transport t,MonadIO io) => DuplexOSC (ReaderT t io) where
 
 instance (T.Transport t,MonadIO io) => Transport (ReaderT t io) where
 
