@@ -97,6 +97,10 @@ immediately = NTPi 1
 -- * Clock operations
 
 -- | Read current real-valued @UTC@ timestamp.
+--
+-- > do {ct <- fmap utc_utcr T.getCurrentTime
+-- >    ;pt <- fmap realToFrac T.getPOSIXTime
+-- >    ;print (pt - ct,pt - ct < 1e-5)}
 utcr :: MonadIO m => m Double
 utcr = liftIO (fmap realToFrac T.getPOSIXTime)
 
