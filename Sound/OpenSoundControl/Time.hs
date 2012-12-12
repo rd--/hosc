@@ -14,6 +14,7 @@ import Control.Monad
 import Control.Monad.IO.Class
 import Data.Word
 import qualified Data.Time as T
+import qualified Data.Time.Clock.POSIX as T
 
 -- * Temporal types
 
@@ -97,7 +98,7 @@ immediately = NTPi 1
 
 -- | Read current real-valued @UTC@ timestamp.
 utcr :: MonadIO m => m Double
-utcr = liftIO (fmap utc_utcr T.getCurrentTime)
+utcr = liftIO (fmap realToFrac T.getPOSIXTime)
 
 -- | Read current 'NTPi' timestamp.
 ntpi ::  MonadIO m => m NTPi
