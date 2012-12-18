@@ -55,7 +55,7 @@ get_datum ty =
       'd' -> Double <$> I.getFloat64be
       's' -> String <$> get_string
       'b' -> Blob   <$> (get_bytes =<< getWord32be)
-      't' -> TimeStamp <$> NTPi <$> getWord64be
+      't' -> TimeStamp <$> ntpi_to_ntpr <$> getWord64be
       'm' -> do b0 <- getWord8
                 b1 <- getWord8
                 b2 <- getWord8
@@ -88,7 +88,7 @@ get_message_seq = do
 get_bundle :: Get Bundle
 get_bundle = do
     skip (fromIntegral (L.length bundleHeader))
-    t <- NTPi <$> getWord64be
+    t <- ntpi_to_ntpr <$> getWord64be
     ps <- get_message_seq
     return $ Bundle t ps
 

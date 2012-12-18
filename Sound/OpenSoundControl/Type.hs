@@ -220,11 +220,7 @@ at_packet f g p =
 --
 -- > map timePP [UTCr 0,NTPr 0,NTPi 0]
 timePP :: Time -> String
-timePP t =
-    case t of
-      UTCr n -> 'U' : show n
-      NTPr n -> 'N' : show n
-      NTPi i -> 'N' : show (ntpi_ntpr i)
+timePP = (:) 'N' . show
 
 -- | Pretty printer for 'Datum'.
 --

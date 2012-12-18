@@ -25,7 +25,7 @@ encode_datum dt =
       Int i -> encode_i32 i
       Float f -> encode_f32 f
       Double d -> encode_f64 d
-      TimeStamp t -> encode_u64 $ as_ntpi t
+      TimeStamp t -> encode_u64 $ ntpr_to_ntpi t
       String s -> extend 0 (B.snoc (encode_str s) 0)
       Midi (b0,b1,b2,b3) -> B.pack [b0,b1,b2,b3]
       Blob b -> let n = encode_i32 (fromIntegral (B.length b))
@@ -42,20 +42,12 @@ encodeMessage (Message c l) =
 encode_message_blob :: Message -> Datum
 encode_message_blob = Blob . encodeMessage
 
--- Encode an OSC bundle.
-encode_bundle_ntpi :: NTPi -> [Message] -> B.ByteString
-encode_bundle_ntpi t l =
-    B.concat [bundleHeader
-             ,encode_u64 t
-             ,B.concat (map (encode_datum . encode_message_blob) l) ]
-
 -- | Encode an OSC 'Bundle'.
 encodeBundle :: Bundle -> B.ByteString
-encodeBundle b =
-    case b of
-      Bundle (NTPi t) l -> encode_bundle_ntpi t l
-      Bundle (NTPr t) l -> encode_bundle_ntpi (ntpr_ntpi t) l
-      Bundle (UTCr t) l -> encode_bundle_ntpi (utcr_ntpi t) l
+encodeBundle (Bundle t m) =
+    B.concat [bundleHeader
+             ,encode_u64 (ntpr_to_ntpi t)
+             ,B.concat (map (encode_datum . encode_message_blob) m)]
 
 -- | Encode an OSC 'Packet'.
 encodePacket :: Packet -> B.ByteString

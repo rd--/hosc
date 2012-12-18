@@ -21,78 +21,53 @@ import qualified Data.Time.Clock.POSIX as T
 -- | Type for integer representation of NTP time.
 type NTPi = Word64
 
--- | Time is represented in either @UTC@ or @NTP@ form.  The @NTP@ form may
---   be either integral or real.
-data Time = UTCr Double | NTPr Double | NTPi NTPi
-            deriving (Read, Show)
-
-instance Eq Time where
-    a == b = as_ntpi a == as_ntpi b
-    a /= b = as_ntpi a /= as_ntpi b
-
--- | Coerce 'Time' to integral @NTP@ form.
-as_ntpi :: Time -> NTPi
-as_ntpi x =
-    case x of
-      UTCr t -> utcr_ntpi t
-      NTPr t -> ntpr_ntpi t
-      NTPi t -> t
-
--- | Coerce 'Time' to real-valued @UTC@ form.
-as_utcr :: Time -> Double
-as_utcr x =
-    case x of
-      UTCr t -> t
-      NTPr t -> ntpr_utcr t
-      NTPi t -> ntpi_utcr t
-
--- | Times can be ordered, avoid coercion if not required.
-instance Ord Time where
-    compare p q =
-        case (p,q) of
-          (UTCr p',UTCr q') -> compare p' q'
-          (NTPr p',NTPr q') -> compare p' q'
-          (NTPi p',NTPi q') -> compare p' q'
-          _ -> compare (as_ntpi p) (as_ntpi q)
+-- | In /hosc/ time is represented in real-valued @NTP@ form.
+type Time = Double
 
 -- | Convert a real-valued NTP timestamp to an 'NTPi' timestamp.
-ntpr_ntpi :: Double -> NTPi
-ntpr_ntpi t = round (t * 2^(32::Int))
+ntpr_to_ntpi :: RealFrac n => n -> NTPi
+ntpr_to_ntpi t = round (t * 2^(32::Int))
 
 -- | Convert an 'NTPi' timestamp to a real-valued NTP timestamp.
-ntpi_ntpr :: NTPi -> Double
-ntpi_ntpr t = fromIntegral t / 2^(32::Int)
+ntpi_to_ntpr :: Fractional n => NTPi -> n
+ntpi_to_ntpr t = fromIntegral t / 2^(32::Int)
+
+-- | Unix time (real valued).
+type UT = Double
+
+-- | Difference (in seconds) between /NTP/ and /UT/ epochs.
+ntp_ut_epoch_diff :: Num n => n
+ntp_ut_epoch_diff = (70 * 365 + 17) * 24 * 60 * 60
 
 -- | Convert a real-valued UTC timestamp to an 'NTPi' timestamp.
-utcr_ntpi :: Double -> NTPi
-utcr_ntpi t =
-    let secdif = (70 * 365 + 17) * 24 * 60 * 60
-    in ntpr_ntpi (t + secdif)
+ut_to_ntpi :: UT -> NTPi
+ut_to_ntpi t = ntpr_to_ntpi (t + ntp_ut_epoch_diff)
+
+ut_to_ntpr :: Num n => n -> n
+ut_to_ntpr = (+) ntp_ut_epoch_diff
 
 -- | Convert a real-valued NTP timestamp to a real-valued UTC timestamp.
-ntpr_utcr :: Double -> Double
-ntpr_utcr t =
-    let secdif = (70 * 365 + 17) * 24 * 60 * 60
-    in t - secdif
+ntpr_to_ut :: Num n => n -> n
+ntpr_to_ut t = t - ntp_ut_epoch_diff
 
 -- | Convert an 'NTPi' timestamp to a real-valued UTC timestamp.
-ntpi_utcr :: NTPi -> Double
-ntpi_utcr = ntpr_utcr . ntpi_ntpr
+ntpi_to_ut :: NTPi -> UT
+ntpi_to_ut = ntpr_to_ut . ntpi_to_ntpr
 
 -- | The time at 1970-01-01:00:00:00.
-utc_base :: T.UTCTime
-utc_base =
+ut_epoch :: T.UTCTime
+ut_epoch =
     let d = T.fromGregorian 1970 1 1
         s = T.secondsToDiffTime 0
     in T.UTCTime d s
 
 -- | Convert an 'T.UTCTime' timestamp to a real-valued UTC timestamp.
-utc_utcr :: T.UTCTime -> Double
-utc_utcr t = realToFrac (T.diffUTCTime t utc_base)
+utc_utcr :: Fractional n => T.UTCTime -> n
+utc_utcr t = realToFrac (T.diffUTCTime t ut_epoch)
 
 -- | Constant indicating the bundle is to be executed immediately.
 immediately :: Time
-immediately = NTPi 1
+immediately = ntpi_to_ntpr 1
 
 -- * Clock operations
 
@@ -101,31 +76,27 @@ immediately = NTPi 1
 -- > do {ct <- fmap utc_utcr T.getCurrentTime
 -- >    ;pt <- fmap realToFrac T.getPOSIXTime
 -- >    ;print (pt - ct,pt - ct < 1e-5)}
-utcr :: MonadIO m => m Double
-utcr = liftIO (fmap realToFrac T.getPOSIXTime)
-
--- | Read current 'NTPi' timestamp.
-ntpi ::  MonadIO m => m NTPi
-ntpi = liftM utcr_ntpi utcr
+time :: MonadIO m => m Time
+time = liftIO (fmap (ut_to_ntpr . realToFrac) T.getPOSIXTime)
 
 -- * Thread operations.
 
 -- | The 'pauseThread' limit (in seconds).  Values larger than this
 -- require a different thread delay mechanism, see 'sleepThread'.  The
 -- value is the number of microseconds in @maxBound::Int@.
-pauseThreadLimit :: Double
+pauseThreadLimit :: Fractional n => n
 pauseThreadLimit = fromIntegral (maxBound::Int) / 1e6
 
 -- | Pause current thread for the indicated duration (in seconds), see
 --   'pauseThreadLimit'.  Note also that this function does not
 --   attempt pauses less than @1e-4@.
-pauseThread :: MonadIO m => Double -> m ()
+pauseThread :: (MonadIO m,Ord n,RealFrac n) => n -> m ()
 pauseThread n = when (n > 1e-4) (liftIO (threadDelay (floor (n * 1e6))))
 
 -- | Pause current thread until the given real-valued @UTC@ time, see
 -- 'pauseThreadLimit'.
-pauseThreadUntil :: MonadIO m => Double -> m ()
-pauseThreadUntil t = pauseThread . (t -) =<< utcr
+pauseThreadUntil :: MonadIO m => Time -> m ()
+pauseThreadUntil t = pauseThread . (t -) =<< time
 
 -- | Sleep current thread for the indicated duration (in seconds).
 --   Divides long sleeps into parts smaller than 'pauseThreadLimit'.
@@ -139,4 +110,4 @@ sleepThread n =
 -- | Sleep current thread until the given real-valued @UTC@ time.
 -- Divides long sleeps into parts smaller than 'pauseThreadLimit'.
 sleepThreadUntil :: MonadIO m => Double -> m ()
-sleepThreadUntil t = sleepThread . (t -) =<< utcr
+sleepThreadUntil t = sleepThread . (t -) =<< time

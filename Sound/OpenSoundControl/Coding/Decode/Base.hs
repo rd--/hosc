@@ -43,7 +43,7 @@ decode_datum ty b =
       'd' -> Double (decode_f64 b)
       's' -> String (decode_str (b_take (size 's' b) b))
       'b' -> Blob (b_take (size 'b' b) (B.drop 4 b))
-      't' -> TimeStamp (NTPi (decode_u64 b))
+      't' -> TimeStamp (ntpi_to_ntpr (decode_u64 b))
       'm' -> let [b0,b1,b2,b3] = B.unpack (B.take 4 b) in Midi (b0,b1,b2,b3)
       _ -> error ("decode_datum: illegal type (" ++ [ty] ++ ")")
 

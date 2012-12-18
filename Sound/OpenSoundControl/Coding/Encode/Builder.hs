@@ -42,7 +42,7 @@ build_datum d =
       Int i -> B.fromInt32be (fromIntegral i)
       Float n -> B.fromWord32be (I.floatToWord (realToFrac n))
       Double n -> B.fromWord64be (I.doubleToWord n)
-      TimeStamp t -> B.fromWord64be (fromIntegral (as_ntpi t))
+      TimeStamp t -> B.fromWord64be (fromIntegral (ntpr_to_ntpi t))
       String s -> build_string s
       Midi (b0,b1,b2,b3) -> B.fromWord8s [b0,b1,b2,b3]
       Blob b -> build_bytes b
@@ -66,9 +66,7 @@ build_packet :: Packet -> B.Builder
 build_packet o =
     case o of
       Packet_Message m -> build_message m
-      Packet_Bundle (Bundle (NTPi t) l) -> build_bundle_ntpi t l
-      Packet_Bundle (Bundle (NTPr t) l) -> build_bundle_ntpi (ntpr_ntpi t) l
-      Packet_Bundle (Bundle (UTCr t) l) -> build_bundle_ntpi (utcr_ntpi t) l
+      Packet_Bundle (Bundle t m) -> build_bundle_ntpi (ntpr_to_ntpi t) m
 
 {-# INLINE encodeMessage #-}
 {-# INLINE encodeBundle #-}
