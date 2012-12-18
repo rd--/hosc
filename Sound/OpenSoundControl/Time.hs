@@ -96,6 +96,10 @@ pauseThreadLimit = fromIntegral (maxBound::Int) / 1e6
 pauseThread :: (MonadIO m,Ord n,RealFrac n) => n -> m ()
 pauseThread n = when (n > 0) (liftIO (threadDelay (floor (n * 1e6))))
 
+-- | Type restricted 'pauseThread'.
+wait :: MonadIO m => Double -> m ()
+wait = pauseThread
+
 -- | Pause current thread until the given 'Time', see
 -- 'pauseThreadLimit'.
 pauseThreadUntil :: MonadIO m => Time -> m ()
