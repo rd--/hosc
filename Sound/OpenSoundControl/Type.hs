@@ -217,8 +217,6 @@ at_packet f g p =
 -- * Pretty printing
 
 -- | Pretty printer for 'Time'.
---
--- > map timePP [UTCr 0,NTPr 0,NTPi 0]
 timePP :: Time -> String
 timePP = (:) 'N' . show
 

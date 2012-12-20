@@ -75,7 +75,7 @@ utc_to_ut t = realToFrac (T.diffUTCTime t ut_epoch)
 
 -- * Clock operations
 
--- | Read current real-valued @UTC@ timestamp.
+-- | Read current real-valued @NTP@ timestamp.
 --
 -- > do {ct <- fmap utc_to_ut T.getCurrentTime
 -- >    ;pt <- fmap realToFrac T.getPOSIXTime
