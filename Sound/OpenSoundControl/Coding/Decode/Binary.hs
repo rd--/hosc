@@ -95,7 +95,7 @@ get_bundle = do
 -- | Get an OSC 'Packet'.
 getPacket :: Get Packet
 getPacket = do
-    h <- getLazyByteString (L.length bundleHeader)
+    h <- uncheckedLookAhead (L.length bundleHeader)
     if h == bundleHeader
         then fmap Packet_Bundle get_bundle
         else fmap Packet_Message get_message

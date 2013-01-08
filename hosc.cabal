@@ -28,7 +28,7 @@ Data-Files:        README
 
 Library
   Build-Depends:   base == 4.*,
-                   binary,
+                   binary < 0.6,
                    blaze-builder >= 0.3,
                    bytestring,
                    data-binary-ieee754,
