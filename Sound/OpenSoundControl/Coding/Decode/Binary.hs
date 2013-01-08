@@ -26,7 +26,7 @@ isolate n m = do
         then return a
         else fail "isolate: not all bytes consumed"
 
--- | Get a 32 biut integer in big-endian byte order.
+-- | Get a 32 bit integer in big-endian byte order.
 getInt32be :: Get Int32
 getInt32be = fromIntegral <$> getWord32be
 
@@ -95,7 +95,7 @@ get_bundle = do
 -- | Get an OSC 'Packet'.
 getPacket :: Get Packet
 getPacket = do
-    h <- uncheckedLookAhead (L.length bundleHeader)
+    h <- getLazyByteString (L.length bundleHeader)
     if h == bundleHeader
         then fmap Packet_Bundle get_bundle
         else fmap Packet_Message get_message
