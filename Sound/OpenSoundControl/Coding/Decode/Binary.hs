@@ -5,9 +5,10 @@ module Sound.OpenSoundControl.Coding.Decode.Binary
     ,decodePacket_strict) where
 
 import Control.Applicative
+import Control.Monad (when)
 import Data.Binary.Get
 import qualified Data.Binary.IEEE754 as I
-import qualified Data.ByteString as S
+import qualified Data.ByteString.Char8 as S
 import qualified Data.ByteString.Lazy as L
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.Int (Int32)
@@ -21,10 +22,12 @@ import Sound.OpenSoundControl.Type
 isolate :: Word32 -> Get a -> Get a
 isolate n m = do
     s <- get_bytes n
-    let (a, s', _) = runGetState m s 0
-    if L.null s'
-        then return a
-        else fail "isolate: not all bytes consumed"
+    case runGetOrFail m s of
+        Left (_, _, e) -> fail e
+        Right (s', _, a) ->
+            if L.null s'
+                then return a
+                else fail "isolate: not all bytes consumed"
 
 -- | Get a 32 bit integer in big-endian byte order.
 getInt32be :: Get Int32
@@ -85,21 +88,18 @@ get_message_seq = do
             ps <- get_message_seq
             return (p:ps)
 
+-- | Get a bundle. Fail if bundle header is not found in packet.
 get_bundle :: Get Bundle
 get_bundle = do
-    skip (fromIntegral (L.length bundleHeader))
+    h <- getByteString (S.length bundleHeader_strict)
+    when (h /= bundleHeader_strict) (fail "get_bundle: not a bundle")
     t <- ntpi_to_ntpr <$> getWord64be
     ps <- get_message_seq
     return $ Bundle t ps
 
 -- | Get an OSC 'Packet'.
 getPacket :: Get Packet
-getPacket = do
-    h <- uncheckedLookAhead (L.length bundleHeader)
-    if h == bundleHeader
-        then fmap Packet_Bundle get_bundle
-        else fmap Packet_Message get_message
-
+getPacket = (Packet_Bundle <$> get_bundle) <|> (Packet_Message <$> get_message)
 
 -- | Decode an OSC packet from a lazy ByteString.
 --

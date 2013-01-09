@@ -3,6 +3,7 @@ module Sound.OpenSoundControl.Coding.Byte where
 
 import Data.Binary
 import Data.Bits
+import qualified Data.ByteString.Char8 as S
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.Int
@@ -82,10 +83,14 @@ decode_str :: B.ByteString -> String
 {-# INLINE decode_str #-}
 decode_str = C.unpack
 
--- | Bundle header string.
+-- | Bundle header as a strict ByteString.
+bundleHeader_strict :: S.ByteString
+bundleHeader_strict = S.pack "#bundle\0"
+
+-- | Bundle header as a lazy ByteString.
 bundleHeader :: B.ByteString
 {-# INLINE bundleHeader #-}
-bundleHeader = C.pack "#bundle\0"
+bundleHeader = C.fromChunks [bundleHeader_strict]
 
 -- | The number of bytes required to align an OSC value to the next
 --   4-byte boundary.
