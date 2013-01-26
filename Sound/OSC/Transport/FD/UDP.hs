@@ -2,11 +2,11 @@
 module Sound.OSC.Transport.FD.UDP where
 
 import Control.Monad
-import qualified Data.ByteString as S
-import qualified Data.ByteString.Lazy as B
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as B.L
 import qualified Network.Socket as N
 import qualified Network.Socket.ByteString as C (sendTo,recvFrom)
-import qualified Network.Socket.ByteString.Lazy as C (send,recv)
+import qualified Network.Socket.ByteString.Lazy as C.L (send,recv)
 import Sound.OpenSoundControl.Class
 import Sound.OpenSoundControl.Coding
 import Sound.OpenSoundControl.Type
@@ -20,8 +20,9 @@ udpPort :: Integral n => UDP -> IO n
 udpPort (UDP fd) = fmap fromIntegral (N.socketPort fd)
 
 instance Transport UDP where
-   sendOSC (UDP fd) msg = void (C.send fd (encodeOSC msg))
-   recvPacket (UDP fd) = liftM decodePacket (C.recv fd 8192)
+   -- C.L.send is not implemented for windows...
+   sendOSC (UDP fd) msg = void (C.L.send fd (encodeOSC msg))
+   recvPacket (UDP fd) = liftM decodePacket (C.L.recv fd 8192)
    close (UDP fd) = N.sClose fd
 
 -- | Create and initialise UDP socket.
@@ -58,7 +59,7 @@ udpServer = udp_socket N.bindSocket
 sendTo :: OSC o => UDP -> o -> N.SockAddr -> IO ()
 sendTo (UDP fd) o a = do
   -- Network.Socket.ByteString.Lazy.sendTo does not exist
-  let o' = S.pack (B.unpack (encodeOSC o))
+  let o' = B.pack (B.L.unpack (encodeOSC o))
   void (C.sendTo fd o' a)
 
 -- | Recv variant to collect message source address.
@@ -66,5 +67,5 @@ recvFrom :: UDP -> IO (Packet, N.SockAddr)
 recvFrom (UDP fd) = do
   -- Network.Socket.ByteString.Lazy.recvFrom does not exist
   (s,a) <- C.recvFrom fd 8192
-  let s' = B.pack (S.unpack s)
+  let s' = B.L.pack (B.unpack s)
   return (decodePacket s',a)
