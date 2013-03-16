@@ -1,9 +1,10 @@
-module Sound.OpenSoundControl.Arbitrary () where
+module Sound.OSC.Arbitrary () where
 
-import Control.Applicative
-import qualified Data.ByteString.Lazy as B
-import Sound.OpenSoundControl
-import Test.QuickCheck
+import Control.Applicative {- base -}
+import qualified Data.ByteString.Lazy as B {- bytestring -}
+import Test.QuickCheck {- QuickCheck -}
+
+import Sound.OSC
 
 genTime :: Gen Time
 -- Avoid floating point representation/conversion errors

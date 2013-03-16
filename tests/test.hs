@@ -1,11 +1,11 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-import           Sound.OpenSoundControl (Packet)
-import           Sound.OpenSoundControl.Arbitrary ()
-import qualified Sound.OpenSoundControl.Coding.Decode.Base as DecodeBase
-import qualified Sound.OpenSoundControl.Coding.Encode.Base as EncodeBase
-import qualified Sound.OpenSoundControl.Coding.Decode.Binary as DecodeBinary
-import qualified Sound.OpenSoundControl.Coding.Encode.Builder as EncodeBuilder
+import           Sound.OSC.Arbitrary ()
+import qualified Sound.OSC.Coding.Decode.Base as DecodeBase
+import qualified Sound.OSC.Coding.Encode.Base as EncodeBase
+import qualified Sound.OSC.Coding.Decode.Binary as DecodeBinary
+import qualified Sound.OSC.Coding.Encode.Builder as EncodeBuilder
+import           Sound.OSC.Type (Packet)
 import           Test.Framework (Test, defaultMain)
 import           Test.Framework.Providers.QuickCheck2 (testProperty)
 

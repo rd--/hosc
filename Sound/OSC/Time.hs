@@ -1,13 +1,13 @@
 -- | OSC related timing functions.  OSC timestamps are @NTP@ values,
 -- <http://ntp.org/>.
-module Sound.OpenSoundControl.Time where
+module Sound.OSC.Time where
 
-import Control.Concurrent
-import Control.Monad
-import Control.Monad.IO.Class
-import Data.Word
-import qualified Data.Time as T
-import qualified Data.Time.Clock.POSIX as T
+import Control.Concurrent {- base -}
+import Control.Monad {- base -}
+import Control.Monad.IO.Class {- transformers -}
+import Data.Word {- base -}
+import qualified Data.Time as T {- time -}
+import qualified Data.Time.Clock.POSIX as T {- time -}
 
 -- * Temporal types
 

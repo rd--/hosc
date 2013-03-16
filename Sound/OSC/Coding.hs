@@ -1,14 +1,15 @@
 {-# LANGUAGE FlexibleInstances,TypeSynonymInstances #-}
 -- | A type-class to provide coding operations to different data types
 --   using the same function names.
-module Sound.OpenSoundControl.Coding where
+module Sound.OSC.Coding where
 
-import qualified Data.ByteString as S
-import qualified Data.ByteString.Lazy as B
-import qualified Data.ByteString.Lazy.Char8 as C
-import Sound.OpenSoundControl.Type
-import qualified Sound.OpenSoundControl.Coding.Decode.Binary as Binary
-import qualified Sound.OpenSoundControl.Coding.Encode.Builder as Builder
+import qualified Data.ByteString as S {- bytestring -}
+import qualified Data.ByteString.Lazy as B {- bytestring -}
+import qualified Data.ByteString.Lazy.Char8 as C {- bytestring -}
+
+import Sound.OSC.Type
+import qualified Sound.OSC.Coding.Decode.Binary as Binary
+import qualified Sound.OSC.Coding.Encode.Builder as Builder
 
 -- | Converting from and to binary packet representations.
 class Coding a where

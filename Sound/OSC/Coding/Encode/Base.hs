@@ -1,14 +1,15 @@
 -- | Base-level encode function for OSC packets (slow).  For ordinary
---   use see 'Sound.OpenSoundControl.Coding.Encode.Builder'.
-module Sound.OpenSoundControl.Coding.Encode.Base (encodeMessage
-                                                 ,encodeBundle
-                                                 ,encodePacket) where
+--   use see 'Sound.OSC.Coding.Encode.Builder'.
+module Sound.OSC.Coding.Encode.Base (encodeMessage
+                                    ,encodeBundle
+                                    ,encodePacket) where
 
-import qualified Data.ByteString.Lazy as B
-import Data.Word
-import Sound.OpenSoundControl.Coding.Byte
-import Sound.OpenSoundControl.Type
-import Sound.OpenSoundControl.Time
+import qualified Data.ByteString.Lazy as B {- bytestring -}
+import Data.Word {- base -}
+
+import Sound.OSC.Coding.Byte
+import Sound.OSC.Type
+import Sound.OSC.Time
 
 -- Command argument types are given by a descriptor.
 descriptor :: [Datum] -> Datum

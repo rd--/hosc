@@ -1,15 +1,16 @@
 -- | Monad class implementing an Open Sound Control transport.
 module Sound.OSC.Transport.Monad where
 
-import Control.Monad (liftM)
+import Control.Monad (liftM) {- base -}
 import Control.Monad.Trans.Reader {- transformers -}
-import Control.Monad.IO.Class as M
-import Data.List
-import Data.Maybe
-import Sound.OpenSoundControl.Class
+import Control.Monad.IO.Class as M {- transformers -}
+import Data.List {- base -}
+import Data.Maybe {- base -}
+
+import Sound.OSC.Class
 import qualified Sound.OSC.Transport.FD as T
-import Sound.OpenSoundControl.Type
-import Sound.OpenSoundControl.Wait
+import Sound.OSC.Type
+import Sound.OSC.Wait
 
 -- | Sender monad.
 class Monad m => SendOSC m where

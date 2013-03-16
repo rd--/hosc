@@ -1,24 +1,25 @@
 -- | Optimised decode function for OSC packets.
-module Sound.OpenSoundControl.Coding.Decode.Binary
+module Sound.OSC.Coding.Decode.Binary
     (getPacket
     ,decodePacket
     ,decodePacket_strict) where
 
-import Control.Applicative
-import Control.Monad (when)
-import Data.Binary.Get
-import qualified Data.Binary.IEEE754 as I
-import qualified Data.ByteString.Char8 as S
-import qualified Data.ByteString.Lazy as L
-import qualified Data.ByteString.Lazy.Char8 as C
-import Data.Int (Int32)
-import Data.Word (Word32)
-import Sound.OpenSoundControl.Coding.Byte
-import Sound.OpenSoundControl.Time
-import Sound.OpenSoundControl.Type
+import Control.Applicative {- base -}
+import Control.Monad (when) {- base -}
+import Data.Binary.Get {- binary -}
+import qualified Data.Binary.IEEE754 as I {- data-binary-ieee754 -}
+import qualified Data.ByteString.Char8 as S {- bytestring -}
+import qualified Data.ByteString.Lazy as L {- bytestring -}
+import qualified Data.ByteString.Lazy.Char8 as C {- bytestring -}
+import Data.Int (Int32) {- base -}
+import Data.Word (Word32) {- base -}
 
--- | Isolate an action to operating within a fixed block of bytes. The action
---   is required to consume all the bytes that it is isolated to.
+import Sound.OSC.Coding.Byte
+import Sound.OSC.Time
+import Sound.OSC.Type
+
+-- | Isolate an action to operating within a fixed block of bytes. The
+-- action is required to consume all the bytes that it is isolated to.
 isolate :: Word32 -> Get a -> Get a
 isolate n m = do
     s <- get_bytes n

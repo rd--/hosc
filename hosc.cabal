@@ -36,25 +36,25 @@ Library
                    time,
                    transformers
   GHC-Options:     -Wall -fwarn-tabs
-  Exposed-modules: Sound.OpenSoundControl
-                   Sound.OpenSoundControl.Class
-                   Sound.OpenSoundControl.Coding.Byte
-                   Sound.OpenSoundControl.Coding.Cast
-                   Sound.OpenSoundControl.Coding.Coerce
-                   Sound.OpenSoundControl.Coding.Decode.Base
-                   Sound.OpenSoundControl.Coding.Decode.Binary
-                   Sound.OpenSoundControl.Coding.Encode.Base
-                   Sound.OpenSoundControl.Coding.Encode.Builder
-                   Sound.OpenSoundControl.Type
-                   Sound.OpenSoundControl.Coding
-                   Sound.OpenSoundControl.Time
-                   Sound.OpenSoundControl.Wait
-                   Sound.OSC
+  Exposed-modules: Sound.OSC
+                   Sound.OSC.Class
+                   Sound.OSC.Coding
+                   Sound.OSC.Coding.Byte
+                   Sound.OSC.Coding.Cast
+                   Sound.OSC.Coding.Coerce
+                   Sound.OSC.Coding.Decode.Base
+                   Sound.OSC.Coding.Decode.Binary
+                   Sound.OSC.Coding.Encode.Base
+                   Sound.OSC.Coding.Encode.Builder
+                   Sound.OSC.Core
                    Sound.OSC.FD
+                   Sound.OSC.Time
                    Sound.OSC.Transport.FD
                    Sound.OSC.Transport.FD.TCP
                    Sound.OSC.Transport.FD.UDP
                    Sound.OSC.Transport.Monad
+                   Sound.OSC.Type
+                   Sound.OSC.Wait
 
 Source-Repository  head
   Type:            darcs
@@ -65,7 +65,7 @@ Benchmark hosc-benchmark
   Hs-Source-Dirs: benchmarks
   Main-Is: benchmark.hs
   Other-Modules:
-      Sound.OpenSoundControl.NFData
+      Sound.OSC.NFData
   Build-Depends:
       base == 4.*
     , hosc == 0.14.*
@@ -80,7 +80,7 @@ Test-Suite hosc-test
   Hs-Source-Dirs: tests
   Main-Is: test.hs
   Other-Modules:
-      Sound.OpenSoundControl.Arbitrary
+      Sound.OSC.Arbitrary
   Build-Depends:
       base == 4.*
     , bytestring >= 0.10

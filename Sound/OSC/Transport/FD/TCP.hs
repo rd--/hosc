@@ -2,13 +2,14 @@
 module Sound.OSC.Transport.FD.TCP where
 
 import qualified Data.ByteString.Lazy as B {- bytestring -}
-import Control.Monad
+import Control.Monad {- base -}
 import Network {- network -}
-import Sound.OpenSoundControl.Class
-import Sound.OpenSoundControl.Coding
-import Sound.OpenSoundControl.Coding.Byte
+import System.IO {- base -}
+
+import Sound.OSC.Class
+import Sound.OSC.Coding
+import Sound.OSC.Coding.Byte
 import Sound.OSC.Transport.FD
-import System.IO
 
 -- | The TCP transport handle data type.
 data TCP = TCP {tcpHandle :: Handle}

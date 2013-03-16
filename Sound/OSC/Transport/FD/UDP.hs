@@ -1,12 +1,13 @@
 -- | OSC over UDP implementation.
 module Sound.OSC.Transport.FD.UDP where
 
-import Control.Monad
+import Control.Monad {- base -}
 import qualified Network.Socket as N {- network -}
-import qualified Network.Socket.ByteString as C {- .Lazy as C.L -}
-import Sound.OpenSoundControl.Class
-import Sound.OpenSoundControl.Coding
-import Sound.OpenSoundControl.Type
+import qualified Network.Socket.ByteString as C {- network -}
+
+import Sound.OSC.Class
+import Sound.OSC.Coding
+import Sound.OSC.Type
 import Sound.OSC.Transport.FD
 
 -- | The UDP transport handle data type.

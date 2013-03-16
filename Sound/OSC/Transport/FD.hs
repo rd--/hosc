@@ -2,12 +2,13 @@
 -- @TCP@ transport.
 module Sound.OSC.Transport.FD where
 
-import Control.Exception
-import Data.List
-import Data.Maybe
-import Sound.OpenSoundControl.Class
-import Sound.OpenSoundControl.Type
-import Sound.OpenSoundControl.Wait
+import Control.Exception {- base -}
+import Data.List {- base -}
+import Data.Maybe {- base -}
+
+import Sound.OSC.Class
+import Sound.OSC.Type
+import Sound.OSC.Wait
 
 -- | Abstract over the underlying transport protocol.
 class Transport t where

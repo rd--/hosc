@@ -1,12 +1,12 @@
-import Criterion.Main
+import Criterion.Main {- criterion -}
+import qualified Data.ByteString.Lazy as B {- bytestring -}
 
-import qualified Data.ByteString.Lazy as B
-import Sound.OpenSoundControl
-import Sound.OpenSoundControl.NFData ()
-import qualified Sound.OpenSoundControl.Coding.Decode.Binary as Binary
-import qualified Sound.OpenSoundControl.Coding.Encode.Builder as Builder
-import qualified Sound.OpenSoundControl.Coding.Decode.Base as Decode
-import qualified Sound.OpenSoundControl.Coding.Encode.Base as Encode
+import Sound.OSC
+import qualified Sound.OSC.Coding.Decode.Binary as Binary
+import qualified Sound.OSC.Coding.Encode.Builder as Builder
+import qualified Sound.OSC.Coding.Decode.Base as Decode
+import qualified Sound.OSC.Coding.Encode.Base as Encode
+import Sound.OSC.NFData ()
 
 type EncodingFunc = Bundle -> B.ByteString
 type DecodingFunc = B.ByteString -> Packet

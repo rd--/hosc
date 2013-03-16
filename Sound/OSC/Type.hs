@@ -1,23 +1,24 @@
 -- | Alegbraic data types for OSC datum and packets.
-module Sound.OpenSoundControl.Type where
+module Sound.OSC.Type where
 
-import qualified Data.ByteString.Lazy as B
-import Data.List
-import Data.Maybe
-import Data.Word
-import Sound.OpenSoundControl.Time
+import qualified Data.ByteString.Lazy as B {- bytestring -}
+import Data.List {- base -}
+import Data.Maybe {- base -}
+import Data.Word {- base -}
+
+import Sound.OSC.Time
 
 -- | Type enumerating Datum categories.
 type Datum_Type = Char
 
 -- | The basic elements of OSC messages.
-data Datum = Int Int
-           | Float Double
-           | Double Double
-           | String String
-           | Blob B.ByteString
-           | TimeStamp Time
-           | Midi (Word8,Word8,Word8,Word8)
+data Datum = Int {d_int :: Int}
+           | Float {d_float :: Float}
+           | Double {d_double :: Double}
+           | String {d_string :: String}
+           | Blob {d_blob :: B.ByteString}
+           | TimeStamp {d_timestamp :: Time}
+           | Midi {d_midi :: (Word8,Word8,Word8,Word8)}
              deriving (Eq,Read,Show)
 
 -- | OSC address pattern.
@@ -114,7 +115,7 @@ datum_real :: Datum -> Maybe Double
 datum_real d =
     case d of
       Double n -> Just n
-      Float n -> Just n
+      Float n -> Just (realToFrac n)
       Int n -> Just (fromIntegral n)
       _ -> Nothing
 

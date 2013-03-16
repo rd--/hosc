@@ -1,15 +1,16 @@
 -- | Base-level decode function for OSC packets (slow).  For ordinary
---   use see 'Sound.OpenSoundControl.Coding.Decode.Binary'.
-module Sound.OpenSoundControl.Coding.Decode.Base (decodeMessage
-                                                 ,decodeBundle
-                                                 ,decodePacket) where
+--   use see 'Sound.OSC.Coding.Decode.Binary'.
+module Sound.OSC.Coding.Decode.Base (decodeMessage
+                                    ,decodeBundle
+                                    ,decodePacket) where
 
-import qualified Data.ByteString.Lazy as B
-import Data.List
-import Data.Maybe
-import Sound.OpenSoundControl.Coding.Byte
-import Sound.OpenSoundControl.Time
-import Sound.OpenSoundControl.Type
+import qualified Data.ByteString.Lazy as B {- bytestring -}
+import Data.List {- base -}
+import Data.Maybe {- base -}
+
+import Sound.OSC.Coding.Byte
+import Sound.OSC.Time
+import Sound.OSC.Type
 
 -- The plain byte count of an OSC value.
 size :: Datum_Type -> B.ByteString -> Int

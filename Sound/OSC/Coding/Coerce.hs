@@ -1,7 +1,7 @@
 -- | OSC packet coercion and normalization.
-module Sound.OpenSoundControl.Coding.Coerce where
+module Sound.OSC.Coding.Coerce where
 
-import Sound.OpenSoundControl.Type
+import Sound.OSC.Type
 
 -- | Map a normalizing function over datum at an OSC 'Message'.
 message_coerce :: (Datum -> Datum) -> Message -> Message
@@ -15,7 +15,7 @@ bundle_coerce f (Bundle t xs) = Bundle t (map (message_coerce f) xs)
 f_to_d :: Datum -> Datum
 f_to_d d =
     case d of
-      Float n -> Double n
+      Float n -> Double (realToFrac n)
       _ -> d
 
 -- | Coerce Int and Float to Double.
@@ -23,7 +23,7 @@ if_to_d :: Datum -> Datum
 if_to_d d =
     case d of
       Int n -> Double (fromIntegral n)
-      Float n -> Double n
+      Float n -> Double (realToFrac n)
       _ -> d
 
 -- | Coerce Float and Double to Int.

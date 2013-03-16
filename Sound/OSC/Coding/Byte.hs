@@ -1,13 +1,14 @@
 -- | Byte-level coding utility functions.
-module Sound.OpenSoundControl.Coding.Byte where
+module Sound.OSC.Coding.Byte where
 
-import Data.Binary
-import Data.Bits
-import qualified Data.ByteString.Char8 as S
-import qualified Data.ByteString.Lazy as B
-import qualified Data.ByteString.Lazy.Char8 as C
-import Data.Int
-import Sound.OpenSoundControl.Coding.Cast
+import Data.Binary {- base -}
+import Data.Bits {- base -}
+import qualified Data.ByteString.Char8 as S {- bytestring -}
+import qualified Data.ByteString.Lazy as B {- bytestring -}
+import qualified Data.ByteString.Lazy.Char8 as C {- bytestring -}
+import Data.Int {- base -}
+
+import Sound.OSC.Coding.Cast
 
 -- | Encode a signed 8-bit integer.
 encode_i8 :: Int -> B.ByteString
@@ -34,8 +35,8 @@ encode_u64 :: Word64 -> B.ByteString
 encode_u64 = encode
 
 -- | Encode a 32-bit IEEE floating point number.
-encode_f32 :: Double -> B.ByteString
-encode_f32 = encode . f32_w32 . realToFrac
+encode_f32 :: Float -> B.ByteString
+encode_f32 = encode . f32_w32
 
 -- | Encode a 64-bit IEEE floating point number.
 encode_f64 :: Double -> B.ByteString
@@ -71,8 +72,8 @@ decode_u64 :: B.ByteString -> Word64
 decode_u64 = decode
 
 -- | Decode a 32-bit IEEE floating point number.
-decode_f32 :: B.ByteString -> Double
-decode_f32 b = realToFrac (w32_f32 (decode b :: Word32))
+decode_f32 :: B.ByteString -> Float
+decode_f32 b = w32_f32 (decode b :: Word32)
 
 -- | Decode a 64-bit IEEE floating point number.
 decode_f64 :: B.ByteString -> Double

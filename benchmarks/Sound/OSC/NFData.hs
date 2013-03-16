@@ -1,7 +1,7 @@
-module Sound.OpenSoundControl.NFData () where
+module Sound.OSC.NFData () where
 
-import Control.DeepSeq (NFData(..))
-import Sound.OpenSoundControl
+import Control.DeepSeq (NFData(..)) {- deepseq -}
+import Sound.OSC.Type
 
 instance NFData Datum where
     rnf (Int x1)        = rnf x1 `seq` ()

@@ -1,6 +1,7 @@
-module Sound.OpenSoundControl.Wait where
+-- | Waiting (for replies).
+module Sound.OSC.Wait where
 
-import System.Timeout
+import System.Timeout {- base -}
 
 -- * Timeout
 

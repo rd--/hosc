@@ -1,21 +1,22 @@
 -- | Optimised encode function for OSC packets.
-module Sound.OpenSoundControl.Coding.Encode.Builder
+module Sound.OSC.Coding.Encode.Builder
     (build_packet
     ,encodeMessage
     ,encodeBundle
     ,encodePacket
     ,encodePacket_strict) where
 
-import qualified Data.Binary.IEEE754 as I
-import qualified Data.ByteString as S
-import qualified Data.ByteString.Lazy as L
-import qualified Blaze.ByteString.Builder as B
-import qualified Blaze.ByteString.Builder.Char8 as B
-import Data.Monoid (mappend, mconcat)
-import Data.Word (Word8)
-import Sound.OpenSoundControl.Coding.Byte (align, bundleHeader)
-import Sound.OpenSoundControl.Time
-import Sound.OpenSoundControl.Type
+import qualified Data.Binary.IEEE754 as I {- data-binary-ieee754 -}
+import qualified Data.ByteString as S {- bytestring -}
+import qualified Data.ByteString.Lazy as L {- bytestring -}
+import qualified Blaze.ByteString.Builder as B {- bytestring -}
+import qualified Blaze.ByteString.Builder.Char8 as B {- bytestring -}
+import Data.Monoid (mappend, mconcat) {- base -}
+import Data.Word (Word8) {- base -}
+
+import Sound.OSC.Coding.Byte (align, bundleHeader)
+import Sound.OSC.Time
+import Sound.OSC.Type
 
 -- Command argument types are given by a descriptor.
 descriptor :: [Datum] -> String
