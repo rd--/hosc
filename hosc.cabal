@@ -4,7 +4,7 @@ Synopsis:          Haskell Open Sound Control
 Description:       @hosc@ implements a subset of the /Open Sound Control/
                    byte protocol, <http://opensoundcontrol.org/>.
                    .
-                   "Sound.OpenSoundControl" implements the actual protocol.
+                   "Sound.OSC.Core" implements the actual protocol.
                    .
                    "Sound.OSC.Transport.FD" implements a
                    /file descriptor/ based transport layer for @UDP@
@@ -16,7 +16,7 @@ Description:       @hosc@ implements a subset of the /Open Sound Control/
                    Composite modules are at "Sound.OSC" and "Sound.OSC.FD".
 License:           GPL
 Category:          Sound
-Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2006-2012
+Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2006-2013
 Author:            Rohan Drape, Stefan Kersten
 Maintainer:        rd@slavepianos.org
 Stability:         Experimental

@@ -3,10 +3,18 @@ module Sound.OSC.Type where
 
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 import Data.List {- base -}
-import Data.Maybe {- base -}
 import Data.Word {- base -}
 
-import Sound.OSC.Time
+-- * Time
+
+-- | @NTP@ time in real-valued (fractional) form.
+type Time = Double
+
+-- | Constant indicating a bundle to be executed immediately.
+immediately :: Time
+immediately = 1 / 2^(32::Int)
+
+-- * Datum
 
 -- | Type enumerating Datum categories.
 type Datum_Type = Char
@@ -21,6 +29,86 @@ data Datum = Int {d_int :: Int}
            | Midi {d_midi :: (Word8,Word8,Word8,Word8)}
              deriving (Eq,Read,Show)
 
+-- | 'Maybe' variant of 'd_int'.
+--
+-- > map datum_int [Int 1,Float 1] == [Just 1,Nothing]
+datum_int :: Datum -> Maybe Int
+datum_int d = case d of {Int x -> Just x;_ -> Nothing}
+
+-- | 'Maybe' variant of 'd_float'.
+datum_float :: Datum -> Maybe Float
+datum_float d = case d of {Float x -> Just x;_ -> Nothing}
+
+-- | 'Maybe' variant of 'd_double'.
+datum_double :: Datum -> Maybe Double
+datum_double d = case d of {Double x -> Just x;_ -> Nothing}
+
+-- | 'Maybe' variant of 'd_string'.
+datum_string :: Datum -> Maybe String
+datum_string d = case d of {String x -> Just x;_ -> Nothing}
+
+-- | 'Maybe' variant of 'd_blob'.
+datum_blob :: Datum -> Maybe B.ByteString
+datum_blob d = case d of {Blob x -> Just x;_ -> Nothing}
+
+-- | 'Maybe' variant of 'd_timestamp'.
+datum_timestamp :: Datum -> Maybe Time
+datum_timestamp d = case d of {TimeStamp x -> Just x;_ -> Nothing}
+
+-- | 'Maybe' variant of 'd_midi'.
+datum_midi :: Datum -> Maybe (Word8,Word8,Word8,Word8)
+datum_midi d = case d of {Midi x -> Just x;_ -> Nothing}
+
+-- | 'Datum' as 'Integral' if 'Int', 'Float' or 'Double'.
+--
+-- > let d = [Int 5,Float 5.5,Double 5.5,String "5"]
+-- > in map datum_integral d == [Just 5,Just 5,Just 5,Nothing]
+datum_integral :: Integral i => Datum -> Maybe i
+datum_integral d =
+    case d of
+      Int x -> Just (fromIntegral x)
+      Float x -> Just (floor x)
+      Double x -> Just (floor x)
+      _ -> Nothing
+
+-- | 'Datum' as 'Floating' if 'Int', 'Float' or 'Double'.
+--
+-- > let d = [Int 5,Float 5,Double 5,String "5"]
+-- > in map datum_floating d == [Just 5,Just 5,Just 5,Nothing]
+datum_floating :: Floating n => Datum -> Maybe n
+datum_floating d =
+    case d of
+      Int n -> Just (fromIntegral n)
+      Float n -> Just (realToFrac n)
+      Double n -> Just (realToFrac n)
+      _ -> Nothing
+
+-- | 'Datum' as sequence of 'Int' if 'String', 'Blob' or 'Midi'.
+--
+-- > let d = [String "5",Blob (B.pack [53]),Midi (0x00,0x90,0x40,0x60)]
+-- > in Data.Maybe.mapMaybe datum_sequence d == [[53],[53],[0,144,64,96]]
+datum_sequence :: Datum -> Maybe [Int]
+datum_sequence d =
+    case d of
+      String s -> Just (map fromEnum s)
+      Blob s -> Just (map fromIntegral (B.unpack s))
+      Midi (p,q,r,s) -> Just (map fromIntegral [p,q,r,s])
+      _ -> Nothing
+
+-- | Single character identifier of an OSC datum.
+datum_tag :: Datum -> Datum_Type
+datum_tag dt =
+    case dt of
+      Int _ -> 'i'
+      Float _ -> 'f'
+      Double _ -> 'd'
+      String _ -> 's'
+      Blob _ -> 'b'
+      TimeStamp _ -> 't'
+      Midi _ -> 'm'
+
+-- * Message
+
 -- | OSC address pattern.
 type Address_Pattern = String
 
@@ -29,14 +117,19 @@ data Message = Message {messageAddress :: Address_Pattern
                        ,messageDatum :: [Datum]}
                deriving (Eq,Read,Show)
 
+-- | 'Message' constructor.  It is an 'error' if the 'Address_Pattern'
+-- doesn't conform to the OSC specification.
+message :: Address_Pattern -> [Datum] -> Message
+message a xs =
+    case a of
+      '/':_ -> Message a xs
+      _ -> error "message: ill-formed address pattern"
+
+-- * Bundle
+
 -- | An OSC bundle.
 data Bundle = Bundle {bundleTime :: Time
                      ,bundleMessages :: [Message]}
-              deriving (Eq,Read,Show)
-
--- | An OSC 'Packet' is either a 'Message' or a 'Bundle'.
-data Packet = Packet_Message {packetMessage :: Message}
-            | Packet_Bundle {packetBundle :: Bundle}
               deriving (Eq,Read,Show)
 
 -- | OSC 'Bundle's can be ordered (time ascending).
@@ -51,13 +144,12 @@ bundle t xs =
       [] -> error "bundle: empty?"
       _ -> Bundle t xs
 
--- | 'Message' constructor.  It is an 'error' if the 'Address_Pattern'
--- doesn't conform to the OSC specification.
-message :: Address_Pattern -> [Datum] -> Message
-message a xs =
-    case a of
-      '/':_ -> Message a xs
-      _ -> error "message: ill-formed address pattern"
+-- * Packet
+
+-- | An OSC 'Packet' is either a 'Message' or a 'Bundle'.
+data Packet = Packet_Message {packetMessage :: Message}
+            | Packet_Bundle {packetBundle :: Bundle}
+              deriving (Eq,Read,Show)
 
 -- | 'Packet_Bundle' '.' 'bundle'.
 p_bundle :: Time -> [Message] -> Packet
@@ -66,118 +158,6 @@ p_bundle t = Packet_Bundle . bundle t
 -- | 'Packet_Message' '.' 'message'.
 p_message :: Address_Pattern -> [Datum] -> Packet
 p_message a = Packet_Message . message a
-
--- * Datum
-
--- | Single character identifier of an OSC datum.
-datum_tag :: Datum -> Datum_Type
-datum_tag dt =
-    case dt of
-      Int _ -> 'i'
-      Float _ -> 'f'
-      Double _ -> 'd'
-      String _ -> 's'
-      Blob _ -> 'b'
-      TimeStamp _ -> 't'
-      Midi _ -> 'm'
-
--- | Variant of 'read'.
-readMaybe :: (Read a) => String -> Maybe a
-readMaybe s =
-    case reads s of
-      [(x, "")] -> Just x
-      _ -> Nothing
-
--- | Given 'Datum_Type' attempt to parse 'Datum' at 'String'.
---
--- > parse_datum 'i' "42" == Just (Int 42)
--- > parse_datum 'f' "3.14159" == Just (Float 3.14159)
--- > parse_datum 'd' "3.14159" == Just (Double 3.14159)
--- > parse_datum 's' "\"pi\"" == Just (String "pi")
--- > parse_datum 'b' "pi" == Just (Blob (B.pack [112,105]))
--- > parse_datum 'm' "(0,144,60,90)" == Just (Midi (0,144,60,90))
-parse_datum :: Datum_Type -> String -> Maybe Datum
-parse_datum ty =
-    case ty of
-      'i' -> fmap Int . readMaybe
-      'f' -> fmap Float . readMaybe
-      'd' -> fmap Double . readMaybe
-      's' -> fmap String . readMaybe
-      'b' -> Just . Blob . B.pack . map (fromIntegral . fromEnum)
-      't' -> error "parse_datum: timestamp"
-      'm' -> fmap Midi . readMaybe
-      _ -> error "parse_datum: type"
-
--- | 'Datum' as real number if 'Double', 'Float' or 'Int', else 'Nothing'.
---
--- > map datum_real [Int 5,Float 5,String "5"] == [Just 5,Just 5,Nothing]
-datum_real :: Datum -> Maybe Double
-datum_real d =
-    case d of
-      Double n -> Just n
-      Float n -> Just (realToFrac n)
-      Int n -> Just (fromIntegral n)
-      _ -> Nothing
-
--- | A 'fromJust' variant of 'datum_real'.
---
--- > map datum_real_err [Int 5,Float 5] == [5,5]
-datum_real_err :: Datum -> Double
-datum_real_err = fromJust . datum_real
-
--- | 'Datum' as integral number if 'Double', 'Float' or 'Int', else
--- 'Nothing'.
---
--- > map datum_int [Int 5,Float 5.5,String "5"] == [Just 5,Just 5,Nothing]
-datum_int :: Integral i => Datum -> Maybe i
-datum_int d =
-    case d of
-      Int x -> Just (fromIntegral x)
-      Float x -> Just (floor x)
-      Double x -> Just (floor x)
-      _ -> Nothing
-
--- | A 'fromJust' variant of 'datum_int'.
---
--- > map datum_int_err [Int 5,Float 5.5] == [5,5]
-datum_int_err :: Integral i => Datum -> i
-datum_int_err = fromJust . datum_int
-
--- | 'Datum' as 'String' if 'String' or 'Blob', else 'Nothing'.
---
--- > map datum_string [String "5",Blob (B.pack [53])] == [Just "5",Just "5"]
-datum_string :: Datum -> Maybe String
-datum_string d =
-    case d of
-      Blob s -> Just (map (toEnum . fromIntegral) (B.unpack s))
-      String s -> Just s
-      _ -> Nothing
-
--- | A 'fromJust' variant of 'datum_string'.
---
--- > map datum_string_err [String "5",Blob (B.pack [53])] == ["5","5"]
-datum_string_err :: Datum -> String
-datum_string_err = fromJust . datum_string
-
--- * Address
-
--- | Does 'Message' have the specified 'Address_Pattern'.
-message_has_address :: Address_Pattern -> Message -> Bool
-message_has_address x = (== x) . messageAddress
-
--- | Do any of the 'Message's at 'Bundle' have the specified
--- 'Address_Pattern'.
-bundle_has_address :: Address_Pattern -> Bundle -> Bool
-bundle_has_address x = any (message_has_address x) . bundleMessages
-
--- * Packet
-
--- | Does 'Packet' have the specified 'Address_Pattern', ie.
--- 'message_has_address' or 'bundle_has_address'.
-packet_has_address :: Address_Pattern -> Packet -> Bool
-packet_has_address x =
-    at_packet (message_has_address x)
-              (bundle_has_address x)
 
 -- | The 'Time' of 'Packet', if the 'Packet' is a 'Message' this is
 -- 'immediately'.
@@ -215,6 +195,24 @@ at_packet f g p =
       Packet_Message m -> f m
       Packet_Bundle b -> g b
 
+-- * Address Query
+
+-- | Does 'Message' have the specified 'Address_Pattern'.
+message_has_address :: Address_Pattern -> Message -> Bool
+message_has_address x = (== x) . messageAddress
+
+-- | Do any of the 'Message's at 'Bundle' have the specified
+-- 'Address_Pattern'.
+bundle_has_address :: Address_Pattern -> Bundle -> Bool
+bundle_has_address x = any (message_has_address x) . bundleMessages
+
+-- | Does 'Packet' have the specified 'Address_Pattern', ie.
+-- 'message_has_address' or 'bundle_has_address'.
+packet_has_address :: Address_Pattern -> Packet -> Bool
+packet_has_address x =
+    at_packet (message_has_address x)
+              (bundle_has_address x)
+
 -- * Pretty printing
 
 -- | Pretty printer for 'Time'.
@@ -223,7 +221,8 @@ timePP = (:) 'N' . show
 
 -- | Pretty printer for 'Datum'.
 --
--- > map datumPP [Float 1.2,String "str",Midi (0,0x90,0x40,0x60)]
+-- > let d = [Float 1.2,String "str",Midi (0,0x90,0x40,0x60)]
+-- > in map datumPP d ==  ["1.2","\"str\"","<0,144,64,96>"]
 datumPP :: Datum -> String
 datumPP d =
     case d of
@@ -251,3 +250,32 @@ packetPP p =
     case p of
       Packet_Message m -> messagePP m
       Packet_Bundle b -> bundlePP b
+
+-- * Parser
+
+-- | Variant of 'read'.
+readMaybe :: (Read a) => String -> Maybe a
+readMaybe s =
+    case reads s of
+      [(x, "")] -> Just x
+      _ -> Nothing
+
+-- | Given 'Datum_Type' attempt to parse 'Datum' at 'String'.
+--
+-- > parse_datum 'i' "42" == Just (Int 42)
+-- > parse_datum 'f' "3.14159" == Just (Float 3.14159)
+-- > parse_datum 'd' "3.14159" == Just (Double 3.14159)
+-- > parse_datum 's' "\"pi\"" == Just (String "pi")
+-- > parse_datum 'b' "pi" == Just (Blob (B.pack [112,105]))
+-- > parse_datum 'm' "(0,144,60,90)" == Just (Midi (0,144,60,90))
+parse_datum :: Datum_Type -> String -> Maybe Datum
+parse_datum ty =
+    case ty of
+      'i' -> fmap Int . readMaybe
+      'f' -> fmap Float . readMaybe
+      'd' -> fmap Double . readMaybe
+      's' -> fmap String . readMaybe
+      'b' -> Just . Blob . B.pack . map (fromIntegral . fromEnum)
+      't' -> error "parse_datum: timestamp"
+      'm' -> fmap Midi . readMaybe
+      _ -> error "parse_datum: type"

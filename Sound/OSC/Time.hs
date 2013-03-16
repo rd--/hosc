@@ -9,13 +9,12 @@ import Data.Word {- base -}
 import qualified Data.Time as T {- time -}
 import qualified Data.Time.Clock.POSIX as T {- time -}
 
+import Sound.OSC.Type
+
 -- * Temporal types
 
 -- | Type for integer (binary) representation of @NTP@ time.
 type NTPi = Word64
-
--- | @NTP@ time in real-valued (fractional) form.
-type Time = Double
 
 -- | @Unix/Posix@ epoch time in real-valued (fractional) form.
 type UT = Double
@@ -51,14 +50,6 @@ ntpr_to_ut = (+) (negate ntp_ut_epoch_diff)
 -- | Convert 'NTPi' to @Unix/Posix@.
 ntpi_to_ut :: NTPi -> UT
 ntpi_to_ut = ntpr_to_ut . ntpi_to_ntpr
-
--- * Constants
-
--- | Constant indicating a bundle to be executed immediately.
---
--- > ntpr_to_ntpi immediately == 1
-immediately :: Time
-immediately = ntpi_to_ntpr 1
 
 -- * 'Data.Time' inter-operation.
 
