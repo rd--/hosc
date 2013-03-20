@@ -29,6 +29,29 @@ data Datum = Int {d_int :: Int}
            | Midi {d_midi :: (Word8,Word8,Word8,Word8)}
              deriving (Eq,Read,Show)
 
+-- | Type generalised 'Int'.
+--
+-- > int (1::Int) == int (1::Integer)
+-- > d_int (int (maxBound::Data.Int.Int32)) <= d_int (int (maxBound::Int))
+-- > int (2 ^ 64 :: Integer) == int 0
+int :: Integral n => n -> Datum
+int = Int . fromIntegral
+
+-- | Type generalised 'Float'.
+--
+-- > float (1::Int) == float (1::Double)
+-- > floatRange (undefined::Float) == (-125,128)
+-- > isInfinite (d_float (float (encodeFloat 1 256 :: Double))) == True
+float :: Real n => n -> Datum
+float = Float . realToFrac
+
+-- | Type generalised 'Double'.
+--
+-- > double (1::Int) == double (1::Double)
+-- > double (encodeFloat 1 256 :: Double) == double 1.157920892373162e77
+double :: Real n => n -> Datum
+double = Double . realToFrac
+
 -- | 'Maybe' variant of 'd_int'.
 --
 -- > map datum_int [Int 1,Float 1] == [Just 1,Nothing]
