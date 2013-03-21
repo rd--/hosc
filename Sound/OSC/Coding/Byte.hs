@@ -9,6 +9,7 @@ import qualified Data.ByteString.Lazy.Char8 as C {- bytestring -}
 import Data.Int {- base -}
 
 import Sound.OSC.Coding.Cast
+import Sound.OSC.Type
 
 -- | Encode a signed 8-bit integer.
 encode_i8 :: Int -> B.ByteString
@@ -43,9 +44,9 @@ encode_f64 :: Double -> B.ByteString
 encode_f64 = encode . f64_w64
 
 -- | Encode an ASCII string.
-encode_str :: String -> B.ByteString
+encode_str :: ASCII -> B.ByteString
 {-# INLINE encode_str #-}
-encode_str = C.pack
+encode_str (ASCII s) = B.pack s
 
 -- | Decode a signed 8-bit integer.
 decode_i8 :: B.ByteString -> Int
@@ -80,9 +81,9 @@ decode_f64 :: B.ByteString -> Double
 decode_f64 b = w64_f64 (decode b :: Word64)
 
 -- | Decode an ASCII string.
-decode_str :: B.ByteString -> String
+decode_str :: B.ByteString -> ASCII
 {-# INLINE decode_str #-}
-decode_str = C.unpack
+decode_str = ASCII . B.unpack
 
 -- | Bundle header as a strict ByteString.
 bundleHeader_strict :: S.ByteString

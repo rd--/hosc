@@ -11,10 +11,6 @@ import Sound.OSC.Coding.Byte
 import Sound.OSC.Type
 import Sound.OSC.Time
 
--- Command argument types are given by a descriptor.
-descriptor :: [Datum] -> Datum
-descriptor l = String (',' : map datum_tag l)
-
 -- Align a byte string if required.
 extend :: Word8 -> B.ByteString -> B.ByteString
 extend p s = B.append s (B.replicate (align (B.length s)) p)
@@ -28,16 +24,16 @@ encode_datum dt =
       Float f -> encode_f32 f
       Double d -> encode_f64 d
       TimeStamp t -> encode_u64 $ ntpr_to_ntpi t
-      String s -> extend 0 (B.snoc (encode_str s) 0)
-      Midi (b0,b1,b2,b3) -> B.pack [b0,b1,b2,b3]
+      ASCII_String s -> extend 0 (B.snoc (encode_str s) 0)
+      Midi (MIDI (b0,b1,b2,b3)) -> B.pack [b0,b1,b2,b3]
       Blob b -> let n = encode_i32 (fromIntegral (B.length b))
                 in B.append n (extend 0 b)
 
 -- | Encode an OSC 'Message'.
 encodeMessage :: Message -> B.ByteString
 encodeMessage (Message c l) =
-    B.concat [encode_datum (String c)
-             ,encode_datum (descriptor l)
+    B.concat [encode_datum (ASCII_String (string_to_ascii c))
+             ,encode_datum (ASCII_String (descriptor l))
              ,B.concat (map encode_datum l) ]
 
 -- Encode an OSC 'Message' as an OSC blob.

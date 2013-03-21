@@ -47,3 +47,16 @@ datum_promote d =
       Float n -> Double (realToFrac n)
       _ -> d
 
+-- | 'Datum' as 'Integral' if 'Int32', 'Int64', 'Float' or 'Double'.
+--
+-- > let d = [Int32 5,Int64 5,Float 5.5,Double 5.5,String "5"]
+-- > in map datum_floor d == [Just (5::Int),Just 5,Just 5,Just 5,Nothing]
+datum_floor :: Integral i => Datum -> Maybe i
+datum_floor d =
+    case d of
+      Int32 x -> Just (fromIntegral x)
+      Int64 x -> Just (fromIntegral x)
+      Float x -> Just (floor x)
+      Double x -> Just (floor x)
+      _ -> Nothing
+

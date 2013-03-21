@@ -18,13 +18,13 @@ import Sound.OSC.Coding.Byte (align, bundleHeader)
 import Sound.OSC.Time
 import Sound.OSC.Type
 
--- Command argument types are given by a descriptor.
-descriptor :: [Datum] -> String
-descriptor l = ',' : map datum_tag l
-
 -- Generate a list of zero bytes for padding.
 padding :: Integral i => i -> [Word8]
 padding n = replicate (fromIntegral n) 0
+
+-- Encode a string with zero padding.
+build_ascii :: ASCII -> B.Builder
+build_ascii (ASCII s) = B.fromWord8s s `mappend` B.fromWord8s (0:padding (align (length s + 1)))
 
 -- Encode a string with zero padding.
 build_string :: String -> B.Builder
@@ -45,15 +45,15 @@ build_datum d =
       Float n -> B.fromWord32be (I.floatToWord (realToFrac n))
       Double n -> B.fromWord64be (I.doubleToWord n)
       TimeStamp t -> B.fromWord64be (fromIntegral (ntpr_to_ntpi t))
-      String s -> build_string s
-      Midi (b0,b1,b2,b3) -> B.fromWord8s [b0,b1,b2,b3]
+      ASCII_String s -> build_ascii s
+      Midi (MIDI (b0,b1,b2,b3)) -> B.fromWord8s [b0,b1,b2,b3]
       Blob b -> build_bytes b
 
 -- Encode an OSC 'Message'.
 build_message :: Message -> B.Builder
 build_message (Message c l) =
     mconcat [build_string c
-            ,build_string (descriptor l)
+            ,build_ascii (descriptor l)
             ,mconcat $ map build_datum l]
 
 -- Encode an OSC 'Bundle'.

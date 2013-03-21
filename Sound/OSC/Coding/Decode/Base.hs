@@ -44,28 +44,30 @@ decode_datum ty b =
       'h' -> Int64 (decode b)
       'f' -> Float (decode_f32 b)
       'd' -> Double (decode_f64 b)
-      's' -> String (decode_str (b_take (size 's' b) b))
+      's' -> ASCII_String (decode_str (b_take (size 's' b) b))
       'b' -> Blob (b_take (size 'b' b) (B.drop 4 b))
       't' -> TimeStamp (ntpi_to_ntpr (decode_u64 b))
-      'm' -> let [b0,b1,b2,b3] = B.unpack (B.take 4 b) in Midi (b0,b1,b2,b3)
+      'm' -> let [b0,b1,b2,b3] = B.unpack (B.take 4 b)
+             in midi (b0,b1,b2,b3)
       _ -> error ("decode_datum: illegal type (" ++ [ty] ++ ")")
 
 -- Decode a sequence of OSC datum given a type descriptor string.
-decode_datum_seq :: String -> B.ByteString -> [Datum]
+decode_datum_seq :: ASCII -> B.ByteString -> [Datum]
 decode_datum_seq cs b =
     let swap (x,y) = (y,x)
+        cs' = ascii_to_string cs
         f b' c = swap (B.splitAt (fromIntegral (storage c b')) b')
-    in zipWith decode_datum cs (snd (mapAccumL f b cs))
+    in zipWith decode_datum cs' (snd (mapAccumL f b cs'))
 
 -- | Decode an OSC 'Message'.
 decodeMessage :: B.ByteString -> Message
 decodeMessage b =
     let n = storage 's' b
-        (String cmd) = decode_datum 's' b
+        (ASCII_String cmd) = decode_datum 's' b
         m = storage 's' (b_drop n b)
-        (String dsc) = decode_datum 's' (b_drop n b)
-        arg = decode_datum_seq (drop 1 dsc) (b_drop (n + m) b)
-    in Message cmd arg
+        (ASCII_String dsc) = decode_datum 's' (b_drop n b)
+        arg = decode_datum_seq (descriptor_tags dsc) (b_drop (n + m) b)
+    in Message (ascii_to_string cmd) arg
 
 -- Decode a sequence of OSC messages, each one headed by its length
 decode_message_seq :: B.ByteString -> [Message]

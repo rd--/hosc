@@ -45,6 +45,13 @@ get_string = do
     skip (fromIntegral (align (L.length s + 1)))
     return $ C.unpack s
 
+-- | Get an aligned OSC string.
+get_ascii :: Get ASCII
+get_ascii = do
+    s <- getLazyByteStringNul
+    skip (fromIntegral (align (L.length s + 1)))
+    return $ ASCII $ L.unpack s
+
 -- | Get binary data prefixed by byte count.
 get_bytes :: Word32 -> Get L.ByteString
 get_bytes n = do
@@ -62,23 +69,23 @@ get_datum ty =
       'h' -> Int64  <$> fromIntegral <$> getInt64be
       'f' -> Float  <$> realToFrac <$> I.getFloat32be
       'd' -> Double <$> I.getFloat64be
-      's' -> String <$> get_string
+      's' -> ASCII_String <$> get_ascii
       'b' -> Blob   <$> (get_bytes =<< getWord32be)
       't' -> TimeStamp <$> ntpi_to_ntpr <$> getWord64be
       'm' -> do b0 <- getWord8
                 b1 <- getWord8
                 b2 <- getWord8
                 b3 <- getWord8
-                return $ Midi (b0,b1,b2,b3)
+                return $ Midi (MIDI (b0,b1,b2,b3))
       _ -> fail ("get_datum: illegal type " ++ show ty)
 
 -- | Get an OSC 'Message'.
 get_message :: Get Message
 get_message = do
     cmd <- get_string
-    dsc <- get_string
-    case dsc of
-        (',':tags) -> do
+    dsc <- get_ascii
+    case ascii_to_string dsc of
+        ',':tags -> do
             arg <- mapM get_datum tags
             return $ Message cmd arg
         _ -> fail "get_message: invalid type descriptor string"
