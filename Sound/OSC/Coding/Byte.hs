@@ -3,7 +3,8 @@ module Sound.OSC.Coding.Byte where
 
 import Data.Binary {- base -}
 import Data.Bits {- base -}
-import qualified Data.ByteString.Char8 as S {- bytestring -}
+import qualified Data.ByteString as S.B {- bytestring -}
+import qualified Data.ByteString.Char8 as S.C {- bytestring -}
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 import qualified Data.ByteString.Lazy.Char8 as C {- bytestring -}
 import Data.Int {- base -}
@@ -46,7 +47,7 @@ encode_f64 = encode . f64_w64
 -- | Encode an ASCII string.
 encode_str :: ASCII -> B.ByteString
 {-# INLINE encode_str #-}
-encode_str (ASCII s) = B.pack s
+encode_str = B.pack . S.B.unpack
 
 -- | Decode a signed 8-bit integer.
 decode_i8 :: B.ByteString -> Int
@@ -83,11 +84,11 @@ decode_f64 b = w64_f64 (decode b :: Word64)
 -- | Decode an ASCII string.
 decode_str :: B.ByteString -> ASCII
 {-# INLINE decode_str #-}
-decode_str = ASCII . B.unpack
+decode_str = S.C.pack . C.unpack
 
--- | Bundle header as a strict ByteString.
-bundleHeader_strict :: S.ByteString
-bundleHeader_strict = S.pack "#bundle\0"
+-- | Bundle header as a (strict) 'S.C.ByteString'.
+bundleHeader_strict :: S.C.ByteString
+bundleHeader_strict = S.C.pack "#bundle\0"
 
 -- | Bundle header as a lazy ByteString.
 bundleHeader :: B.ByteString

@@ -5,6 +5,7 @@ module Sound.OSC.Coding.Encode.Base (encodeMessage
                                     ,encodePacket) where
 
 import Data.Binary {- base -}
+import qualified Data.ByteString.Char8 as C {- bytestring -}
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 
 import Sound.OSC.Coding.Byte
@@ -25,14 +26,14 @@ encode_datum dt =
       Double d -> encode_f64 d
       TimeStamp t -> encode_u64 $ ntpr_to_ntpi t
       ASCII_String s -> extend 0 (B.snoc (encode_str s) 0)
-      Midi (MIDI (b0,b1,b2,b3)) -> B.pack [b0,b1,b2,b3]
+      Midi (MIDI b0 b1 b2 b3) -> B.pack [b0,b1,b2,b3]
       Blob b -> let n = encode_i32 (fromIntegral (B.length b))
                 in B.append n (extend 0 b)
 
 -- | Encode an OSC 'Message'.
 encodeMessage :: Message -> B.ByteString
 encodeMessage (Message c l) =
-    B.concat [encode_datum (ASCII_String (string_to_ascii c))
+    B.concat [encode_datum (ASCII_String (C.pack c))
              ,encode_datum (ASCII_String (descriptor l))
              ,B.concat (map encode_datum l) ]
 

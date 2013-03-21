@@ -2,9 +2,11 @@
 module Sound.OSC.Type where
 
 import qualified Data.ByteString.Lazy as B {- bytestring -}
+import qualified Data.ByteString.Char8 as C {- bytestring -}
 import Data.Int {- base -}
 import Data.List {- base -}
 import Data.Word {- base -}
+import Numeric {- base -}
 
 -- * Time
 
@@ -17,31 +19,16 @@ immediately = 1 / 2^(32::Int)
 
 -- * String
 
--- | ASCII string.
-newtype ASCII = ASCII [Word8]
-    deriving (Eq,Show,Read)
-
--- | Translate from 'String' to 'ASCII'.  Out of range characters are
--- replaced with @?@.
---
--- > ascii_to_string (string_to_ascii "αβ") == "??"
--- > ascii_to_string (string_to_ascii "ab") == "ab"
-string_to_ascii :: String -> ASCII
-string_to_ascii =
-    let f n = if n < 0x20 || n > 0x73 then 0x3f else n
-    in ASCII . map (f . fromIntegral . fromEnum)
-
--- | Translate from 'ASCII' to 'String'.
-ascii_to_string :: ASCII -> String
-ascii_to_string (ASCII l) = map (toEnum . fromIntegral) l
-
 -- * Datum
 
 -- | Type enumerating Datum categories.
 type Datum_Type = Char
 
+-- | Type for ASCII strings.
+type ASCII = C.ByteString
+
 -- | Four-byte midi message.
-newtype MIDI = MIDI (Word8,Word8,Word8,Word8)
+data MIDI = MIDI Word8 Word8 Word8 Word8
     deriving (Eq,Show,Read)
 
 -- | The basic elements of OSC messages.
@@ -55,15 +42,21 @@ data Datum = Int32 {d_int32 :: Int32}
            | Midi {d_midi :: MIDI}
              deriving (Eq,Read,Show)
 
--- | Class for transating to and from 'Datum'.
+-- | Class for translating to and from 'Datum'.  There are instances
+-- for the direct 'Datum' field types.
 --
 -- > d_put (1::Int32) == Int32 1
 -- > d_put (1::Int64) == Int64 1
 -- > d_put (1::Float) == Float 1
 -- > d_put (1::Double) == Double 1
--- > d_put (ASCII [0x20,0x20]) == ASCII_String (ASCII [0x20,0x20])
+-- > d_put (C.pack "str") == ASCII_String (C.pack "str")
 -- > d_put (B.pack [37,37]) == Blob (B.pack [37,37])
--- > d_put (MIDI (0,0,0,0)) == Midi (MIDI (0,0,0,0))
+-- > d_put (MIDI 0 0 0 0) == Midi (MIDI 0 0 0 0)
+--
+-- There are also instances for standard Haskell types.
+--
+-- > d_put (1::Int) == Int64 1
+-- > d_put (1::Integer) == Int64 1
 class Datem a where
     d_put :: a -> Datum
     d_get :: Datum -> Maybe a
@@ -76,6 +69,14 @@ instance Datem Int64 where
     d_put = Int64
     d_get d = case d of {Int64 x -> Just x;_ -> Nothing}
 
+instance Datem Int where
+    d_put = Int64 . fromIntegral
+    d_get = datum_integral
+
+instance Datem Integer where
+    d_put = Int64 . fromIntegral
+    d_get = datum_integral
+
 instance Datem Float where
     d_put = Float
     d_get d = case d of {Float x -> Just x;_ -> Nothing}
@@ -84,7 +85,7 @@ instance Datem Double where
     d_put = Double
     d_get d = case d of {Double x -> Just x;_ -> Nothing}
 
-instance Datem ASCII where
+instance Datem C.ByteString where
     d_put = ASCII_String
     d_get d = case d of {ASCII_String x -> Just x;_ -> Nothing}
 
@@ -104,7 +105,7 @@ instance Datem MIDI where
 int32 :: Integral n => n -> Datum
 int32 = Int32 . fromIntegral
 
--- | Type generalised 'Int32'.
+-- | Type generalised 'Int64'.
 --
 -- > int64 (1::Int32) == int64 (1::Integer)
 -- > d_int64 (int64 (maxBound::Int64)) == maxBound
@@ -126,15 +127,17 @@ float = Float . realToFrac
 double :: Real n => n -> Datum
 double = Double . realToFrac
 
--- | Type generalised 'ASCII_String'.
+-- | 'ASCII_String' of 'C.pack'.
 --
--- > string "string" == ASCII_String (ASCII [115,116,114,105,110,103])
-string :: Enum n => [n] -> Datum
-string = ASCII_String . ASCII . map (fromIntegral . fromEnum)
+-- > string "string" == ASCII_String (C.pack "string")
+string :: String -> Datum
+string = ASCII_String . C.pack
 
--- | 'Midi' of 'MIDI'.
+-- | Four-tuple variant of 'Midi' '.' 'MIDI'.
+--
+-- > midi (0,0,0,0) == Midi (MIDI 0 0 0 0)
 midi :: (Word8,Word8,Word8,Word8) -> Datum
-midi = Midi . MIDI
+midi (p,q,r,s) = Midi (MIDI p q r s)
 
 -- | Type specialised 'd_get'.
 --
@@ -155,12 +158,16 @@ datum_double :: Datum -> Maybe Double
 datum_double = d_get
 
 -- | Type specialised 'd_get'.
+--
+-- > datum_ascii (d_put (C.pack "string")) == Just (C.pack "string")
 datum_ascii :: Datum -> Maybe ASCII
 datum_ascii = d_get
 
--- | 'ascii_to_string' of 'd_get'.
+-- | 'C.unpack' of 'd_get'.
+--
+-- > datum_string (d_put (C.pack "string")) == Just "string"
 datum_string :: Datum -> Maybe String
-datum_string = fmap ascii_to_string . d_get
+datum_string = fmap C.unpack . datum_ascii
 
 -- | Type specialised 'd_get'.
 datum_blob :: Datum -> Maybe B.ByteString
@@ -198,16 +205,16 @@ datum_floating d =
       Double n -> Just (realToFrac n)
       _ -> Nothing
 
--- | 'Datum' as sequence of 'Int' if 'String', 'Blob' or 'Midi'.
+-- | 'Datum' as sequence of 'Word8' if 'ASCII_String', 'Blob' or 'Midi'.
 --
 -- > let d = [string "5",Blob (B.pack [53]),midi (0x00,0x90,0x40,0x60)]
 -- > in Data.Maybe.mapMaybe datum_sequence d == [[53],[53],[0,144,64,96]]
 datum_sequence :: Datum -> Maybe [Word8]
 datum_sequence d =
     case d of
-      ASCII_String (ASCII s) -> Just (map (fromIntegral . fromEnum) s)
+      ASCII_String s -> Just (map (fromIntegral . fromEnum) (C.unpack s))
       Blob s -> Just (B.unpack s)
-      Midi (MIDI (p,q,r,s)) -> Just [p,q,r,s]
+      Midi (MIDI p q r s) -> Just [p,q,r,s]
       _ -> Nothing
 
 -- | Single character identifier of an OSC datum.
@@ -244,13 +251,13 @@ message a xs =
 
 -- | Message argument types are given by a descriptor.
 --
--- > ascii_to_string (descriptor [Int32 1,Float 1,string "1"]) == ",ifs"
+-- > C.unpack (descriptor [Int32 1,Float 1,string "1"]) == ",ifs"
 descriptor :: [Datum] -> ASCII
-descriptor l = string_to_ascii (',' : map datum_tag l)
+descriptor l = C.pack (',' : map datum_tag l)
 
 -- | Descriptor tags are @comma@ prefixed.
 descriptor_tags :: ASCII -> ASCII
-descriptor_tags (ASCII l) = ASCII (drop 1 l)
+descriptor_tags = C.drop 1
 
 -- * Bundle
 
@@ -342,9 +349,11 @@ packet_has_address x =
 
 -- * Pretty printing
 
--- | Pretty printer for 'Time'.
+-- | Pretty printer for 'Time' (truncate to 4 decimal places).
+--
+-- > timePP (1/3) == "0.3333"
 timePP :: Time -> String
-timePP = (:) 'N' . show
+timePP t = showGFloat (Just 4) t ""
 
 -- | Pretty printer for vectors.
 --
@@ -363,10 +372,10 @@ datumPP d =
       Int64 n -> show n
       Float n -> show n
       Double n -> show n
-      ASCII_String s -> show (ascii_to_string s)
+      ASCII_String s -> show (C.unpack s)
       Blob s -> show s
       TimeStamp t -> timePP t
-      Midi (MIDI (p,q,r,s)) -> vecPP [p,q,r,s]
+      Midi (MIDI p q r s) -> vecPP [p,q,r,s]
 
 -- | Pretty printer for 'Message'.
 messagePP :: Message -> String
@@ -403,7 +412,7 @@ readMaybe s =
 -- > parse_datum 'f' "3.14159" == Just (Float 3.14159)
 -- > parse_datum 'd' "3.14159" == Just (Double 3.14159)
 -- > parse_datum 's' "\"pi\"" == Just (string "pi")
--- > parse_datum 'b' "pi" == Just (Blob (B.pack [112,105]))
+-- > parse_datum 'b' "[112,105]" == Just (Blob (B.pack [112,105]))
 -- > parse_datum 'm' "(0,144,60,90)" == Just (midi (0,144,60,90))
 parse_datum :: Datum_Type -> String -> Maybe Datum
 parse_datum ty =
@@ -412,8 +421,8 @@ parse_datum ty =
       'h' -> fmap Int64 . readMaybe
       'f' -> fmap Float . readMaybe
       'd' -> fmap Double . readMaybe
-      's' -> fmap (ASCII_String . string_to_ascii) . readMaybe
-      'b' -> Just . Blob . B.pack . map (fromIntegral . fromEnum)
+      's' -> fmap (ASCII_String . C.pack) . readMaybe
+      'b' -> fmap (Blob . B.pack) . readMaybe
       't' -> error "parse_datum: timestamp"
       'm' -> fmap midi . readMaybe
       _ -> error "parse_datum: type"

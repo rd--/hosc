@@ -5,6 +5,7 @@ module Sound.OSC.Coding.Decode.Base (decodeMessage
                                     ,decodePacket) where
 
 import Data.Binary {- base -}
+import qualified Data.ByteString.Char8 as C {- bytestring -}
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 import Data.List {- base -}
 import Data.Maybe {- base -}
@@ -55,7 +56,7 @@ decode_datum ty b =
 decode_datum_seq :: ASCII -> B.ByteString -> [Datum]
 decode_datum_seq cs b =
     let swap (x,y) = (y,x)
-        cs' = ascii_to_string cs
+        cs' = C.unpack cs
         f b' c = swap (B.splitAt (fromIntegral (storage c b')) b')
     in zipWith decode_datum cs' (snd (mapAccumL f b cs'))
 
@@ -67,7 +68,7 @@ decodeMessage b =
         m = storage 's' (b_drop n b)
         (ASCII_String dsc) = decode_datum 's' (b_drop n b)
         arg = decode_datum_seq (descriptor_tags dsc) (b_drop (n + m) b)
-    in Message (ascii_to_string cmd) arg
+    in Message (C.unpack cmd) arg
 
 -- Decode a sequence of OSC messages, each one headed by its length
 decode_message_seq :: B.ByteString -> [Message]

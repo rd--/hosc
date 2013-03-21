@@ -24,7 +24,7 @@ padding n = replicate (fromIntegral n) 0
 
 -- Encode a string with zero padding.
 build_ascii :: ASCII -> B.Builder
-build_ascii (ASCII s) = B.fromWord8s s `mappend` B.fromWord8s (0:padding (align (length s + 1)))
+build_ascii s = B.fromByteString s `mappend` B.fromWord8s (0:padding (align (S.length s + 1)))
 
 -- Encode a string with zero padding.
 build_string :: String -> B.Builder
@@ -46,7 +46,7 @@ build_datum d =
       Double n -> B.fromWord64be (I.doubleToWord n)
       TimeStamp t -> B.fromWord64be (fromIntegral (ntpr_to_ntpi t))
       ASCII_String s -> build_ascii s
-      Midi (MIDI (b0,b1,b2,b3)) -> B.fromWord8s [b0,b1,b2,b3]
+      Midi (MIDI b0 b1 b2 b3) -> B.fromWord8s [b0,b1,b2,b3]
       Blob b -> build_bytes b
 
 -- Encode an OSC 'Message'.
