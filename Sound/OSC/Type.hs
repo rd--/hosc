@@ -53,7 +53,8 @@ datum_tag dt =
       TimeStamp _ -> 't'
       Midi _ -> 'm'
 
--- | 'Datum' as 'Integral' if 'Int32', 'Int64'.
+-- | 'Datum' as 'Integral' if 'Sound.OSC.Type.Int32' or
+-- 'Sound.OSC.Type.Int64'.
 --
 -- > let d = [Int32 5,Int64 5,Float 5.5,Double 5.5]
 -- > in map datum_integral d == [Just (5::Int),Just 5,Nothing,Nothing]
@@ -64,8 +65,9 @@ datum_integral d =
       Int64 x -> Just (fromIntegral x)
       _ -> Nothing
 
--- | 'Datum' as 'Floating' if 'Int32', 'Int64', 'Float', 'Double' or
--- 'TimeStamp'.
+-- | 'Datum' as 'Floating' if 'Sound.OSC.Type.Int32',
+-- 'Sound.OSC.Type.Int64', 'Sound.OSC.Type.Float',
+-- 'Sound.OSC.Type.Double' or 'TimeStamp'.
 --
 -- > let d = [Int32 5,Int64 5,Float 5,Double 5,TimeStamp 5]
 -- > in Data.Maybe.mapMaybe datum_floating d == replicate 5 (5::Double)
@@ -134,7 +136,7 @@ instance Datem MIDI where
     d_put = Midi
     d_get d = case d of {Midi x -> Just x;_ -> Nothing}
 
--- | Type generalised 'Int32'.
+-- | Type generalised 'Sound.OSC.Type.Int32'.
 --
 -- > int32 (1::Int32) == int32 (1::Integer)
 -- > d_int32 (int32 (maxBound::Int32)) == maxBound
@@ -142,14 +144,14 @@ instance Datem MIDI where
 int32 :: Integral n => n -> Datum
 int32 = Int32 . fromIntegral
 
--- | Type generalised 'Int64'.
+-- | Type generalised 'Sound.OSC.Type.Int64'.
 --
 -- > int64 (1::Int32) == int64 (1::Integer)
 -- > d_int64 (int64 (maxBound::Int64)) == maxBound
 int64 :: Integral n => n -> Datum
 int64 = Int64 . fromIntegral
 
--- | Type generalised 'Float'.
+-- | Type generalised 'Sound.OSC.Type.Float'.
 --
 -- > float (1::Int) == float (1::Double)
 -- > floatRange (undefined::Float) == (-125,128)
@@ -157,7 +159,7 @@ int64 = Int64 . fromIntegral
 float :: Real n => n -> Datum
 float = Float . realToFrac
 
--- | Type generalised 'Double'.
+-- | Type generalised 'Sound.OSC.Type.Double'.
 --
 -- > double (1::Int) == double (1::Double)
 -- > double (encodeFloat 1 256 :: Double) == Double 1.157920892373162e77

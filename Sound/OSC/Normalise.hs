@@ -1,9 +1,9 @@
 -- | Datum normalisation.
 module Sound.OSC.Normalise where
 
-import Sound.OSC.Type
+import Sound.OSC.Type as O
 
--- | Lift 'Int32' to 'Int64' and 'Float' to 'Double'.
+-- | Lift 'O.Int32' to 'O.Int64' and 'O.Float' to 'O.Double'.
 --
 -- > map normalise_datum [Int32 1,Float 1] == [Int64 1,Double 1]
 normalise_datum :: Datum -> Datum
@@ -13,14 +13,16 @@ normalise_datum d =
       Float n -> Double (realToFrac n)
       _ -> d
 
--- | A normalised 'Message' has only 'Int64' and 'Double' numerical values.
+-- | A normalised 'O.Message' has only 'O.Int64' and 'O.Double'
+-- numerical values.
 --
 -- > let m = message "/m" [Int32 0,Float 0]
 -- > in normalise_message m == message "/m" [Int64 0,Double 0]
 normalise_message :: Message -> Message
 normalise_message = message_coerce normalise_datum
 
--- | A normalised 'Bundle' has only 'Int64' and 'Double' numerical values.
+-- | A normalised 'O.Bundle' has only 'O.Int64' and 'O.Double'
+-- numerical values.
 normalise_bundle :: Bundle -> Bundle
 normalise_bundle = bundle_coerce normalise_datum
 
@@ -47,7 +49,8 @@ datum_promote d =
       Float n -> Double (realToFrac n)
       _ -> d
 
--- | 'Datum' as 'Int64' if 'Int32', 'Int64', 'Float' or 'Double'.
+-- | 'O.Datum' as 'O.Int64' if 'O.Int32', 'O.Int64', 'O.Float' or
+-- 'O.Double'.
 --
 -- > let d = [Int32 5,Int64 5,Float 5.5,Double 5.5,string "5"]
 -- > in map datum_floor d == [Int64 5,Int64 5,Int64 5,Int64 5,string "5"]
