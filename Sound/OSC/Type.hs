@@ -2,6 +2,7 @@
 module Sound.OSC.Type where
 
 import qualified Data.ByteString.Lazy as B {- bytestring -}
+import Data.Int {- base -}
 import Data.List {- base -}
 import Data.Word {- base -}
 
@@ -20,7 +21,8 @@ immediately = 1 / 2^(32::Int)
 type Datum_Type = Char
 
 -- | The basic elements of OSC messages.
-data Datum = Int {d_int :: Int}
+data Datum = Int32 {d_int32 :: Int32}
+           | Int64 {d_int64 :: Int64}
            | Float {d_float :: Float}
            | Double {d_double :: Double}
            | String {d_string :: String}
@@ -29,13 +31,13 @@ data Datum = Int {d_int :: Int}
            | Midi {d_midi :: (Word8,Word8,Word8,Word8)}
              deriving (Eq,Read,Show)
 
--- | Type generalised 'Int'.
+-- | Type generalised 'Int32'.
 --
--- > int (1::Int) == int (1::Integer)
--- > d_int (int (maxBound::Data.Int.Int32)) <= d_int (int (maxBound::Int))
--- > int (2 ^ 64 :: Integer) == int 0
-int :: Integral n => n -> Datum
-int = Int . fromIntegral
+-- > int32 (1::Int32) == int32 (1::Integer)
+-- > d_int32 (int32 (maxBound::Int32)) == maxBound
+-- > int32 (2 ^ 64 :: Integer) == int32 0
+int32 :: Integral n => n -> Datum
+int32 = Int32 . fromIntegral
 
 -- | Type generalised 'Float'.
 --
@@ -48,15 +50,19 @@ float = Float . realToFrac
 -- | Type generalised 'Double'.
 --
 -- > double (1::Int) == double (1::Double)
--- > double (encodeFloat 1 256 :: Double) == double 1.157920892373162e77
+-- > double (encodeFloat 1 256 :: Double) == Double 1.157920892373162e77
 double :: Real n => n -> Datum
 double = Double . realToFrac
 
--- | 'Maybe' variant of 'd_int'.
+-- | 'Maybe' variant of 'd_int32'.
 --
--- > map datum_int [Int 1,Float 1] == [Just 1,Nothing]
-datum_int :: Datum -> Maybe Int
-datum_int d = case d of {Int x -> Just x;_ -> Nothing}
+-- > map datum_int32 [Int32 1,Float 1] == [Just 1,Nothing]
+datum_int32 :: Datum -> Maybe Int32
+datum_int32 d = case d of {Int32 x -> Just x;_ -> Nothing}
+
+-- | 'Maybe' variant of 'd_int64'.
+datum_int64 :: Datum -> Maybe Int64
+datum_int64 d = case d of {Int64 x -> Just x;_ -> Nothing}
 
 -- | 'Maybe' variant of 'd_float'.
 datum_float :: Datum -> Maybe Float
@@ -82,26 +88,28 @@ datum_timestamp d = case d of {TimeStamp x -> Just x;_ -> Nothing}
 datum_midi :: Datum -> Maybe (Word8,Word8,Word8,Word8)
 datum_midi d = case d of {Midi x -> Just x;_ -> Nothing}
 
--- | 'Datum' as 'Integral' if 'Int', 'Float' or 'Double'.
+-- | 'Datum' as 'Integral' if 'Int32', 'Int64', 'Float' or 'Double'.
 --
--- > let d = [Int 5,Float 5.5,Double 5.5,String "5"]
--- > in map datum_integral d == [Just 5,Just 5,Just 5,Nothing]
+-- > let d = [Int32 5,Int64 5,Float 5.5,Double 5.5,String "5"]
+-- > in map datum_integral d == [Just (5::Int),Just 5,Just 5,Just 5,Nothing]
 datum_integral :: Integral i => Datum -> Maybe i
 datum_integral d =
     case d of
-      Int x -> Just (fromIntegral x)
+      Int32 x -> Just (fromIntegral x)
+      Int64 x -> Just (fromIntegral x)
       Float x -> Just (floor x)
       Double x -> Just (floor x)
       _ -> Nothing
 
--- | 'Datum' as 'Floating' if 'Int', 'Float' or 'Double'.
+-- | 'Datum' as 'Floating' if 'Int32', 'Int64', 'Float' or 'Double'.
 --
--- > let d = [Int 5,Float 5,Double 5,String "5"]
--- > in map datum_floating d == [Just 5,Just 5,Just 5,Nothing]
+-- > let d = [Int32 5,Int64 5,Float 5,Double 5,String "5"]
+-- > in map datum_floating d == [Just (5::Double),Just 5,Just 5,Just 5,Nothing]
 datum_floating :: Floating n => Datum -> Maybe n
 datum_floating d =
     case d of
-      Int n -> Just (fromIntegral n)
+      Int32 n -> Just (fromIntegral n)
+      Int64 n -> Just (fromIntegral n)
       Float n -> Just (realToFrac n)
       Double n -> Just (realToFrac n)
       _ -> Nothing
@@ -122,7 +130,8 @@ datum_sequence d =
 datum_tag :: Datum -> Datum_Type
 datum_tag dt =
     case dt of
-      Int _ -> 'i'
+      Int32 _ -> 'i'
+      Int64 _ -> 'h'
       Float _ -> 'f'
       Double _ -> 'd'
       String _ -> 's'
@@ -244,12 +253,13 @@ timePP = (:) 'N' . show
 
 -- | Pretty printer for 'Datum'.
 --
--- > let d = [Float 1.2,String "str",Midi (0,0x90,0x40,0x60)]
--- > in map datumPP d ==  ["1.2","\"str\"","<0,144,64,96>"]
+-- > let d = [Int32 1,Float 1.2,String "str",Midi (0,0x90,0x40,0x60)]
+-- > in map datumPP d ==  ["1","1.2","\"str\"","<0,144,64,96>"]
 datumPP :: Datum -> String
 datumPP d =
     case d of
-      Int n -> show n
+      Int32 n -> show n
+      Int64 n -> show n
       Float n -> show n
       Double n -> show n
       String s -> show s
@@ -285,7 +295,8 @@ readMaybe s =
 
 -- | Given 'Datum_Type' attempt to parse 'Datum' at 'String'.
 --
--- > parse_datum 'i' "42" == Just (Int 42)
+-- > parse_datum 'i' "42" == Just (Int32 42)
+-- > parse_datum 'h' "42" == Just (Int64 42)
 -- > parse_datum 'f' "3.14159" == Just (Float 3.14159)
 -- > parse_datum 'd' "3.14159" == Just (Double 3.14159)
 -- > parse_datum 's' "\"pi\"" == Just (String "pi")
@@ -294,7 +305,8 @@ readMaybe s =
 parse_datum :: Datum_Type -> String -> Maybe Datum
 parse_datum ty =
     case ty of
-      'i' -> fmap Int . readMaybe
+      'i' -> fmap Int32 . readMaybe
+      'h' -> fmap Int64 . readMaybe
       'f' -> fmap Float . readMaybe
       'd' -> fmap Double . readMaybe
       's' -> fmap String . readMaybe

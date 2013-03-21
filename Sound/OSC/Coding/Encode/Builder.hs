@@ -40,7 +40,8 @@ build_bytes s = B.fromInt32be (fromIntegral (L.length s))
 build_datum :: Datum -> B.Builder
 build_datum d =
     case d of
-      Int i -> B.fromInt32be (fromIntegral i)
+      Int32 i -> B.fromInt32be (fromIntegral i)
+      Int64 i -> B.fromInt64be (fromIntegral i)
       Float n -> B.fromWord32be (I.floatToWord (realToFrac n))
       Double n -> B.fromWord64be (I.doubleToWord n)
       TimeStamp t -> B.fromWord64be (fromIntegral (ntpr_to_ntpi t))

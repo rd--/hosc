@@ -4,6 +4,7 @@ module Sound.OSC.Coding.Decode.Base (decodeMessage
                                     ,decodeBundle
                                     ,decodePacket) where
 
+import Data.Binary {- base -}
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 import Data.List {- base -}
 import Data.Maybe {- base -}
@@ -39,7 +40,8 @@ storage ty b =
 decode_datum :: Datum_Type -> B.ByteString -> Datum
 decode_datum ty b =
     case ty of
-      'i' -> Int (decode_i32 b)
+      'i' -> Int32 (decode b)
+      'h' -> Int64 (decode b)
       'f' -> Float (decode_f32 b)
       'd' -> Double (decode_f64 b)
       's' -> String (decode_str (b_take (size 's' b) b))

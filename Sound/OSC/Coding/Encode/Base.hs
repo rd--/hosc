@@ -4,8 +4,8 @@ module Sound.OSC.Coding.Encode.Base (encodeMessage
                                     ,encodeBundle
                                     ,encodePacket) where
 
+import Data.Binary {- base -}
 import qualified Data.ByteString.Lazy as B {- bytestring -}
-import Data.Word {- base -}
 
 import Sound.OSC.Coding.Byte
 import Sound.OSC.Type
@@ -23,7 +23,8 @@ extend p s = B.append s (B.replicate (align (B.length s)) p)
 encode_datum :: Datum -> B.ByteString
 encode_datum dt =
     case dt of
-      Int i -> encode_i32 i
+      Int32 i -> encode i
+      Int64 i -> encode i
       Float f -> encode_f32 f
       Double d -> encode_f64 d
       TimeStamp t -> encode_u64 $ ntpr_to_ntpi t

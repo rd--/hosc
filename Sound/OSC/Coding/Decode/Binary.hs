@@ -11,8 +11,8 @@ import qualified Data.Binary.IEEE754 as I {- data-binary-ieee754 -}
 import qualified Data.ByteString.Char8 as S {- bytestring -}
 import qualified Data.ByteString.Lazy as L {- bytestring -}
 import qualified Data.ByteString.Lazy.Char8 as C {- bytestring -}
-import Data.Int (Int32) {- base -}
-import Data.Word (Word32) {- base -}
+import Data.Int {- base -}
+import Data.Word {- base -}
 
 import Sound.OSC.Coding.Byte
 import Sound.OSC.Time
@@ -34,6 +34,10 @@ isolate n m = do
 getInt32be :: Get Int32
 getInt32be = fromIntegral <$> getWord32be
 
+-- | Get a 64 bit integer in big-endian byte order.
+getInt64be :: Get Int64
+getInt64be = fromIntegral <$> getWord64be
+
 -- | Get an aligned OSC string.
 get_string :: Get String
 get_string = do
@@ -54,7 +58,8 @@ get_bytes n = do
 get_datum :: Datum_Type -> Get Datum
 get_datum ty =
     case ty of
-      'i' -> Int    <$> fromIntegral <$> getInt32be
+      'i' -> Int32  <$> fromIntegral <$> getInt32be
+      'h' -> Int64  <$> fromIntegral <$> getInt64be
       'f' -> Float  <$> realToFrac <$> I.getFloat32be
       'd' -> Double <$> I.getFloat64be
       's' -> String <$> get_string
