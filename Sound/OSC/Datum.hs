@@ -50,19 +50,6 @@ datum_timestamp d = case d of {TimeStamp x -> Just x;_ -> Nothing}
 datum_midi :: Datum -> Maybe MIDI
 datum_midi = d_get
 
--- | 'Datum' as 'Floating' if 'Int32', 'Int64', 'Float' or 'Double'.
---
--- > let d = [Int32 5,Int64 5,Float 5,Double 5]
--- > in Data.Maybe.mapMaybe datum_floating d == replicate 4 (5::Double)
-datum_floating :: Floating n => Datum -> Maybe n
-datum_floating d =
-    case d of
-      Int32 n -> Just (fromIntegral n)
-      Int64 n -> Just (fromIntegral n)
-      Float n -> Just (realToFrac n)
-      Double n -> Just (realToFrac n)
-      _ -> Nothing
-
 -- | 'Datum' as sequence of 'Word8' if 'ASCII_String', 'Blob' or 'Midi'.
 --
 -- > let d = [string "5",Blob (B.pack [53]),midi (0x00,0x90,0x40,0x60)]

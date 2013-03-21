@@ -64,6 +64,21 @@ datum_integral d =
       Int64 x -> Just (fromIntegral x)
       _ -> Nothing
 
+-- | 'Datum' as 'Floating' if 'Int32', 'Int64', 'Float', 'Double' or
+-- 'TimeStamp'.
+--
+-- > let d = [Int32 5,Int64 5,Float 5,Double 5,TimeStamp 5]
+-- > in Data.Maybe.mapMaybe datum_floating d == replicate 5 (5::Double)
+datum_floating :: Floating n => Datum -> Maybe n
+datum_floating d =
+    case d of
+      Int32 n -> Just (fromIntegral n)
+      Int64 n -> Just (fromIntegral n)
+      Float n -> Just (realToFrac n)
+      Double n -> Just (realToFrac n)
+      TimeStamp n -> Just (realToFrac n)
+      _ -> Nothing
+
 -- | Class for translating to and from 'Datum'.  There are instances
 -- for the direct 'Datum' field types.
 --
