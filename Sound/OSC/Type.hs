@@ -22,7 +22,7 @@ immediately = 1 / 2^(32::Int)
 -- | Type enumerating Datum categories.
 type Datum_Type = Char
 
--- | Type for ASCII strings.
+-- | Type for ASCII strings (strict 'Char'8 'C.ByteString').
 type ASCII = C.ByteString
 
 -- | Four-byte midi message.
@@ -179,7 +179,8 @@ midi (p,q,r,s) = Midi (MIDI p q r s)
 -- * Message
 
 -- | OSC address pattern.  This is strictly an ASCII value, but it is
--- very common to pattern match on addresses.
+-- very common to pattern match on addresses and matching on
+-- 'C.ByteString' requires @OverloadedStrings@.
 type Address_Pattern = String
 
 -- | An OSC message.
