@@ -15,7 +15,8 @@ module Sound.OSC.Core (module M) where
 
 import Sound.OSC.Class as M
 import Sound.OSC.Coding as M
+import Sound.OSC.Datum as M
 import Sound.OSC.Normalise as M
-import Sound.OSC.Type as M
 import Sound.OSC.Time as M
+import Sound.OSC.Type as M
 import Sound.OSC.Wait as M

@@ -17,8 +17,6 @@ type Time = Double
 immediately :: Time
 immediately = 1 / 2^(32::Int)
 
--- * String
-
 -- * Datum
 
 -- | Type enumerating Datum categories.
@@ -41,6 +39,30 @@ data Datum = Int32 {d_int32 :: Int32}
            | TimeStamp {d_timestamp :: Time}
            | Midi {d_midi :: MIDI}
              deriving (Eq,Read,Show)
+
+-- | Single character identifier of an OSC datum.
+datum_tag :: Datum -> Datum_Type
+datum_tag dt =
+    case dt of
+      Int32 _ -> 'i'
+      Int64 _ -> 'h'
+      Float _ -> 'f'
+      Double _ -> 'd'
+      ASCII_String _ -> 's'
+      Blob _ -> 'b'
+      TimeStamp _ -> 't'
+      Midi _ -> 'm'
+
+-- | 'Datum' as 'Integral' if 'Int32', 'Int64'.
+--
+-- > let d = [Int32 5,Int64 5,Float 5.5,Double 5.5]
+-- > in map datum_integral d == [Just (5::Int),Just 5,Nothing,Nothing]
+datum_integral :: Integral i => Datum -> Maybe i
+datum_integral d =
+    case d of
+      Int32 x -> Just (fromIntegral x)
+      Int64 x -> Just (fromIntegral x)
+      _ -> Nothing
 
 -- | Class for translating to and from 'Datum'.  There are instances
 -- for the direct 'Datum' field types.
@@ -138,97 +160,6 @@ string = ASCII_String . C.pack
 -- > midi (0,0,0,0) == Midi (MIDI 0 0 0 0)
 midi :: (Word8,Word8,Word8,Word8) -> Datum
 midi (p,q,r,s) = Midi (MIDI p q r s)
-
--- | Type specialised 'd_get'.
---
--- > map datum_int32 [Int32 1,Float 1] == [Just 1,Nothing]
-datum_int32 :: Datum -> Maybe Int32
-datum_int32 = d_get
-
--- | Type specialised 'd_get'.
-datum_int64 :: Datum -> Maybe Int64
-datum_int64 = d_get
-
--- | Type specialised 'd_get'.
-datum_float :: Datum -> Maybe Float
-datum_float = d_get
-
--- | Type specialised 'd_get'.
-datum_double :: Datum -> Maybe Double
-datum_double = d_get
-
--- | Type specialised 'd_get'.
---
--- > datum_ascii (d_put (C.pack "string")) == Just (C.pack "string")
-datum_ascii :: Datum -> Maybe ASCII
-datum_ascii = d_get
-
--- | 'C.unpack' of 'd_get'.
---
--- > datum_string (d_put (C.pack "string")) == Just "string"
-datum_string :: Datum -> Maybe String
-datum_string = fmap C.unpack . datum_ascii
-
--- | Type specialised 'd_get'.
-datum_blob :: Datum -> Maybe B.ByteString
-datum_blob = d_get
-
--- | 'Maybe' variant of 'd_timestamp'.
-datum_timestamp :: Datum -> Maybe Time
-datum_timestamp d = case d of {TimeStamp x -> Just x;_ -> Nothing}
-
--- | Type specialised 'd_get'.
-datum_midi :: Datum -> Maybe MIDI
-datum_midi = d_get
-
--- | 'Datum' as 'Integral' if 'Int32', 'Int64', 'Float' or 'Double'.
---
--- > let d = [Int32 5,Int64 5,Float 5.5,Double 5.5]
--- > in map datum_integral d == [Just (5::Int),Just 5,Nothing,Nothing]
-datum_integral :: Integral i => Datum -> Maybe i
-datum_integral d =
-    case d of
-      Int32 x -> Just (fromIntegral x)
-      Int64 x -> Just (fromIntegral x)
-      _ -> Nothing
-
--- | 'Datum' as 'Floating' if 'Int32', 'Int64', 'Float' or 'Double'.
---
--- > let d = [Int32 5,Int64 5,Float 5,Double 5]
--- > in Data.Maybe.mapMaybe datum_floating d == replicate 4 (5::Double)
-datum_floating :: Floating n => Datum -> Maybe n
-datum_floating d =
-    case d of
-      Int32 n -> Just (fromIntegral n)
-      Int64 n -> Just (fromIntegral n)
-      Float n -> Just (realToFrac n)
-      Double n -> Just (realToFrac n)
-      _ -> Nothing
-
--- | 'Datum' as sequence of 'Word8' if 'ASCII_String', 'Blob' or 'Midi'.
---
--- > let d = [string "5",Blob (B.pack [53]),midi (0x00,0x90,0x40,0x60)]
--- > in Data.Maybe.mapMaybe datum_sequence d == [[53],[53],[0,144,64,96]]
-datum_sequence :: Datum -> Maybe [Word8]
-datum_sequence d =
-    case d of
-      ASCII_String s -> Just (map (fromIntegral . fromEnum) (C.unpack s))
-      Blob s -> Just (B.unpack s)
-      Midi (MIDI p q r s) -> Just [p,q,r,s]
-      _ -> Nothing
-
--- | Single character identifier of an OSC datum.
-datum_tag :: Datum -> Datum_Type
-datum_tag dt =
-    case dt of
-      Int32 _ -> 'i'
-      Int64 _ -> 'h'
-      Float _ -> 'f'
-      Double _ -> 'd'
-      ASCII_String _ -> 's'
-      Blob _ -> 'b'
-      TimeStamp _ -> 't'
-      Midi _ -> 'm'
 
 -- * Message
 

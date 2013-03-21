@@ -3,7 +3,7 @@ module Sound.OSC.Normalise where
 
 import Sound.OSC.Type
 
--- | Coerce Float to Double.
+-- | Lift 'Int32' to 'Int64' and 'Float' to 'Double'.
 --
 -- > map normalise_datum [Int32 1,Float 1] == [Int64 1,Double 1]
 normalise_datum :: Datum -> Datum
@@ -38,7 +38,7 @@ bundle_coerce f (Bundle t xs) = Bundle t (map (message_coerce f) xs)
 
 -- | Coerce 'Int32', 'Int64' and 'Float' to 'Double'.
 --
--- > map datum_promote [Int 5,Float 5] == [Double 5,Double 5]
+-- > map datum_promote [Int32 5,Float 5] == [Double 5,Double 5]
 datum_promote :: Datum -> Datum
 datum_promote d =
     case d of
@@ -47,16 +47,15 @@ datum_promote d =
       Float n -> Double (realToFrac n)
       _ -> d
 
--- | 'Datum' as 'Integral' if 'Int32', 'Int64', 'Float' or 'Double'.
+-- | 'Datum' as 'Int64' if 'Int32', 'Int64', 'Float' or 'Double'.
 --
--- > let d = [Int32 5,Int64 5,Float 5.5,Double 5.5,String "5"]
--- > in map datum_floor d == [Just (5::Int),Just 5,Just 5,Just 5,Nothing]
-datum_floor :: Integral i => Datum -> Maybe i
+-- > let d = [Int32 5,Int64 5,Float 5.5,Double 5.5,string "5"]
+-- > in map datum_floor d == [Int64 5,Int64 5,Int64 5,Int64 5,string "5"]
+datum_floor :: Datum -> Datum
 datum_floor d =
     case d of
-      Int32 x -> Just (fromIntegral x)
-      Int64 x -> Just (fromIntegral x)
-      Float x -> Just (floor x)
-      Double x -> Just (floor x)
-      _ -> Nothing
+      Int32 x -> Int64 (fromIntegral x)
+      Float x -> Int64 (fromInteger (floor x))
+      Double x -> Int64 (fromInteger (floor x))
+      _ -> d
 
