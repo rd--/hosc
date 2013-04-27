@@ -4,13 +4,16 @@ import Control.DeepSeq (NFData(..)) {- deepseq -}
 import Sound.OSC.Type
 
 instance NFData Datum where
-    rnf (Int x1)        = rnf x1 `seq` ()
-    rnf (Float x1)      = rnf x1 `seq` ()
-    rnf (Double x1)     = rnf x1 `seq` ()
-    rnf (String x1)     = rnf x1 `seq` ()
-    rnf (Blob x1)       = rnf x1 `seq` ()
-    rnf (TimeStamp x1)  = rnf x1 `seq` ()
-    rnf (Midi x1)       = rnf x1 `seq` ()
+    rnf (Int32 x1) = rnf x1 `seq` ()
+    rnf (Float x1) = rnf x1 `seq` ()
+    rnf (Double x1) = rnf x1 `seq` ()
+    rnf (ASCII_String x1) = rnf x1 `seq` ()
+    rnf (Blob x1) = rnf x1 `seq` ()
+    rnf (TimeStamp x1) = rnf x1 `seq` ()
+    rnf (Midi x1) = rnf x1 `seq` ()
+
+instance NFData MIDI where
+    rnf (MIDI x1 x2 x3 x4) = rnf x1 `seq` rnf x2 `seq` rnf x3 `seq` rnf x4 `seq` ()
 
 instance NFData Message where
     rnf (Message x1 x2) = rnf x1 `seq` rnf x2 `seq` ()

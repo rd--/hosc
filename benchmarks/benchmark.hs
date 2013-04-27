@@ -24,9 +24,9 @@ main =
           ]
       ]
     where
-        m = Message "/fooblah" [Float 42
-                               ,Int 16
-                               ,String "yeah"
+        m = Message "/fooblah" [Float 42.0
+                               ,Int32 16
+                               ,string "yeah"
                                ,Blob (B.pack [0..128])]
         b = Bundle pi (replicate 12 m)
         p = Encode.encodeBundle b
