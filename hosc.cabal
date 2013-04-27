@@ -1,5 +1,5 @@
 Name:              hosc
-Version:           0.14
+Version:           0.15
 Synopsis:          Haskell Open Sound Control
 Description:       @hosc@ implements a subset of the /Open Sound Control/
                    byte protocol, <http://opensoundcontrol.org/>.
@@ -69,7 +69,7 @@ Benchmark hosc-benchmark
       Sound.OSC.NFData
   Build-Depends:
       base == 4.*
-    , hosc == 0.14.*
+    , hosc == 0.15.*
     , bytestring
     , criterion
     , deepseq
@@ -85,7 +85,7 @@ Test-Suite hosc-test
   Build-Depends:
       base == 4.*
     , bytestring >= 0.10
-    , hosc == 0.14.*
+    , hosc == 0.15.*
     , QuickCheck >= 2
     , test-framework >= 0.2
     , test-framework-quickcheck2 >= 0.2
