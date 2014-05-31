@@ -25,6 +25,10 @@ type Datum_Type = Char
 -- | Type for ASCII strings (strict 'Char'8 'C.ByteString').
 type ASCII = C.ByteString
 
+-- | Type-specialised 'C.pack'.
+ascii :: String -> ASCII
+ascii = C.pack
+
 -- | Four-byte midi message.
 data MIDI = MIDI Word8 Word8 Word8 Word8
     deriving (Eq,Show,Read)
