@@ -35,6 +35,7 @@ datum_ascii = d_get
 -- | 'C.unpack' of 'd_get'.
 --
 -- > datum_string (d_put (C.pack "string")) == Just "string"
+-- > map datum_string [string "string",Int32 5] == [Just "string",Nothing]
 datum_string :: Datum -> Maybe String
 datum_string = fmap C.unpack . datum_ascii
 
