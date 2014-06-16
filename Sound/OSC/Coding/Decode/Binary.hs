@@ -18,18 +18,6 @@ import Sound.OSC.Coding.Byte
 import Sound.OSC.Time
 import Sound.OSC.Type
 
--- | Isolate an action to operating within a fixed block of bytes. The
--- action is required to consume all the bytes that it is isolated to.
-isolate :: Word32 -> G.Get a -> G.Get a
-isolate n m = do
-    s <- get_bytes n
-    case G.runGetOrFail m s of
-        Left (_, _, e) -> fail e
-        Right (s', _, a) ->
-            if B.null s'
-                then return a
-                else fail "isolate: not all bytes consumed"
-
 -- | Get a 32 bit integer in big-endian byte order.
 getInt32be :: G.Get Int32
 getInt32be = fromIntegral <$> G.getWord32be
@@ -97,7 +85,7 @@ get_message_seq = do
     if b
         then return []
         else do
-            p <- flip isolate get_message =<< G.getWord32be
+            p <- flip G.isolate get_message . fromIntegral =<< G.getWord32be
             ps <- get_message_seq
             return (p:ps)
 
