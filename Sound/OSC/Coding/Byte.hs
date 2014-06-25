@@ -49,6 +49,10 @@ encode_str :: ASCII -> L.ByteString
 {-# INLINE encode_str #-}
 encode_str = L.pack . S.unpack
 
+-- | Decode an un-signed 8-bit integer.
+decode_u8 :: L.ByteString -> Int
+decode_u8 = fromIntegral . L.head
+
 -- | Decode a signed 8-bit integer.
 decode_i8 :: L.ByteString -> Int
 decode_i8 b = fromIntegral (decode b :: Int8)
