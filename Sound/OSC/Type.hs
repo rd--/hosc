@@ -29,6 +29,10 @@ type ASCII = C.ByteString
 ascii :: String -> ASCII
 ascii = C.pack
 
+-- | Type-specialised 'C.unpack'.
+ascii_to_string :: ASCII -> String
+ascii_to_string = C.unpack
+
 -- | Four-byte midi message.
 data MIDI = MIDI Word8 Word8 Word8 Word8
     deriving (Eq,Show,Read)
