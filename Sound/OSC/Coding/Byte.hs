@@ -16,6 +16,10 @@ import Sound.OSC.Type
 encode_i8 :: Int -> L.ByteString
 encode_i8 n = encode (fromIntegral n :: Int8)
 
+-- | Encode an un-signed 8-bit integer.
+encode_u8 :: Int -> L.ByteString
+encode_u8 n = encode (fromIntegral n :: Word8)
+
 -- | Encode a signed 16-bit integer.
 encode_i16 :: Int -> L.ByteString
 encode_i16 n = encode (fromIntegral n :: Int16)
