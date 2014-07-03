@@ -309,11 +309,22 @@ packet_has_address x =
 -- | Perhaps a precision value for floating point numbers.
 type FP_Precision = Maybe Int
 
+-- | Variant of 'showFFloat' that deletes trailing zeros.
+--
+-- > map (floatPP (Just 4)) [1,pi] == ["1.0","3.1416"]
+floatPP :: RealFloat n => Maybe Int -> n -> String
+floatPP p n =
+    let s = showFFloat p n ""
+        s' = dropWhile (== '0') (reverse s)
+    in case s' of
+         '.':_ -> reverse ('0' : s')
+         _ -> reverse s'
+
 -- | Pretty printer for 'Time'.
 --
 -- > timePP (Just 4) (1/3) == "0.3333"
 timePP :: FP_Precision -> Time -> String
-timePP p t = showFFloat p t ""
+timePP = floatPP
 
 -- | Pretty printer for vectors.
 --
@@ -330,8 +341,8 @@ datumPP p d =
     case d of
       Int32 n -> show n
       Int64 n -> show n
-      Float n -> showFFloat p n ""
-      Double n -> showFFloat p n ""
+      Float n -> floatPP p n
+      Double n -> floatPP p n
       ASCII_String s -> show (C.unpack s)
       Blob s -> show s
       TimeStamp t -> timePP p t
