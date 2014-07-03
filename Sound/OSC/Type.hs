@@ -306,11 +306,14 @@ packet_has_address x =
 
 -- * Pretty printing
 
--- | Pretty printer for 'Time' (truncate to 4 decimal places).
+-- | Perhaps a precision value for floating point numbers.
+type FP_Precision = Maybe Int
+
+-- | Pretty printer for 'Time'.
 --
--- > timePP (1/3) == "0.3333"
-timePP :: Time -> String
-timePP t = showGFloat (Just 4) t ""
+-- > timePP (Just 4) (1/3) == "0.3333"
+timePP :: FP_Precision -> Time -> String
+timePP p t = showFFloat p t ""
 
 -- | Pretty printer for vectors.
 --
@@ -322,36 +325,36 @@ vecPP v = '<' : intercalate "," (map show v) ++ ">"
 --
 -- > let d = [Int32 1,Float 1.2,string "str",midi (0,0x90,0x40,0x60)]
 -- > in map datumPP d ==  ["1","1.2","\"str\"","<0,144,64,96>"]
-datumPP :: Datum -> String
-datumPP d =
+datumPP :: FP_Precision -> Datum -> String
+datumPP p d =
     case d of
       Int32 n -> show n
       Int64 n -> show n
-      Float n -> show n
-      Double n -> show n
+      Float n -> showFFloat p n ""
+      Double n -> showFFloat p n ""
       ASCII_String s -> show (C.unpack s)
       Blob s -> show s
-      TimeStamp t -> timePP t
-      Midi (MIDI p q r s) -> vecPP [p,q,r,s]
+      TimeStamp t -> timePP p t
+      Midi (MIDI b1 b2 b3 b4) -> vecPP [b1,b2,b3,b4]
 
 -- | Pretty printer for 'Message'.
-messagePP :: Message -> String
-messagePP (Message a d) =
-    let d' = map datumPP d
+messagePP :: FP_Precision -> Message -> String
+messagePP p (Message a d) =
+    let d' = map (datumPP p) d
     in unwords ("#message" : a : d')
 
 -- | Pretty printer for 'Bundle'.
-bundlePP :: Bundle -> String
-bundlePP (Bundle t m) =
-    let m' = intersperse ";" (map messagePP m)
-    in unwords ("#bundle" : timePP t : m')
+bundlePP :: FP_Precision -> Bundle -> String
+bundlePP p (Bundle t m) =
+    let m' = intersperse ";" (map (messagePP p) m)
+    in unwords ("#bundle" : timePP p t : m')
 
 -- | Pretty printer for 'Packet'.
-packetPP :: Packet -> String
-packetPP p =
-    case p of
-      Packet_Message m -> messagePP m
-      Packet_Bundle b -> bundlePP b
+packetPP :: FP_Precision -> Packet -> String
+packetPP p pkt =
+    case pkt of
+      Packet_Message m -> messagePP p m
+      Packet_Bundle b -> bundlePP p b
 
 -- * Parser
 
