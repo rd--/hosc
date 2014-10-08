@@ -16,7 +16,7 @@ Description:       @hosc@ implements a subset of the /Open Sound Control/
                    Composite modules are at "Sound.OSC" and "Sound.OSC.FD".
 License:           GPL
 Category:          Sound
-Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2006-2014
+Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2007-2014
 Author:            Rohan Drape, Stefan Kersten
 Maintainer:        rd@slavepianos.org
 Stability:         Experimental
