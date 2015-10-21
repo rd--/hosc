@@ -1,52 +1,53 @@
 -- | Byte-level coding utility functions.
 module Sound.OSC.Coding.Byte where
 
-import Data.Binary {- base -}
+import qualified Data.Binary as B {- binary -}
 import Data.Bits {- base -}
 import qualified Data.ByteString as S {- bytestring -}
 import qualified Data.ByteString.Char8 as S.C {- bytestring -}
 import qualified Data.ByteString.Lazy as L {- bytestring -}
 import qualified Data.ByteString.Lazy.Char8 as L.C {- bytestring -}
 import Data.Int {- base -}
+import Data.Word {- base -}
 
 import Sound.OSC.Coding.Cast
 import Sound.OSC.Type
 
 -- | Encode a signed 8-bit integer.
 encode_i8 :: Int -> L.ByteString
-encode_i8 n = encode (fromIntegral n :: Int8)
+encode_i8 n = B.encode (fromIntegral n :: Int8)
 
 -- | Encode an un-signed 8-bit integer.
 encode_u8 :: Int -> L.ByteString
-encode_u8 n = encode (fromIntegral n :: Word8)
+encode_u8 n = B.encode (fromIntegral n :: Word8)
 
 -- | Encode a signed 16-bit integer.
 encode_i16 :: Int -> L.ByteString
-encode_i16 n = encode (fromIntegral n :: Int16)
+encode_i16 n = B.encode (fromIntegral n :: Int16)
 
 -- | Encode a signed 32-bit integer.
 encode_i32 :: Int -> L.ByteString
-encode_i32 n = encode (fromIntegral n :: Int32)
+encode_i32 n = B.encode (fromIntegral n :: Int32)
 
 -- | Encode an unsigned 16-bit integer.
 encode_u32 :: Int -> L.ByteString
-encode_u32 n = encode (fromIntegral n :: Word32)
+encode_u32 n = B.encode (fromIntegral n :: Word32)
 
 -- | Encode a signed 64-bit integer.
 encode_i64 :: Int64 -> L.ByteString
-encode_i64 = encode
+encode_i64 = B.encode
 
 -- | Encode an unsigned 64-bit integer.
 encode_u64 :: Word64 -> L.ByteString
-encode_u64 = encode
+encode_u64 = B.encode
 
 -- | Encode a 32-bit IEEE floating point number.
 encode_f32 :: Float -> L.ByteString
-encode_f32 = encode . f32_w32
+encode_f32 = B.encode . f32_w32
 
 -- | Encode a 64-bit IEEE floating point number.
 encode_f64 :: Double -> L.ByteString
-encode_f64 = encode . f64_w64
+encode_f64 = B.encode . f64_w64
 
 -- | Encode an ASCII string.
 encode_str :: ASCII -> L.ByteString
@@ -59,35 +60,35 @@ decode_u8 = fromIntegral . L.head
 
 -- | Decode a signed 8-bit integer.
 decode_i8 :: L.ByteString -> Int
-decode_i8 b = fromIntegral (decode b :: Int8)
+decode_i8 b = fromIntegral (B.decode b :: Int8)
 
 -- | Decode a signed 16-bit integer.
 decode_i16 :: L.ByteString -> Int
-decode_i16 b = fromIntegral (decode b :: Int16)
+decode_i16 b = fromIntegral (B.decode b :: Int16)
 
 -- | Decode a signed 32-bit integer.
 decode_i32 :: L.ByteString -> Int
-decode_i32 b = fromIntegral (decode b :: Int32)
+decode_i32 b = fromIntegral (B.decode b :: Int32)
 
 -- | Decode an unsigned 32-bit integer.
 decode_u32 :: L.ByteString -> Int
-decode_u32 b = fromIntegral (decode b :: Word32)
+decode_u32 b = fromIntegral (B.decode b :: Word32)
 
 -- | Decode a signed 64-bit integer.
 decode_i64 :: L.ByteString -> Int64
-decode_i64 = decode
+decode_i64 = B.decode
 
 -- | Decode an unsigned 64-bit integer.
 decode_u64 :: L.ByteString -> Word64
-decode_u64 = decode
+decode_u64 = B.decode
 
 -- | Decode a 32-bit IEEE floating point number.
 decode_f32 :: L.ByteString -> Float
-decode_f32 b = w32_f32 (decode b :: Word32)
+decode_f32 b = w32_f32 (B.decode b :: Word32)
 
 -- | Decode a 64-bit IEEE floating point number.
 decode_f64 :: L.ByteString -> Double
-decode_f64 b = w64_f64 (decode b :: Word64)
+decode_f64 b = w64_f64 (B.decode b :: Word64)
 
 -- | Decode an ASCII string.
 decode_str :: L.ByteString -> ASCII
