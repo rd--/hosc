@@ -353,8 +353,9 @@ datumPP p d =
       TimeStamp t -> timePP p t
       Midi (MIDI b1 b2 b3 b4) -> vecPP [b1,b2,b3,b4]
 
+-- | Variant of 'datumPP' that appends the 'datum_type_name'.
 datum_pp_typed :: FP_Precision -> Datum -> String
-datum_pp_typed fp d = datumPP fp d ++ " :: " ++ snd (datum_type_name d)
+datum_pp_typed fp d = datumPP fp d ++ ":" ++ snd (datum_type_name d)
 
 -- | Pretty printer for 'Message'.
 messagePP :: FP_Precision -> Message -> String
