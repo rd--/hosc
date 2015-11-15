@@ -11,7 +11,6 @@ import qualified Data.ByteString as S {- bytestring -}
 import qualified Data.ByteString.Lazy as L {- bytestring -}
 import qualified Blaze.ByteString.Builder as B {- bytestring -}
 import qualified Blaze.ByteString.Builder.Char8 as B {- bytestring -}
-import Data.Monoid (mappend, mconcat) {- base -}
 import Data.Word (Word8) {- base -}
 
 import Sound.OSC.Coding.Byte (align, bundleHeader)

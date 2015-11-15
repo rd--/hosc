@@ -48,18 +48,21 @@ data Datum = Int32 {d_int32 :: Int32}
            | Midi {d_midi :: MIDI}
              deriving (Eq,Read,Show)
 
+datum_type_name :: Datum -> (Datum_Type,String)
+datum_type_name d =
+    case d of
+      Int32 _ -> ('i',"Int32")
+      Int64 _ -> ('h',"Int64")
+      Float _ -> ('f',"Float")
+      Double _ -> ('d',"Double")
+      ASCII_String _ -> ('s',"ASCII")
+      Blob _ -> ('b',"ByteArray")
+      TimeStamp _ -> ('t',"Time")
+      Midi _ -> ('m',"MIDI")
+
 -- | Single character identifier of an OSC datum.
 datum_tag :: Datum -> Datum_Type
-datum_tag dt =
-    case dt of
-      Int32 _ -> 'i'
-      Int64 _ -> 'h'
-      Float _ -> 'f'
-      Double _ -> 'd'
-      ASCII_String _ -> 's'
-      Blob _ -> 'b'
-      TimeStamp _ -> 't'
-      Midi _ -> 'm'
+datum_tag = fst . datum_type_name
 
 -- | 'Datum' as 'Integral' if 'Sound.OSC.Type.Int32' or
 -- 'Sound.OSC.Type.Int64'.
@@ -332,10 +335,12 @@ timePP = floatPP
 vecPP :: Show a => [a] -> String
 vecPP v = '<' : intercalate "," (map show v) ++ ">"
 
--- | Pretty printer for 'Datum'.
---
--- > let d = [Int32 1,Float 1.2,string "str",midi (0,0x90,0x40,0x60)]
--- > in map datumPP d ==  ["1","1.2","\"str\"","<0,144,64,96>"]
+{- | Pretty printer for 'Datum'.
+
+> let d = [Int32 1,Float 1.2,string "str",midi (0,0x90,0x40,0x60)]
+> in map (datumPP (Just 5)) d ==  ["1","1.2","\"str\"","<0,144,64,96>"]
+
+-}
 datumPP :: FP_Precision -> Datum -> String
 datumPP p d =
     case d of
@@ -347,6 +352,9 @@ datumPP p d =
       Blob s -> show s
       TimeStamp t -> timePP p t
       Midi (MIDI b1 b2 b3 b4) -> vecPP [b1,b2,b3,b4]
+
+datum_pp_typed :: FP_Precision -> Datum -> String
+datum_pp_typed fp d = datumPP fp d ++ " :: " ++ snd (datum_type_name d)
 
 -- | Pretty printer for 'Message'.
 messagePP :: FP_Precision -> Message -> String
