@@ -33,6 +33,17 @@ ascii = C.pack
 ascii_to_string :: ASCII -> String
 ascii_to_string = C.unpack
 
+-- | Type for 'Word8' arrays.
+type BLOB = B.ByteString
+
+-- | Type-specialised 'B.pack'.
+blob_pack ::  [Word8] -> BLOB
+blob_pack = B.pack
+
+-- | Type-specialised 'B.unpack'.
+blob_unpack :: BLOB -> [Word8]
+blob_unpack = B.unpack
+
 -- | Four-byte midi message.
 data MIDI = MIDI Word8 Word8 Word8 Word8
     deriving (Eq,Show,Read)
@@ -43,7 +54,7 @@ data Datum = Int32 {d_int32 :: Int32}
            | Float {d_float :: Float}
            | Double {d_double :: Double}
            | ASCII_String {d_ascii_string :: ASCII}
-           | Blob {d_blob :: B.ByteString}
+           | Blob {d_blob :: BLOB}
            | TimeStamp {d_timestamp :: Time}
            | Midi {d_midi :: MIDI}
              deriving (Eq,Read,Show)
@@ -100,7 +111,7 @@ datum_floating d =
 -- > d_put (1::Float) == Float 1
 -- > d_put (1::Double) == Double 1
 -- > d_put (C.pack "str") == ASCII_String (C.pack "str")
--- > d_put (B.pack [37,37]) == Blob (B.pack [37,37])
+-- > d_put (B.pack [37,37]) == Blob (blob_pack [37,37])
 -- > d_put (MIDI 0 0 0 0) == Midi (MIDI 0 0 0 0)
 --
 -- There are also instances for standard Haskell types.
@@ -392,7 +403,7 @@ readMaybe s =
 -- > parse_datum 'f' "3.14159" == Just (Float 3.14159)
 -- > parse_datum 'd' "3.14159" == Just (Double 3.14159)
 -- > parse_datum 's' "\"pi\"" == Just (string "pi")
--- > parse_datum 'b' "[112,105]" == Just (Blob (B.pack [112,105]))
+-- > parse_datum 'b' "[112,105]" == Just (Blob (blob_pack [112,105]))
 -- > parse_datum 'm' "(0,144,60,90)" == Just (midi (0,144,60,90))
 parse_datum :: Datum_Type -> String -> Maybe Datum
 parse_datum ty =
@@ -402,7 +413,7 @@ parse_datum ty =
       'f' -> fmap Float . readMaybe
       'd' -> fmap Double . readMaybe
       's' -> fmap (ASCII_String . C.pack) . readMaybe
-      'b' -> fmap (Blob . B.pack) . readMaybe
+      'b' -> fmap (Blob . blob_pack) . readMaybe
       't' -> error "parse_datum: timestamp"
       'm' -> fmap midi . readMaybe
       _ -> error "parse_datum: type"
