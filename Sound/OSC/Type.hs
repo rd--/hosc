@@ -10,7 +10,7 @@ import Numeric {- base -}
 
 -- * Time
 
--- | @NTP@ time in real-valued (fractional) form.
+-- | @NTP@ time in real-valued (fractional) form (ie. @ntpr@).
 type Time = Double
 
 -- | Constant indicating a bundle to be executed immediately.
