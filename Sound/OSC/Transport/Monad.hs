@@ -69,6 +69,10 @@ recvBundle = liftM packet_to_bundle recvPacket
 recvMessage :: (RecvOSC m) => m (Maybe Message)
 recvMessage = liftM packet_to_message recvPacket
 
+-- | Erroring variant.
+recvMessage_err :: RecvOSC m => m Message
+recvMessage_err = fmap (fromMaybe (error "recvMessage")) recvMessage
+
 -- | Variant of 'recvPacket' that runs 'packetMessages'.
 recvMessages :: (RecvOSC m) => m [Message]
 recvMessages = liftM packetMessages recvPacket
