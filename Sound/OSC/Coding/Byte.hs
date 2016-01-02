@@ -79,6 +79,9 @@ decode_u16_le = decode_u16 . L.reverse
 decode_i16 :: L.ByteString -> Int
 decode_i16 b = fromIntegral (B.decode b :: Int16)
 
+decode_i16_le :: L.ByteString -> Int
+decode_i16_le = decode_i16 . L.reverse
+
 -- | Decode a signed 32-bit integer.
 decode_i32 :: L.ByteString -> Int
 decode_i32 b = fromIntegral (B.decode b :: Int32)
