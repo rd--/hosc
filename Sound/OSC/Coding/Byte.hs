@@ -1,4 +1,5 @@
 -- | Byte-level coding utility functions.
+-- Plain forms are big-endian, little-endian forms have @_le@ suffix.
 module Sound.OSC.Coding.Byte where
 
 import qualified Data.Binary as B {- binary -}
@@ -9,9 +10,12 @@ import qualified Data.ByteString.Lazy as L {- bytestring -}
 import qualified Data.ByteString.Lazy.Char8 as L.C {- bytestring -}
 import Data.Int {- base -}
 import Data.Word {- base -}
+import System.IO {- base -}
 
 import Sound.OSC.Coding.Cast
 import Sound.OSC.Type
+
+-- * Encode
 
 -- | Encode a signed 8-bit integer.
 encode_i8 :: Int -> L.ByteString
@@ -54,6 +58,8 @@ encode_str :: ASCII -> L.ByteString
 {-# INLINE encode_str #-}
 encode_str = L.pack . S.unpack
 
+-- * Decode
+
 -- | Decode an un-signed 8-bit integer.
 decode_u8 :: L.ByteString -> Int
 decode_u8 = fromIntegral . L.head
@@ -61,6 +67,13 @@ decode_u8 = fromIntegral . L.head
 -- | Decode a signed 8-bit integer.
 decode_i8 :: L.ByteString -> Int
 decode_i8 b = fromIntegral (B.decode b :: Int8)
+
+-- | Decode an unsigned 8-bit integer.
+decode_u16 :: L.ByteString -> Int
+decode_u16 b = fromIntegral (B.decode b :: Word16)
+
+decode_u16_le :: L.ByteString -> Int
+decode_u16_le = decode_u16 . L.reverse
 
 -- | Decode a signed 16-bit integer.
 decode_i16 :: L.ByteString -> Int
@@ -74,6 +87,9 @@ decode_i32 b = fromIntegral (B.decode b :: Int32)
 decode_u32 :: L.ByteString -> Int
 decode_u32 b = fromIntegral (B.decode b :: Word32)
 
+decode_u32_le :: L.ByteString -> Int
+decode_u32_le = decode_u32 . L.reverse
+
 -- | Decode a signed 64-bit integer.
 decode_i64 :: L.ByteString -> Int64
 decode_i64 = B.decode
@@ -86,6 +102,9 @@ decode_u64 = B.decode
 decode_f32 :: L.ByteString -> Float
 decode_f32 b = w32_f32 (B.decode b :: Word32)
 
+decode_f32_le :: L.ByteString -> Float
+decode_f32_le = decode_f32 . L.reverse
+
 -- | Decode a 64-bit IEEE floating point number.
 decode_f64 :: L.ByteString -> Double
 decode_f64 b = w64_f64 (B.decode b :: Word64)
@@ -94,6 +113,14 @@ decode_f64 b = w64_f64 (B.decode b :: Word64)
 decode_str :: L.ByteString -> ASCII
 {-# INLINE decode_str #-}
 decode_str = S.C.pack . L.C.unpack
+
+-- * Read
+
+read_u32 :: Handle -> IO Int
+read_u32 = fmap decode_u32 . flip L.hGet 4
+
+read_u32_le :: Handle -> IO Int
+read_u32_le = fmap decode_u32_le . flip L.hGet 4
 
 -- | Bundle header as a (strict) 'S.C.ByteString'.
 bundleHeader_strict :: S.C.ByteString
