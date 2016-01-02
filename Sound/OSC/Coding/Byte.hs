@@ -49,6 +49,9 @@ encode_u64 = B.encode
 encode_f32 :: Float -> L.ByteString
 encode_f32 = B.encode . f32_w32
 
+encode_f32_le :: Float -> L.ByteString
+encode_f32_le = L.reverse . encode_f32
+
 -- | Encode a 64-bit IEEE floating point number.
 encode_f64 :: Double -> L.ByteString
 encode_f64 = B.encode . f64_w64
