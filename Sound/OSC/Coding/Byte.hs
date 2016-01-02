@@ -129,13 +129,19 @@ decode_str :: L.ByteString -> ASCII
 {-# INLINE decode_str #-}
 decode_str = S.C.pack . L.C.unpack
 
--- * Read
+-- * IO
 
 read_u32 :: Handle -> IO Int
 read_u32 = fmap decode_u32 . flip L.hGet 4
 
 read_u32_le :: Handle -> IO Int
 read_u32_le = fmap decode_u32_le . flip L.hGet 4
+
+write_u32 :: Handle -> Int -> IO ()
+write_u32 h = L.hPut h . encode_u32
+
+write_u32_le :: Handle -> Int -> IO ()
+write_u32_le h = L.hPut h . L.reverse . encode_u32
 
 -- | Bundle header as a (strict) 'S.C.ByteString'.
 bundleHeader_strict :: S.C.ByteString
