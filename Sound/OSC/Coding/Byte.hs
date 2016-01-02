@@ -25,6 +25,12 @@ encode_i8 n = B.encode (fromIntegral n :: Int8)
 encode_u8 :: Int -> L.ByteString
 encode_u8 n = B.encode (fromIntegral n :: Word8)
 
+encode_u16 :: Int -> L.ByteString
+encode_u16 n = B.encode (fromIntegral n :: Word16)
+
+encode_u16_le :: Int -> L.ByteString
+encode_u16_le = L.reverse . encode_u16
+
 -- | Encode a signed 16-bit integer.
 encode_i16 :: Int -> L.ByteString
 encode_i16 n = B.encode (fromIntegral n :: Int16)
@@ -36,6 +42,9 @@ encode_i32 n = B.encode (fromIntegral n :: Int32)
 -- | Encode an unsigned 16-bit integer.
 encode_u32 :: Int -> L.ByteString
 encode_u32 n = B.encode (fromIntegral n :: Word32)
+
+encode_u32_le :: Int -> L.ByteString
+encode_u32_le = L.reverse . encode_u32
 
 -- | Encode a signed 64-bit integer.
 encode_i64 :: Int64 -> L.ByteString
