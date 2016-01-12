@@ -44,7 +44,7 @@ blob_pack = B.pack
 blob_unpack :: BLOB -> [Word8]
 blob_unpack = B.unpack
 
--- | Four-byte midi message.
+-- | Four-byte midi message: port-id, status-byte, data, data.
 data MIDI = MIDI Word8 Word8 Word8 Word8
     deriving (Eq,Show,Read)
 
