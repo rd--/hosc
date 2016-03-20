@@ -5,6 +5,7 @@ import qualified Data.ByteString.Lazy as B {- bytestring -}
 import qualified Data.ByteString.Char8 as C {- bytestring -}
 import Data.Int {- base -}
 import Data.List {- base -}
+import Data.Maybe {- base -}
 import Data.Word {- base -}
 import Numeric {- base -}
 
@@ -157,6 +158,10 @@ instance Datem B.ByteString where
 instance Datem MIDI where
     d_put = Midi
     d_get d = case d of {Midi x -> Just x;_ -> Nothing}
+
+-- | Error variant of 'd_get'.
+d_get_err :: Datem a => Datum -> a
+d_get_err = fromMaybe (error "d_get") . d_get
 
 -- | Type generalised 'Sound.OSC.Type.Int32'.
 --

@@ -32,6 +32,14 @@ udp_socket f host port = do
   f fd sa
   return (UDP fd)
 
+-- | Set option, ie. 'N.Broadcast' or 'N.RecvTimeOut'.
+set_udp_opt :: N.SocketOption -> Int -> UDP -> IO ()
+set_udp_opt k v (UDP s) = N.setSocketOption s k v
+
+-- | Get option.
+get_udp_opt :: N.SocketOption -> UDP -> IO Int
+get_udp_opt k (UDP s) = N.getSocketOption s k
+
 -- | Make a 'UDP' connection.
 --
 -- > let t = openUDP "127.0.0.1" 57110
