@@ -26,7 +26,17 @@ instance Transport TCP where
          return (decodePacket b1)
    close (TCP fd) = hClose fd
 
--- | Make a 'TCP' connection.
+{- | Make a 'TCP' connection.
+
+> import Sound.OSC.Type
+> import Sound.OSC.Transport.FD
+> import Sound.OSC.Transport.FD.TCP
+> let t = openTCP "127.0.0.1" 57110
+> let m1 = message "/dumpOSC" [Int32 1]
+> let m2 = message "/g_new" [Int32 1]
+> withTransport t (\fd -> let f = sendMessage fd in f m1 >> f m2)
+
+-}
 openTCP :: String -> Int -> IO TCP
 openTCP host =
     liftM TCP .
