@@ -34,7 +34,7 @@ ascii = C.pack
 ascii_to_string :: ASCII -> String
 ascii_to_string = C.unpack
 
--- | Type for 'Word8' arrays.
+-- | Type for 'Word8' arrays, these are stored with an 'Int32' length prefix.
 type BLOB = B.ByteString
 
 -- | Type-specialised 'B.pack'.
