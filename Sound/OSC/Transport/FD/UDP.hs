@@ -21,7 +21,7 @@ instance Transport UDP where
    -- C.L.send is not implemented for W32
    sendOSC (UDP fd) msg = void (C.send fd (encodeOSC msg))
    recvPacket (UDP fd) = liftM decodePacket (C.recv fd 8192)
-   close (UDP fd) = N.sClose fd
+   close (UDP fd) = N.close fd
 
 -- | Create and initialise UDP socket.
 udp_socket :: (N.Socket -> N.SockAddr -> IO ()) -> String -> Int -> IO UDP
@@ -59,7 +59,7 @@ openUDP = udp_socket N.connect
 -- > let t = openUDP "127.0.0.1" 57300
 -- > in withTransport t (\fd -> sendMessage fd (message "/n" []))
 udpServer :: String -> Int -> IO UDP
-udpServer = udp_socket N.bindSocket
+udpServer = udp_socket N.bind
 
 -- | Send variant to send to specified address.
 sendTo :: OSC o => UDP -> o -> N.SockAddr -> IO ()

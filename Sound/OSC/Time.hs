@@ -95,7 +95,7 @@ pauseThreadLimit = fromIntegral (maxBound::Int) / 1e6
 
 -- | Pause current thread for the indicated duration (in seconds), see
 --   'pauseThreadLimit'.
-pauseThread :: (MonadIO m,Ord n,RealFrac n) => n -> m ()
+pauseThread :: (MonadIO m,RealFrac n) => n -> m ()
 pauseThread n = when (n > 0) (liftIO (threadDelay (floor (n * 1e6))))
 
 -- | Type restricted 'pauseThread'.

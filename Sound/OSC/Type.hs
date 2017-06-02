@@ -60,21 +60,61 @@ data Datum = Int32 {d_int32 :: Int32}
            | Midi {d_midi :: MIDI}
              deriving (Eq,Read,Show)
 
-datum_type_name :: Datum -> (Datum_Type,String)
-datum_type_name d =
-    case d of
-      Int32 _ -> ('i',"Int32")
-      Int64 _ -> ('h',"Int64")
-      Float _ -> ('f',"Float")
-      Double _ -> ('d',"Double")
-      ASCII_String _ -> ('s',"ASCII")
-      Blob _ -> ('b',"ByteArray")
-      TimeStamp _ -> ('t',"Time")
-      Midi _ -> ('m',"MIDI")
+-- | List of required data types (tag,name).
+osc_types_required :: [(Datum_Type,String)]
+osc_types_required =
+    [('i',"Int32")
+    ,('f',"Float")
+    ,('s',"ASCII_String") -- ASCII
+    ,('b',"ByteArray") -- Blob
+    ]
+
+-- | List of optional data types (tag,name).
+osc_types_optional :: [(Datum_Type,String)]
+osc_types_optional =
+    [('h',"Int64")
+    ,('t',"TimeStamp")
+    ,('d',"Double")
+    -- ,('S',"Symbol")
+    -- ,('c',"ASCII_Character")
+    -- ,('r',"RGBA")
+    ,('m',"MIDI")
+    -- ,('T',"True")
+    -- ,('F',"False")
+    -- ,('N',"Nil")
+    -- ,('I',"Infinitum")
+    -- ,('[',"Array_Begin")
+    -- ,(']',"Array_End")
+    ]
+
+-- | List of all data types (tag,name).
+osc_types :: [(Datum_Type,String)]
+osc_types = osc_types_required ++ osc_types_optional
+
+-- | Lookup name of type.
+osc_type_name :: Datum_Type -> Maybe String
+osc_type_name c = lookup c osc_types
+
+-- | Erroring variant.
+osc_type_name_err :: Datum_Type -> String
+osc_type_name_err = fromMaybe (error "osc_type_name") . osc_type_name
 
 -- | Single character identifier of an OSC datum.
 datum_tag :: Datum -> Datum_Type
-datum_tag = fst . datum_type_name
+datum_tag d =
+    case d of
+      Int32 _ -> 'i'
+      Int64 _ -> 'h'
+      Float _ -> 'f'
+      Double _ -> 'd'
+      ASCII_String _ -> 's'
+      Blob _ -> 'b'
+      TimeStamp _ -> 't'
+      Midi _ -> 'm'
+
+-- | Type and name of 'Datum'.
+datum_type_name :: Datum -> (Datum_Type,String)
+datum_type_name d = let c = datum_tag d in (c,osc_type_name_err c)
 
 -- | 'Datum' as 'Integral' if 'Sound.OSC.Type.Int32' or
 -- 'Sound.OSC.Type.Int64'.
