@@ -55,6 +55,7 @@ Library
                    Sound.OSC.Transport.FD.UDP
                    Sound.OSC.Transport.Monad
                    Sound.OSC.Type
+                   Sound.OSC.Unpack
                    Sound.OSC.Wait
 
 Source-Repository  head
