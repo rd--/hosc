@@ -459,6 +459,9 @@ parse_datum ty =
       'd' -> fmap Double . readMaybe
       's' -> fmap (ASCII_String . C.pack) . readMaybe
       'b' -> fmap (Blob . blob_pack) . readMaybe
-      't' -> error "parse_datum: timestamp"
+      't' -> error "parse_datum: timestamp not implemented"
       'm' -> fmap midi . readMaybe
-      _ -> error "parse_datum: type"
+      _ -> error "parse_datum: unknown type"
+
+parse_datum_err :: Datum_Type -> String -> Datum
+parse_datum_err ty = fromMaybe (error "parse_datum") . parse_datum ty
