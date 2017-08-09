@@ -6,6 +6,7 @@ import qualified Data.ByteString.Char8 as C {- bytestring -}
 import Data.Int {- base -}
 import Data.Word {- base -}
 
+import Sound.OSC.Datem
 import Sound.OSC.Type
 
 -- | Type specialised 'd_get'.

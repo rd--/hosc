@@ -46,6 +46,7 @@ Library
                    Sound.OSC.Coding.Encode.Base
                    Sound.OSC.Coding.Encode.Builder
                    Sound.OSC.Core
+                   Sound.OSC.Datem
                    Sound.OSC.Datum
                    Sound.OSC.FD
                    Sound.OSC.Normalise
