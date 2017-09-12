@@ -7,8 +7,8 @@ import Data.Maybe {- base -}
 import Data.Word {- base -}
 import Numeric {- base -}
 
-import qualified Data.ByteString.Lazy as B {- bytestring -}
-import qualified Data.ByteString.Char8 as C {- bytestring -}
+import qualified Data.ByteString.Lazy as Lazy {- bytestring -}
+import qualified Data.ByteString.Char8 as Char8 {- bytestring -}
 
 import Sound.OSC.Time {- hosc -}
 
@@ -17,27 +17,27 @@ import Sound.OSC.Time {- hosc -}
 -- | Type enumerating Datum categories.
 type Datum_Type = Char
 
--- | Type for ASCII strings (strict 'Char'8 'C.ByteString').
-type ASCII = C.ByteString
+-- | Type for ASCII strings (strict 'Char'8 'Char8.ByteString').
+type ASCII = Char8.ByteString
 
--- | Type-specialised 'C.pack'.
+-- | Type-specialised 'Char8.pack'.
 ascii :: String -> ASCII
-ascii = C.pack
+ascii = Char8.pack
 
--- | Type-specialised 'C.unpack'.
+-- | Type-specialised 'Char8.unpack'.
 ascii_to_string :: ASCII -> String
-ascii_to_string = C.unpack
+ascii_to_string = Char8.unpack
 
 -- | Type for 'Word8' arrays, these are stored with an 'Int32' length prefix.
-type BLOB = B.ByteString
+type BLOB = Lazy.ByteString
 
--- | Type-specialised 'B.pack'.
+-- | Type-specialised 'Lazy.pack'.
 blob_pack ::  [Word8] -> BLOB
-blob_pack = B.pack
+blob_pack = Lazy.pack
 
--- | Type-specialised 'B.unpack'.
+-- | Type-specialised 'Lazy.unpack'.
 blob_unpack :: BLOB -> [Word8]
-blob_unpack = B.unpack
+blob_unpack = Lazy.unpack
 
 -- | Four-byte midi message: port-id, status-byte, data, data.
 data MIDI = MIDI Word8 Word8 Word8 Word8
@@ -110,8 +110,7 @@ datum_tag d =
 datum_type_name :: Datum -> (Datum_Type,String)
 datum_type_name d = let c = datum_tag d in (c,osc_type_name_err c)
 
--- | 'Datum' as 'Integral' if 'Sound.OSC.Type.Int32' or
--- 'Sound.OSC.Type.Int64'.
+-- | 'Datum' as 'Integral' if Int32 or Int64.
 --
 -- > let d = [Int32 5,Int64 5,Float 5.5,Double 5.5]
 -- > in map datum_integral d == [Just (5::Int),Just 5,Nothing,Nothing]
@@ -122,9 +121,7 @@ datum_integral d =
       Int64 x -> Just (fromIntegral x)
       _ -> Nothing
 
--- | 'Datum' as 'Floating' if 'Sound.OSC.Type.Int32',
--- 'Sound.OSC.Type.Int64', 'Sound.OSC.Type.Float',
--- 'Sound.OSC.Type.Double' or 'TimeStamp'.
+-- | 'Datum' as 'Floating' if Int32, Int64, Float, Double or TimeStamp.
 --
 -- > let d = [Int32 5,Int64 5,Float 5,Double 5,TimeStamp 5]
 -- > in Data.Maybe.mapMaybe datum_floating d == replicate 5 (5::Double)
@@ -138,7 +135,7 @@ datum_floating d =
       TimeStamp n -> Just (realToFrac n)
       _ -> Nothing
 
--- | Type generalised 'Sound.OSC.Type.Int32'.
+-- | Type generalised Int32.
 --
 -- > int32 (1::Int32) == int32 (1::Integer)
 -- > d_int32 (int32 (maxBound::Int32)) == maxBound
@@ -146,14 +143,14 @@ datum_floating d =
 int32 :: Integral n => n -> Datum
 int32 = Int32 . fromIntegral
 
--- | Type generalised 'Sound.OSC.Type.Int64'.
+-- | Type generalised Int64.
 --
 -- > int64 (1::Int32) == int64 (1::Integer)
 -- > d_int64 (int64 (maxBound::Int64)) == maxBound
 int64 :: Integral n => n -> Datum
 int64 = Int64 . fromIntegral
 
--- | Type generalised 'Sound.OSC.Type.Float'.
+-- | Type generalised Float.
 --
 -- > float (1::Int) == float (1::Double)
 -- > floatRange (undefined::Float) == (-125,128)
@@ -161,18 +158,18 @@ int64 = Int64 . fromIntegral
 float :: Real n => n -> Datum
 float = Float . realToFrac
 
--- | Type generalised 'Sound.OSC.Type.Double'.
+-- | Type generalised Double.
 --
 -- > double (1::Int) == double (1::Double)
 -- > double (encodeFloat 1 256 :: Double) == Double 1.157920892373162e77
 double :: Real n => n -> Datum
 double = Double . realToFrac
 
--- | 'ASCII_String' of 'C.pack'.
+-- | 'ASCII_String' of 'Char8.pack'.
 --
--- > string "string" == ASCII_String (C.pack "string")
+-- > string "string" == ASCII_String (Char8.pack "string")
 string :: String -> Datum
-string = ASCII_String . C.pack
+string = ASCII_String . Char8.pack
 
 -- | Four-tuple variant of 'Midi' '.' 'MIDI'.
 --
@@ -184,13 +181,13 @@ midi (p,q,r,s) = Midi (MIDI p q r s)
 
 -- | Message argument types are given by a descriptor.
 --
--- > C.unpack (descriptor [Int32 1,Float 1,string "1"]) == ",ifs"
+-- > Char8.unpack (descriptor [Int32 1,Float 1,string "1"]) == ",ifs"
 descriptor :: [Datum] -> ASCII
-descriptor l = C.pack (',' : map datum_tag l)
+descriptor l = Char8.pack (',' : map datum_tag l)
 
 -- | Descriptor tags are @comma@ prefixed.
 descriptor_tags :: ASCII -> ASCII
-descriptor_tags = C.drop 1
+descriptor_tags = Char8.drop 1
 
 -- * Pretty printing
 
@@ -233,7 +230,7 @@ datumPP p d =
       Int64 n -> show n
       Float n -> floatPP p n
       Double n -> floatPP p n
-      ASCII_String s -> show (C.unpack s)
+      ASCII_String s -> show (Char8.unpack s)
       Blob s -> show s
       TimeStamp t -> timePP p t
       Midi (MIDI b1 b2 b3 b4) -> vecPP [b1,b2,b3,b4]
@@ -267,7 +264,7 @@ parse_datum ty =
       'h' -> fmap Int64 . readMaybe
       'f' -> fmap Float . readMaybe
       'd' -> fmap Double . readMaybe
-      's' -> fmap (ASCII_String . C.pack) . readMaybe
+      's' -> fmap (ASCII_String . Char8.pack) . readMaybe
       'b' -> fmap (Blob . blob_pack) . readMaybe
       't' -> error "parse_datum: timestamp not implemented"
       'm' -> fmap midi . readMaybe

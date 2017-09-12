@@ -47,7 +47,6 @@ Library
                    Sound.OSC.Core
                    Sound.OSC.Datum
                    Sound.OSC.Datum.Datem
-                   Sound.OSC.Datum.Extra
                    Sound.OSC.Datum.Normalise
                    Sound.OSC.Datum.Unpack
                    Sound.OSC.FD
