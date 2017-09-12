@@ -9,7 +9,7 @@ import Data.Maybe {- base -}
 import Sound.OSC.Datum {- hosc -}
 import Sound.OSC.Packet {- hosc -}
 import Sound.OSC.Packet.Class {- hosc -}
-import Sound.OSC.Wait {- hosc -}
+import qualified Sound.OSC.Wait as Wait {- hosc -}
 
 -- | Abstract over the underlying transport protocol.
 class Transport t where
@@ -56,19 +56,19 @@ recvMessages = fmap packetMessages . recvPacket
 
 -- | Variant of 'recvPacket' that implements an /n/ second 'timeout'.
 recvPacketTimeout :: (Transport t) => Double -> t -> IO (Maybe Packet)
-recvPacketTimeout n fd = timeout_r n (recvPacket fd)
+recvPacketTimeout n fd = Wait.timeout_r n (recvPacket fd)
 
 -- * Wait
 
 -- | Wait for a 'Packet' where the supplied predicate is 'True',
 -- discarding intervening packets.
 waitUntil :: (Transport t) => t -> (Packet -> Bool) -> IO Packet
-waitUntil t f = untilPredicate f (recvPacket t)
+waitUntil t f = Wait.untilPredicate f (recvPacket t)
 
 -- | Wait for a 'Packet' where the supplied function does not give
 -- 'Nothing', discarding intervening packets.
 waitFor :: (Transport t) => t -> (Packet -> Maybe a) -> IO a
-waitFor t f = untilMaybe f (recvPacket t)
+waitFor t f = Wait.untilMaybe f (recvPacket t)
 
 -- | 'waitUntil' 'packet_is_immediate'.
 waitImmediate :: Transport t => t -> IO Packet

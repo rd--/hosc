@@ -3,7 +3,7 @@ module Sound.OSC.Transport.FD.TCP where
 
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 import Control.Monad {- base -}
-import Network {- network -}
+import qualified Network as N {- network -}
 import System.IO {- base -}
 
 import Sound.OSC.Coding {- hosc -}
@@ -40,14 +40,14 @@ instance Transport TCP where
 openTCP :: String -> Int -> IO TCP
 openTCP host =
     liftM TCP .
-    connectTo host .
-    PortNumber .
+    N.connectTo host .
+    N.PortNumber .
     fromIntegral
 
 -- | A trivial 'TCP' /OSC/ server.
 tcpServer' :: Int -> (TCP -> IO ()) -> IO ()
 tcpServer' p f = do
-  s <- listenOn (PortNumber (fromIntegral p))
-  (sequence_ . repeat) (do (fd, _, _) <- accept s
+  s <- N.listenOn (N.PortNumber (fromIntegral p))
+  (sequence_ . repeat) (do (fd, _, _) <- N.accept s
                            f (TCP fd)
                            return ())
