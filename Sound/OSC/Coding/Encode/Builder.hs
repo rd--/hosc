@@ -13,9 +13,10 @@ import qualified Blaze.ByteString.Builder as B {- bytestring -}
 import qualified Blaze.ByteString.Builder.Char8 as B {- bytestring -}
 import Data.Word (Word8) {- base -}
 
-import Sound.OSC.Coding.Byte (align, bundleHeader)
-import Sound.OSC.Time
-import Sound.OSC.Type
+import Sound.OSC.Coding.Byte (align, bundleHeader) {- hosc -}
+import Sound.OSC.Datum {- hosc -}
+import Sound.OSC.Packet {- hosc -}
+import Sound.OSC.Time {- hosc -}
 
 -- Generate a list of zero bytes for padding.
 padding :: Integral i => i -> [Word8]

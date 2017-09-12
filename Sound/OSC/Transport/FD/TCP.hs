@@ -6,10 +6,10 @@ import Control.Monad {- base -}
 import Network {- network -}
 import System.IO {- base -}
 
-import Sound.OSC.Class
-import Sound.OSC.Coding
-import Sound.OSC.Coding.Byte
-import Sound.OSC.Transport.FD
+import Sound.OSC.Coding {- hosc -}
+import Sound.OSC.Coding.Byte {- hosc -}
+import Sound.OSC.Transport.FD {- hosc -}
+import Sound.OSC.Packet.Class {- hosc -}
 
 -- | The TCP transport handle data type.
 data TCP = TCP {tcpHandle :: Handle}

@@ -5,7 +5,7 @@ hosc - haskell open sound control
 module implementing a subset of the [Open Sound Control][osc] byte protocol.
 hosc is required by the [hsc3][hsc3] haskell [supercollider][sc3] bindings.
 
-There are a number of related projects:
+See also:
 
 - [hosc-json](?t=hosc-json): JSON text encoding of OSC
 

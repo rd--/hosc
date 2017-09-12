@@ -6,9 +6,10 @@ import Control.Exception {- base -}
 import Data.List {- base -}
 import Data.Maybe {- base -}
 
-import Sound.OSC.Class
-import Sound.OSC.Type
-import Sound.OSC.Wait
+import Sound.OSC.Datum {- hosc -}
+import Sound.OSC.Packet {- hosc -}
+import Sound.OSC.Packet.Class {- hosc -}
+import Sound.OSC.Wait {- hosc -}
 
 -- | Abstract over the underlying transport protocol.
 class Transport t where

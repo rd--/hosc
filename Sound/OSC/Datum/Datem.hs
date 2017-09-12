@@ -1,12 +1,12 @@
 -- | A class for translating to and from 'Datum'.
-module Sound.OSC.Datem where
+module Sound.OSC.Datum.Datem where
 
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 import qualified Data.ByteString.Char8 as C {- bytestring -}
 import Data.Int {- base -}
 import Data.Maybe {- base -}
 
-import Sound.OSC.Type
+import Sound.OSC.Datum {- hosc -}
 
 {- | Class for translating to and from 'Datum'.
      There are instances for the direct 'Datum' field types.

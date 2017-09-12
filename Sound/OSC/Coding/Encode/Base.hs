@@ -8,9 +8,10 @@ import Data.Binary {- base -}
 import qualified Data.ByteString.Char8 as C {- bytestring -}
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 
-import Sound.OSC.Coding.Byte
-import Sound.OSC.Type
-import Sound.OSC.Time
+import Sound.OSC.Coding.Byte {- hosc -}
+import Sound.OSC.Datum {- hosc -}
+import Sound.OSC.Packet {- hosc -}
+import Sound.OSC.Time {- hosc -}
 
 -- Align a byte string if required.
 extend :: Word8 -> B.ByteString -> B.ByteString

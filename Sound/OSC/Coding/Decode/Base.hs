@@ -10,9 +10,10 @@ import qualified Data.ByteString.Lazy as B {- bytestring -}
 import Data.List {- base -}
 import Data.Maybe {- base -}
 
-import Sound.OSC.Coding.Byte
-import Sound.OSC.Time
-import Sound.OSC.Type
+import Sound.OSC.Coding.Byte {- hosc -}
+import Sound.OSC.Datum {- hosc -}
+import Sound.OSC.Packet {- hosc -}
+import Sound.OSC.Time {- hosc -}
 
 -- The plain byte count of an OSC value.
 size :: Datum_Type -> B.ByteString -> Int

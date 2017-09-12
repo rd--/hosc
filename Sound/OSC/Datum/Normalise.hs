@@ -1,7 +1,8 @@
 -- | Datum normalisation.
-module Sound.OSC.Normalise where
+module Sound.OSC.Datum.Normalise where
 
-import Sound.OSC.Type as O
+import Sound.OSC.Datum {- hosc -}
+import Sound.OSC.Packet as O {- hosc -}
 
 -- | Lift 'O.Int32' to 'O.Int64' and 'O.Float' to 'O.Double'.
 --

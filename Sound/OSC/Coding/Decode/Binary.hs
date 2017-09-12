@@ -14,9 +14,10 @@ import qualified Data.ByteString.Lazy.Char8 as C {- bytestring -}
 import Data.Int {- base -}
 import Data.Word {- base -}
 
-import Sound.OSC.Coding.Byte
-import Sound.OSC.Time
-import Sound.OSC.Type
+import Sound.OSC.Coding.Byte {- hosc -}
+import Sound.OSC.Datum {- hosc -}
+import Sound.OSC.Packet {- hosc -}
+import Sound.OSC.Time {- hosc -}
 
 -- | Get a 32 bit integer in big-endian byte order.
 getInt32be :: G.Get Int32

@@ -15,7 +15,7 @@ import Data.Word {- base -}
 import System.IO {- base -}
 
 import Sound.OSC.Coding.Cast
-import Sound.OSC.Type
+import Sound.OSC.Datum
 
 -- * Encode
 

@@ -5,9 +5,9 @@ import Control.Monad {- base -}
 import qualified Network.Socket as N {- network -}
 import qualified Network.Socket.ByteString as C {- network -}
 
-import Sound.OSC.Class
 import Sound.OSC.Coding
-import Sound.OSC.Type
+import Sound.OSC.Packet
+import Sound.OSC.Packet.Class
 import Sound.OSC.Transport.FD
 
 -- | The UDP transport handle data type.

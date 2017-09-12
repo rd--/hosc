@@ -1,9 +1,9 @@
 -- | Unpack 'Datum' lists into tuples.
-module Sound.OSC.Unpack where
+module Sound.OSC.Datum.Unpack where
 
 import Data.Int {- base -}
 
-import Sound.OSC.Type {- hosc -}
+import Sound.OSC.Datum {- hosc -}
 
 -- * S = strict
 

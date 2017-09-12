@@ -1,8 +1,8 @@
 -- | Typeclass for encoding and decoding OSC packets.
-module Sound.OSC.Class where
+module Sound.OSC.Packet.Class where
 
-import Sound.OSC.Type
 import Sound.OSC.Coding
+import Sound.OSC.Packet
 
 -- | A type-class for values that can be translated to and from OSC
 -- 'Packet's.

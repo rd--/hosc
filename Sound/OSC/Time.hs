@@ -1,5 +1,5 @@
--- | OSC related timing functions.  OSC timestamps are @NTP@ values,
--- <http://ntp.org/>.
+-- | OSC related timing functions.
+--   OSC timestamps are @NTP@ values, <http://ntp.org/>.
 module Sound.OSC.Time where
 
 import Control.Concurrent {- base -}
@@ -10,12 +10,19 @@ import Data.Word {- base -}
 import qualified Data.Time as T {- time -}
 import qualified Data.Time.Clock.POSIX as T {- time -}
 
-import Sound.OSC.Type
-
 -- * Temporal types
+
+-- * Time
 
 -- | Type for integer (binary) representation of @NTP@ time.
 type NTPi = Word64
+
+-- | @NTP@ time in real-valued (fractional) form (ie. @ntpr@).
+type Time = Double
+
+-- | Constant indicating a bundle to be executed immediately.
+immediately :: Time
+immediately = 1 / 2^(32::Int)
 
 -- | @Unix/Posix@ epoch time in real-valued (fractional) form.
 type UT = Double

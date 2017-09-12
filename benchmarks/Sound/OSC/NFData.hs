@@ -1,7 +1,9 @@
 module Sound.OSC.NFData () where
 
 import Control.DeepSeq (NFData(..)) {- deepseq -}
-import Sound.OSC.Type
+
+import Sound.OSC.Datum {- hosc -}
+import Sound.OSC.Packet {- hosc -}
 
 instance NFData Datum where
     rnf (Int32 x1) = rnf x1 `seq` ()

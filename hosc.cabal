@@ -37,7 +37,6 @@ Library
                    transformers
   GHC-Options:     -Wall -fwarn-tabs
   Exposed-modules: Sound.OSC
-                   Sound.OSC.Class
                    Sound.OSC.Coding
                    Sound.OSC.Coding.Byte
                    Sound.OSC.Coding.Cast
@@ -46,17 +45,20 @@ Library
                    Sound.OSC.Coding.Encode.Base
                    Sound.OSC.Coding.Encode.Builder
                    Sound.OSC.Core
-                   Sound.OSC.Datem
                    Sound.OSC.Datum
+                   Sound.OSC.Datum.Datem
+                   Sound.OSC.Datum.Extra
+                   Sound.OSC.Datum.Normalise
+                   Sound.OSC.Datum.Unpack
                    Sound.OSC.FD
-                   Sound.OSC.Normalise
+                   Sound.OSC.Packet
+                   Sound.OSC.Packet.Class
+                   Sound.OSC.Packet.Coerce
                    Sound.OSC.Time
                    Sound.OSC.Transport.FD
                    Sound.OSC.Transport.FD.TCP
                    Sound.OSC.Transport.FD.UDP
                    Sound.OSC.Transport.Monad
-                   Sound.OSC.Type
-                   Sound.OSC.Unpack
                    Sound.OSC.Wait
 
 Source-Repository  head

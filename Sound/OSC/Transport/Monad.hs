@@ -7,10 +7,11 @@ import Control.Monad.IO.Class as M {- transformers -}
 import Data.List {- base -}
 import Data.Maybe {- base -}
 
-import Sound.OSC.Class
-import qualified Sound.OSC.Transport.FD as T
-import Sound.OSC.Type
-import Sound.OSC.Wait
+import Sound.OSC.Datum {- hosc -}
+import qualified Sound.OSC.Transport.FD as T {- hosc -}
+import Sound.OSC.Packet {- hosc -}
+import Sound.OSC.Packet.Class {- hosc -}
+import Sound.OSC.Wait {- hosc -}
 
 -- | Sender monad.
 class Monad m => SendOSC m where

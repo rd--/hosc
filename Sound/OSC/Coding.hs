@@ -7,9 +7,9 @@ import qualified Data.ByteString as S {- bytestring -}
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 import qualified Data.ByteString.Lazy.Char8 as C {- bytestring -}
 
-import Sound.OSC.Type
-import qualified Sound.OSC.Coding.Decode.Binary as Binary
-import qualified Sound.OSC.Coding.Encode.Builder as Builder
+import Sound.OSC.Packet {- hosc -}
+import qualified Sound.OSC.Coding.Decode.Binary as Binary {- hosc -}
+import qualified Sound.OSC.Coding.Encode.Builder as Builder {- hosc -}
 
 -- | Converting from and to binary packet representations.
 class Coding a where
