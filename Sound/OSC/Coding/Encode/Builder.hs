@@ -6,12 +6,13 @@ module Sound.OSC.Coding.Encode.Builder
     ,encodePacket
     ,encodePacket_strict) where
 
+import Data.Word (Word8) {- base -}
+
 import qualified Data.Binary.IEEE754 as I {- data-binary-ieee754 -}
 import qualified Data.ByteString as S {- bytestring -}
 import qualified Data.ByteString.Lazy as L {- bytestring -}
 import qualified Blaze.ByteString.Builder as B {- bytestring -}
 import qualified Blaze.ByteString.Builder.Char8 as B {- bytestring -}
-import Data.Word (Word8) {- base -}
 
 import Sound.OSC.Coding.Byte (align, bundleHeader) {- hosc -}
 import Sound.OSC.Datum {- hosc -}
@@ -75,7 +76,12 @@ build_packet o =
 {-# INLINE encodePacket #-}
 {-# INLINE encodePacket_strict #-}
 
--- | Encode an OSC 'Message'.
+{- | Encode an OSC 'Message'.
+
+> let b = L.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
+> in encodeMessage (Message "/g_free" [Int32 0]) == b
+
+-}
 encodeMessage :: Message -> L.ByteString
 encodeMessage = B.toLazyByteString . build_packet . Packet_Message
 
@@ -84,9 +90,6 @@ encodeBundle :: Bundle -> L.ByteString
 encodeBundle = B.toLazyByteString . build_packet . Packet_Bundle
 
 -- | Encode an OSC 'Packet' to a lazy 'L.ByteString'.
---
--- > let b = L.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
--- > in encodeOSC (Message "/g_free" [Int 0]) == b
 encodePacket :: Packet -> L.ByteString
 encodePacket = B.toLazyByteString . build_packet
 

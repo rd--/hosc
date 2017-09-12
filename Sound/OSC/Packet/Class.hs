@@ -1,11 +1,10 @@
 -- | Typeclass for encoding and decoding OSC packets.
 module Sound.OSC.Packet.Class where
 
-import Sound.OSC.Coding
-import Sound.OSC.Packet
+import Sound.OSC.Coding {- hosc -}
+import Sound.OSC.Packet {- hosc -}
 
--- | A type-class for values that can be translated to and from OSC
--- 'Packet's.
+-- | A type-class for values that can be translated to and from OSC 'Packet's.
 class OSC o where
     toPacket :: o -> Packet -- ^ Translation to 'Packet'.
     fromPacket :: Packet -> Maybe o -- ^ Translation from 'Packet'.

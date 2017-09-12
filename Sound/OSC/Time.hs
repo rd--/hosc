@@ -12,8 +12,6 @@ import qualified Data.Time.Clock.POSIX as T {- time -}
 
 -- * Temporal types
 
--- * Time
-
 -- | Type for integer (binary) representation of @NTP@ time.
 type NTPi = Word64
 

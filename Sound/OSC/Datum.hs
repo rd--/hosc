@@ -1,13 +1,14 @@
 -- | Data type for OSC datum.
 module Sound.OSC.Datum where
 
-import qualified Data.ByteString.Lazy as B {- bytestring -}
-import qualified Data.ByteString.Char8 as C {- bytestring -}
 import Data.Int {- base -}
 import Data.List {- base -}
 import Data.Maybe {- base -}
 import Data.Word {- base -}
 import Numeric {- base -}
+
+import qualified Data.ByteString.Lazy as B {- bytestring -}
+import qualified Data.ByteString.Char8 as C {- bytestring -}
 
 import Sound.OSC.Time {- hosc -}
 

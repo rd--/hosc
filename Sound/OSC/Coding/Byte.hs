@@ -1,34 +1,34 @@
 -- | Byte-level coding utility functions.
--- Plain forms are big-endian, little-endian forms have @_le@ suffix.
+--   Plain forms are big-endian, little-endian forms have @_le@ suffix.
 module Sound.OSC.Coding.Byte where
 
-import qualified Data.Binary as B {- binary -}
-import qualified Data.Binary.Get as B {- binary -}
-import qualified Data.Binary.Put as B {- binary -}
 import Data.Bits {- base -}
-import qualified Data.ByteString as S {- bytestring -}
-import qualified Data.ByteString.Char8 as S.C {- bytestring -}
-import qualified Data.ByteString.Lazy as L {- bytestring -}
-import qualified Data.ByteString.Lazy.Char8 as L.C {- bytestring -}
 import Data.Int {- base -}
 import Data.Word {- base -}
 import System.IO {- base -}
 
-import Sound.OSC.Coding.Cast
-import Sound.OSC.Datum
+import qualified Data.Binary as Binary {- binary -}
+import qualified Data.Binary.Get as Get {- binary -}
+import qualified Data.Binary.Put as Put {- binary -}
+import qualified Data.ByteString as S {- bytestring -}
+import qualified Data.ByteString.Char8 as S.C {- bytestring -}
+import qualified Data.ByteString.Lazy as L {- bytestring -}
+import qualified Data.ByteString.Lazy.Char8 as L.C {- bytestring -}
+
+import Sound.OSC.Coding.Cast {- hosc -}
 
 -- * Encode
 
 -- | Encode a signed 8-bit integer.
 encode_i8 :: Int -> L.ByteString
-encode_i8 n = B.encode (fromIntegral n :: Int8)
+encode_i8 n = Binary.encode (fromIntegral n :: Int8)
 
 -- | Encode an un-signed 8-bit integer.
 encode_u8 :: Int -> L.ByteString
-encode_u8 n = B.encode (fromIntegral n :: Word8)
+encode_u8 n = Binary.encode (fromIntegral n :: Word8)
 
 encode_w16 :: Word16 -> L.ByteString
-encode_w16 = B.encode
+encode_w16 = Binary.encode
 
 -- | Encode an un-signed 16-bit integer.
 --
@@ -37,7 +37,7 @@ encode_u16 :: Int -> L.ByteString
 encode_u16 = encode_w16 . fromIntegral
 
 encode_w16_le :: Word16 -> L.ByteString
-encode_w16_le = B.runPut . B.putWord16le
+encode_w16_le = Put.runPut . Put.putWord16le
 
 -- | Little-endian.
 --
@@ -47,14 +47,14 @@ encode_u16_le = encode_w16_le . fromIntegral
 
 -- | Encode a signed 16-bit integer.
 encode_i16 :: Int -> L.ByteString
-encode_i16 n = B.encode (fromIntegral n :: Int16)
+encode_i16 n = Binary.encode (fromIntegral n :: Int16)
 
 -- | Encode a signed 32-bit integer.
 encode_i32 :: Int -> L.ByteString
-encode_i32 n = B.encode (fromIntegral n :: Int32)
+encode_i32 n = Binary.encode (fromIntegral n :: Int32)
 
 encode_w32 :: Word32 -> L.ByteString
-encode_w32 = B.encode
+encode_w32 = Binary.encode
 
 -- | Encode an unsigned 32-bit integer.
 --
@@ -63,7 +63,7 @@ encode_u32 :: Int -> L.ByteString
 encode_u32 = encode_w32 . fromIntegral
 
 encode_w32_le :: Word32 -> L.ByteString
-encode_w32_le = B.runPut . B.putWord32le
+encode_w32_le = Put.runPut . Put.putWord32le
 
 -- | Little-endian.
 --
@@ -73,25 +73,25 @@ encode_u32_le = encode_w32_le . fromIntegral
 
 -- | Encode a signed 64-bit integer.
 encode_i64 :: Int64 -> L.ByteString
-encode_i64 = B.encode
+encode_i64 = Binary.encode
 
 -- | Encode an unsigned 64-bit integer.
 encode_u64 :: Word64 -> L.ByteString
-encode_u64 = B.encode
+encode_u64 = Binary.encode
 
 -- | Encode a 32-bit IEEE floating point number.
 encode_f32 :: Float -> L.ByteString
-encode_f32 = B.encode . f32_w32
+encode_f32 = Binary.encode . f32_w32
 
 encode_f32_le :: Float -> L.ByteString
-encode_f32_le = B.runPut . B.putWord32le . f32_w32
+encode_f32_le = Put.runPut . Put.putWord32le . f32_w32
 
 -- | Encode a 64-bit IEEE floating point number.
 encode_f64 :: Double -> L.ByteString
-encode_f64 = B.encode . f64_w64
+encode_f64 = Binary.encode . f64_w64
 
--- | Encode an ASCII string.
-encode_str :: ASCII -> L.ByteString
+-- | Encode an ASCII string (ASCII at Datum is an alias for a Char8 Bytetring).
+encode_str :: S.C.ByteString -> L.ByteString
 {-# INLINE encode_str #-}
 encode_str = L.pack . S.unpack
 
@@ -103,23 +103,23 @@ decode_u8 = fromIntegral . L.head
 
 -- | Decode a signed 8-bit integer.
 decode_i8 :: L.ByteString -> Int
-decode_i8 b = fromIntegral (B.decode b :: Int8)
+decode_i8 b = fromIntegral (Binary.decode b :: Int8)
 
 decode_word16 :: L.ByteString -> Word16
-decode_word16 = B.decode
+decode_word16 = Binary.decode
 
 -- | Decode an unsigned 8-bit integer.
 decode_u16 :: L.ByteString -> Int
 decode_u16 = fromIntegral . decode_word16
 
 decode_word16_le :: L.ByteString -> Word16
-decode_word16_le = B.runGet B.getWord16le
+decode_word16_le = Get.runGet Get.getWord16le
 
 decode_u16_le :: L.ByteString -> Int
 decode_u16_le = fromIntegral . decode_word16_le
 
 decode_int16 :: L.ByteString -> Int16
-decode_int16 = B.decode
+decode_int16 = Binary.decode
 
 -- | Decode a signed 16-bit integer.
 decode_i16 :: L.ByteString -> Int
@@ -130,10 +130,10 @@ decode_i16_le = decode_i16 . L.reverse
 
 -- | Decode a signed 32-bit integer.
 decode_i32 :: L.ByteString -> Int
-decode_i32 b = fromIntegral (B.decode b :: Int32)
+decode_i32 b = fromIntegral (Binary.decode b :: Int32)
 
 decode_word32 :: L.ByteString -> Word32
-decode_word32 = B.decode
+decode_word32 = Binary.decode
 
 -- | Decode an unsigned 32-bit integer.
 --
@@ -142,7 +142,7 @@ decode_u32 :: L.ByteString -> Int
 decode_u32 = fromIntegral . decode_word32
 
 decode_word32_le :: L.ByteString -> Word32
-decode_word32_le = B.runGet B.getWord32le
+decode_word32_le = Get.runGet Get.getWord32le
 
 -- | Little-endian variant.
 --
@@ -152,11 +152,11 @@ decode_u32_le = fromIntegral . decode_word32_le
 
 -- | Decode a signed 64-bit integer.
 decode_i64 :: L.ByteString -> Int64
-decode_i64 = B.decode
+decode_i64 = Binary.decode
 
 -- | Decode an unsigned 64-bit integer.
 decode_u64 :: L.ByteString -> Word64
-decode_u64 = B.decode
+decode_u64 = Binary.decode
 
 -- | Decode a 32-bit IEEE floating point number.
 decode_f32 :: L.ByteString -> Float
@@ -167,10 +167,10 @@ decode_f32_le = w32_f32 . decode_word32_le
 
 -- | Decode a 64-bit IEEE floating point number.
 decode_f64 :: L.ByteString -> Double
-decode_f64 b = w64_f64 (B.decode b :: Word64)
+decode_f64 b = w64_f64 (Binary.decode b :: Word64)
 
--- | Decode an ASCII string.
-decode_str :: L.ByteString -> ASCII
+-- | Decode an ASCII string, inverse of 'encode_str'.
+decode_str :: L.ByteString -> S.C.ByteString
 {-# INLINE decode_str #-}
 decode_str = S.C.pack . L.C.unpack
 
