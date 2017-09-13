@@ -1,5 +1,4 @@
--- | An abstract transport layer with implementations for @UDP@ and
--- @TCP@ transport.
+-- | An abstract transport layer with implementations for @UDP@ and @TCP@ transport.
 module Sound.OSC.Transport.FD where
 
 import Control.Exception {- base -}

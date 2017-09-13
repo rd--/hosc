@@ -28,7 +28,7 @@ instance Transport TCP where
 
 {- | Make a 'TCP' connection.
 
-> import Sound.OSC.Type
+> import Sound.OSC.Core
 > import Sound.OSC.Transport.FD
 > import Sound.OSC.Transport.FD.TCP
 > let t = openTCP "127.0.0.1" 57110
