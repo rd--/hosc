@@ -17,6 +17,7 @@ data UDP = UDP {udpSocket :: N.Socket}
 udpPort :: Integral n => UDP -> IO n
 udpPort (UDP fd) = fmap fromIntegral (N.socketPort fd)
 
+-- | 'UDP' is an instance of 'Transport'.
 instance Transport UDP where
    -- C.L.send is not implemented for W32
    sendOSC (UDP fd) msg = void (C.send fd (encodeOSC msg))

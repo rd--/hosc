@@ -270,5 +270,6 @@ parse_datum ty =
       'm' -> fmap midi . readMaybe
       _ -> error "parse_datum: unknown type"
 
+-- | Erroring variant of 'parse_datum'.
 parse_datum_err :: Datum_Type -> String -> Datum
 parse_datum_err ty = fromMaybe (error "parse_datum") . parse_datum ty

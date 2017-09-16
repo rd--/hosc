@@ -28,8 +28,8 @@ There are also instances for standard Haskell types.
 
 -}
 class Datem a where
-    d_put :: a -> Datum
-    d_get :: Datum -> Maybe a
+    d_put :: a -> Datum -- ^ Function to wrap value in 'Datum'.
+    d_get :: Datum -> Maybe a -- ^ Function to extract value from 'Datum'.
 
 instance Datem Int32 where
     d_put = Int32

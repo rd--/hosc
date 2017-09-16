@@ -27,6 +27,7 @@ encode_i8 n = Binary.encode (fromIntegral n :: Int8)
 encode_u8 :: Int -> L.ByteString
 encode_u8 n = Binary.encode (fromIntegral n :: Word8)
 
+-- | Type specialised 'Binary.encode'.
 encode_w16 :: Word16 -> L.ByteString
 encode_w16 = Binary.encode
 
@@ -53,6 +54,7 @@ encode_i16 n = Binary.encode (fromIntegral n :: Int16)
 encode_i32 :: Int -> L.ByteString
 encode_i32 n = Binary.encode (fromIntegral n :: Int32)
 
+-- | Type specialised 'Binary.encode'.
 encode_w32 :: Word32 -> L.ByteString
 encode_w32 = Binary.encode
 
@@ -62,6 +64,7 @@ encode_w32 = Binary.encode
 encode_u32 :: Int -> L.ByteString
 encode_u32 = encode_w32 . fromIntegral
 
+-- | Little-endian variant of 'encode_w32'.
 encode_w32_le :: Word32 -> L.ByteString
 encode_w32_le = Put.runPut . Put.putWord32le
 
@@ -83,6 +86,7 @@ encode_u64 = Binary.encode
 encode_f32 :: Float -> L.ByteString
 encode_f32 = Binary.encode . f32_w32
 
+-- | Little-endian variant of 'encode_f32'.
 encode_f32_le :: Float -> L.ByteString
 encode_f32_le = Put.runPut . Put.putWord32le . f32_w32
 
@@ -105,6 +109,7 @@ decode_u8 = fromIntegral . L.head
 decode_i8 :: L.ByteString -> Int
 decode_i8 b = fromIntegral (Binary.decode b :: Int8)
 
+-- | Type specialised 'Binary.decode'.
 decode_word16 :: L.ByteString -> Word16
 decode_word16 = Binary.decode
 
@@ -112,12 +117,15 @@ decode_word16 = Binary.decode
 decode_u16 :: L.ByteString -> Int
 decode_u16 = fromIntegral . decode_word16
 
+-- | Little-endian variant of 'decode_word16'.
 decode_word16_le :: L.ByteString -> Word16
 decode_word16_le = Get.runGet Get.getWord16le
 
+-- | Little-endian variant of 'decode_u16'.
 decode_u16_le :: L.ByteString -> Int
 decode_u16_le = fromIntegral . decode_word16_le
 
+-- | Type specialised 'Binary.decode'.
 decode_int16 :: L.ByteString -> Int16
 decode_int16 = Binary.decode
 
@@ -125,6 +133,7 @@ decode_int16 = Binary.decode
 decode_i16 :: L.ByteString -> Int
 decode_i16 = fromIntegral . decode_int16
 
+-- | Little-endian variant of 'decode_i16'.
 decode_i16_le :: L.ByteString -> Int
 decode_i16_le = decode_i16 . L.reverse
 
@@ -132,6 +141,7 @@ decode_i16_le = decode_i16 . L.reverse
 decode_i32 :: L.ByteString -> Int
 decode_i32 b = fromIntegral (Binary.decode b :: Int32)
 
+-- | Type specialised 'Binary.decode'.
 decode_word32 :: L.ByteString -> Word32
 decode_word32 = Binary.decode
 
@@ -141,20 +151,21 @@ decode_word32 = Binary.decode
 decode_u32 :: L.ByteString -> Int
 decode_u32 = fromIntegral . decode_word32
 
+-- | Little-endian variant of 'decode_word32'.
 decode_word32_le :: L.ByteString -> Word32
 decode_word32_le = Get.runGet Get.getWord32le
 
--- | Little-endian variant.
+-- | Little-endian variant of decode_u32.
 --
 -- > decode_u32_le (L.pack [1,2,3,4]) == 0x04030201
 decode_u32_le :: L.ByteString -> Int
 decode_u32_le = fromIntegral . decode_word32_le
 
--- | Decode a signed 64-bit integer.
+-- | Type specialised 'Binary.decode'.
 decode_i64 :: L.ByteString -> Int64
 decode_i64 = Binary.decode
 
--- | Decode an unsigned 64-bit integer.
+-- | Type specialised 'Binary.decode'.
 decode_u64 :: L.ByteString -> Word64
 decode_u64 = Binary.decode
 
@@ -162,6 +173,7 @@ decode_u64 = Binary.decode
 decode_f32 :: L.ByteString -> Float
 decode_f32 = w32_f32 . decode_word32
 
+-- | Little-endian variant of 'decode_f32'.
 decode_f32_le :: L.ByteString -> Float
 decode_f32_le = w32_f32 . decode_word32_le
 
@@ -176,15 +188,19 @@ decode_str = S.C.pack . L.C.unpack
 
 -- * IO
 
+-- | 'decode_u32' of 'L.hGet'.
 read_u32 :: Handle -> IO Int
 read_u32 = fmap decode_u32 . flip L.hGet 4
 
+-- | 'decode_u32_le' of 'L.hGet'.
 read_u32_le :: Handle -> IO Int
 read_u32_le = fmap decode_u32_le . flip L.hGet 4
 
+-- | 'L.hPut' of 'encode_u32'.
 write_u32 :: Handle -> Int -> IO ()
 write_u32 h = L.hPut h . encode_u32
 
+-- | 'L.hPut' of 'encode_u32_le'.
 write_u32_le :: Handle -> Int -> IO ()
 write_u32_le h = L.hPut h . encode_u32_le
 

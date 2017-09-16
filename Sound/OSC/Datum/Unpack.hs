@@ -7,12 +7,14 @@ import Sound.OSC.Datum {- hosc -}
 
 -- * S = strict
 
+-- | Strictly unpack to (s,f).
 unpackS_sf :: [Datum] -> Maybe (String,Float)
 unpackS_sf dat =
     case dat of
       [ASCII_String d1,Float d2] -> Just (ascii_to_string d1,d2)
       _ -> Nothing
 
+-- | Strictly unpack to (i,f).
 unpackS_if :: [Datum] -> Maybe (Int32,Float)
 unpackS_if dat =
     case dat of
@@ -21,6 +23,7 @@ unpackS_if dat =
 
 -- * C = coerce
 
+-- | Casting unpack to (s,d).
 unpackC_sf :: [Datum] -> Maybe (String,Double)
 unpackC_sf dat =
     case dat of
@@ -30,6 +33,7 @@ unpackC_sf dat =
           Nothing -> Nothing
       _ -> Nothing
 
+-- | Casting unpack to (i,d).
 unpackC_if :: [Datum] -> Maybe (Int,Double)
 unpackC_if dat =
     case dat of

@@ -29,14 +29,18 @@ class (SendOSC m,RecvOSC m) => DuplexOSC m where
 -- | 'Transport' is 'DuplexOSC' with a 'MonadIO' constraint.
 class (DuplexOSC m,MonadIO m) => Transport m where
 
+-- | 'SendOSC' over 'ReaderT'.
 instance (T.Transport t,MonadIO io) => SendOSC (ReaderT t io) where
    sendOSC o = ReaderT (M.liftIO . flip T.sendOSC o)
 
+-- | 'RecvOSC' over 'ReaderT'.
 instance (T.Transport t,MonadIO io) => RecvOSC (ReaderT t io) where
    recvPacket = ReaderT (M.liftIO . T.recvPacket)
 
+-- | 'DuplexOSC' over 'ReaderT'.
 instance (T.Transport t,MonadIO io) => DuplexOSC (ReaderT t io) where
 
+-- | 'Transport' over 'ReaderT'.
 instance (T.Transport t,MonadIO io) => Transport (ReaderT t io) where
 
 -- | Transport connection.
