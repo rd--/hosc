@@ -8,9 +8,9 @@ functions are 'encodePacket' and 'decodePacket'.
 
 > import Sound.OSC.Core {- hosc -}
 
-> let {o = bundle immediately [message "/g_free" [Int32 0]]
->     ;e = encodeBundle o :: String}
-> in decodeBundle e == o
+> let o = bundle immediately [message "/g_free" [Int32 0]]
+> let e = encodeBundle o
+> decodeBundle e == o
 
 -}
 module Sound.OSC.Core (module M) where

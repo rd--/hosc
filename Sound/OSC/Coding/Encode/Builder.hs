@@ -6,7 +6,7 @@ module Sound.OSC.Coding.Encode.Builder
     ,encodePacket
     ,encodePacket_strict) where
 
-import Data.Word (Word8) {- base -}
+import Data.Word {- base -}
 
 import qualified Data.Binary.IEEE754 as I {- data-binary-ieee754 -}
 import qualified Data.ByteString as S {- bytestring -}
@@ -14,28 +14,32 @@ import qualified Data.ByteString.Lazy as L {- bytestring -}
 import qualified Blaze.ByteString.Builder as B {- bytestring -}
 import qualified Blaze.ByteString.Builder.Char8 as B {- bytestring -}
 
-import Sound.OSC.Coding.Byte (align, bundleHeader) {- hosc -}
+import qualified Sound.OSC.Coding.Byte as Byte {- hosc -}
 import Sound.OSC.Datum {- hosc -}
 import Sound.OSC.Packet {- hosc -}
 import Sound.OSC.Time {- hosc -}
 
--- Generate a list of zero bytes for padding.
+-- | Generate a list of zero bytes for padding.
 padding :: Integral i => i -> [Word8]
 padding n = replicate (fromIntegral n) 0
 
+-- | Nul byte (0) and then zero padding.
+nul_and_padding :: Int -> B.Builder
+nul_and_padding n = B.fromWord8s (0 : padding (Byte.align n))
+
 -- Encode a string with zero padding.
 build_ascii :: ASCII -> B.Builder
-build_ascii s = B.fromByteString s `mappend` B.fromWord8s (0:padding (align (S.length s + 1)))
+build_ascii s = B.fromByteString s `mappend` nul_and_padding (S.length s + 1)
 
 -- Encode a string with zero padding.
 build_string :: String -> B.Builder
-build_string s = B.fromString s `mappend` B.fromWord8s (0:padding (align (length s + 1)))
+build_string s = B.fromString s `mappend` nul_and_padding (length s + 1)
 
 -- Encode a byte string with prepended length and zero padding.
 build_bytes :: L.ByteString -> B.Builder
 build_bytes s = B.fromInt32be (fromIntegral (L.length s))
                 `mappend` B.fromLazyByteString s
-                `mappend` B.fromWord8s (padding (align (L.length s)))
+                `mappend` B.fromWord8s (padding (Byte.align (L.length s)))
 
 -- Encode an OSC datum.
 build_datum :: Datum -> B.Builder
@@ -55,14 +59,14 @@ build_message :: Message -> B.Builder
 build_message (Message c l) =
     mconcat [build_string c
             ,build_ascii (descriptor l)
-            ,mconcat $ map build_datum l]
+            ,mconcat (map build_datum l)]
 
 -- Encode an OSC 'Bundle'.
 build_bundle_ntpi :: NTPi -> [Message] -> B.Builder
 build_bundle_ntpi t l =
-    mconcat [B.fromLazyByteString bundleHeader
+    mconcat [B.fromLazyByteString Byte.bundleHeader
             ,B.fromWord64be t
-            ,mconcat $ map (build_bytes . B.toLazyByteString . build_message) l]
+            ,mconcat (map (build_bytes . B.toLazyByteString . build_message) l)]
 
 -- | Builder monoid for an OSC 'Packet'.
 build_packet :: Packet -> B.Builder
@@ -79,7 +83,7 @@ build_packet o =
 {- | Encode an OSC 'Message'.
 
 > let b = L.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
-> in encodeMessage (Message "/g_free" [Int32 0]) == b
+> encodeMessage (Message "/g_free" [Int32 0]) == b
 
 -}
 encodeMessage :: Message -> L.ByteString

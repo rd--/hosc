@@ -98,8 +98,12 @@ decodePacket b =
     then Packet_Bundle (decodeBundle b)
     else Packet_Message (decodeMessage b)
 
+-- * UTIL
+
+-- | 'B.take' with 'Int' count.
 b_take :: Int -> B.ByteString -> B.ByteString
 b_take = B.take . fromIntegral
 
+-- | 'B.drop' with 'Int' count.
 b_drop :: Int -> B.ByteString -> B.ByteString
 b_drop = B.drop . fromIntegral
