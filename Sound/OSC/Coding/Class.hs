@@ -1,6 +1,6 @@
 -- | A type-class to provide coding operations to different data types
 --   using the same function names.
-module Sound.OSC.Coding where
+module Sound.OSC.Coding.Class where
 
 import qualified Data.ByteString as Strict {- bytestring -}
 import qualified Data.ByteString.Lazy as Lazy {- bytestring -}

@@ -6,7 +6,7 @@ import Control.Monad {- base -}
 import qualified Network as N {- network -}
 import System.IO {- base -}
 
-import Sound.OSC.Coding {- hosc -}
+import Sound.OSC.Coding.Class {- hosc -}
 import Sound.OSC.Coding.Byte {- hosc -}
 import Sound.OSC.Transport.FD {- hosc -}
 import Sound.OSC.Packet.Class {- hosc -}

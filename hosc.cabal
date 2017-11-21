@@ -37,9 +37,9 @@ Library
                    transformers
   GHC-Options:     -Wall -fwarn-tabs
   Exposed-modules: Sound.OSC
-                   Sound.OSC.Coding
                    Sound.OSC.Coding.Byte
                    Sound.OSC.Coding.Cast
+                   Sound.OSC.Coding.Class
                    Sound.OSC.Coding.Convert
                    Sound.OSC.Coding.Decode.Base
                    Sound.OSC.Coding.Decode.Binary

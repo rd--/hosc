@@ -1,6 +1,7 @@
 -- | Optimised decode function for OSC packets.
 module Sound.OSC.Coding.Decode.Binary
-    (getPacket
+    (decodeMessage
+    ,decodeBundle
     ,decodePacket
     ,decodePacket_strict) where
 
@@ -103,10 +104,21 @@ get_bundle = do
 getPacket :: G.Get Packet
 getPacket = (Packet_Bundle <$> get_bundle) <|> (Packet_Message <$> get_message)
 
+-- | Decode an OSC 'Message' from a lazy ByteString.
+--
+-- > let b = B.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
+-- > decodeMessage b == Message "/g_free" [Int32 0]
+decodeMessage :: B.ByteString -> Message
+decodeMessage = G.runGet get_message
+
+-- | Decode an OSC 'Bundle' from a lazy ByteString.
+decodeBundle :: B.ByteString -> Bundle
+decodeBundle = G.runGet get_bundle
+
 -- | Decode an OSC packet from a lazy ByteString.
 --
 -- > let b = B.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
--- > in decodeOSC b == Message "/g_free" [Int 0]
+-- > decodePacket b == Packet_Message (Message "/g_free" [Int32 0])
 decodePacket :: B.ByteString -> Packet
 {-# INLINE decodePacket #-}
 decodePacket = G.runGet getPacket

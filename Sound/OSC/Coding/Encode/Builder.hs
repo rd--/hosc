@@ -1,7 +1,6 @@
 -- | Optimised encode function for OSC packets.
 module Sound.OSC.Coding.Encode.Builder
-    (build_packet
-    ,encodeMessage
+    (encodeMessage
     ,encodeBundle
     ,encodePacket
     ,encodePacket_strict) where

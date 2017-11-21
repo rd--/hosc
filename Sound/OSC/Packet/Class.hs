@@ -1,7 +1,7 @@
 -- | Typeclass for encoding and decoding OSC packets.
 module Sound.OSC.Packet.Class where
 
-import Sound.OSC.Coding {- hosc -}
+import Sound.OSC.Coding.Class {- hosc -}
 import Sound.OSC.Packet {- hosc -}
 
 -- | A type-class for values that can be translated to and from OSC 'Packet's.
