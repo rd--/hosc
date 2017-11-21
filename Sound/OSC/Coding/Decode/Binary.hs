@@ -1,6 +1,7 @@
 -- | Optimised decode function for OSC packets.
 module Sound.OSC.Coding.Decode.Binary
-    (decodeMessage
+    (get_packet
+    ,decodeMessage
     ,decodeBundle
     ,decodePacket
     ,decodePacket_strict) where
@@ -69,7 +70,7 @@ get_datum ty =
                 return $ Midi (MIDI b0 b1 b2 b3)
       _ -> fail ("get_datum: illegal type " ++ show ty)
 
--- | Get an OSC 'Message'.
+-- | Get an OSC 'Message', fail if type descriptor is invalid.
 get_message :: G.Get Message
 get_message = do
     cmd <- get_string
@@ -101,8 +102,13 @@ get_bundle = do
     return $ Bundle t ps
 
 -- | Get an OSC 'Packet'.
-getPacket :: G.Get Packet
-getPacket = (Packet_Bundle <$> get_bundle) <|> (Packet_Message <$> get_message)
+get_packet :: G.Get Packet
+get_packet = (Packet_Bundle <$> get_bundle) <|> (Packet_Message <$> get_message)
+
+{-# INLINE decodeMessage #-}
+{-# INLINE decodeBundle #-}
+{-# INLINE decodePacket #-}
+{-# INLINE decodePacket_strict #-}
 
 -- | Decode an OSC 'Message' from a lazy ByteString.
 --
@@ -120,10 +126,8 @@ decodeBundle = G.runGet get_bundle
 -- > let b = B.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
 -- > decodePacket b == Packet_Message (Message "/g_free" [Int32 0])
 decodePacket :: B.ByteString -> Packet
-{-# INLINE decodePacket #-}
-decodePacket = G.runGet getPacket
+decodePacket = G.runGet get_packet
 
 -- | Decode an OSC packet from a strict ByteString.
 decodePacket_strict :: S.C.ByteString -> Packet
-{-# INLINE decodePacket_strict #-}
-decodePacket_strict = G.runGet getPacket . B.fromChunks . (:[])
+decodePacket_strict = G.runGet get_packet . B.fromChunks . (:[])

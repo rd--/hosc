@@ -1,6 +1,7 @@
 -- | Optimised encode function for OSC packets.
 module Sound.OSC.Coding.Encode.Builder
-    (encodeMessage
+    (build_packet
+    ,encodeMessage
     ,encodeBundle
     ,encodePacket
     ,encodePacket_strict) where
@@ -67,7 +68,7 @@ build_bundle_ntpi t l =
             ,B.fromWord64be t
             ,mconcat (map (build_bytes . B.toLazyByteString . build_message) l)]
 
--- | Builder monoid for an OSC 'Packet'.
+-- | Builder for an OSC 'Packet'.
 build_packet :: Packet -> B.Builder
 build_packet o =
     case o of
@@ -92,10 +93,10 @@ encodeMessage = B.toLazyByteString . build_packet . Packet_Message
 encodeBundle :: Bundle -> L.ByteString
 encodeBundle = B.toLazyByteString . build_packet . Packet_Bundle
 
--- | Encode an OSC 'Packet' to a lazy 'L.ByteString'.
+-- | Encode an OSC 'Packet'.
 encodePacket :: Packet -> L.ByteString
 encodePacket = B.toLazyByteString . build_packet
 
--- | Encode an Packet packet to a strict ByteString.
+-- | Encode an OSC 'Packet' to a strict 'S.ByteString'.
 encodePacket_strict :: Packet -> S.ByteString
 encodePacket_strict = B.toByteString . build_packet
