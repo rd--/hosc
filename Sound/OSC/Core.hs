@@ -1,13 +1,10 @@
 {- | Composite of non-transport related modules.
 
-Provides the 'Datum', 'Message', 'Bundle' and 'Packet' types,
-and the 'OSC' and 'Coding' type-classes.
-
-The basic constructors are 'message' and 'bundle', the basic coding
-functions are 'encodePacket' and 'decodePacket'.
+Provides the 'Datum', 'Message', 'Time', 'Bundle' and 'Packet' types
+and the coding functions 'encodePacket' and 'decodePacket'.
 
 > import Sound.OSC.Core {- hosc -}
-
+>
 > let o = bundle immediately [message "/g_free" [Int32 0]]
 > let e = encodeBundle o
 > decodePacket e == Packet_Bundle o
