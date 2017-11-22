@@ -1,0 +1,43 @@
+# bm
+
+~~~~
+$ ./bm
+benchmarking encodeOSC/Base
+time                 95.07 μs   (94.81 μs .. 95.29 μs)
+                     1.000 R²   (1.000 R² .. 1.000 R²)
+mean                 94.16 μs   (93.98 μs .. 94.36 μs)
+std dev              634.2 ns   (505.7 ns .. 854.6 ns)
+
+benchmarking encodeOSC/Builder
+time                 50.22 μs   (50.14 μs .. 50.31 μs)
+                     1.000 R²   (1.000 R² .. 1.000 R²)
+mean                 49.81 μs   (49.69 μs .. 49.92 μs)
+std dev              384.0 ns   (332.6 ns .. 465.6 ns)
+
+benchmarking decodeOSC/Base
+time                 91.75 μs   (91.54 μs .. 91.94 μs)
+                     1.000 R²   (1.000 R² .. 1.000 R²)
+mean                 90.93 μs   (90.73 μs .. 91.13 μs)
+std dev              683.7 ns   (579.3 ns .. 831.8 ns)
+
+benchmarking decodeOSC/Binary
+time                 143.4 μs   (143.2 μs .. 143.5 μs)
+                     1.000 R²   (1.000 R² .. 1.000 R²)
+mean                 142.5 μs   (142.3 μs .. 142.8 μs)
+std dev              748.0 ns   (556.0 ns .. 1.138 μs)
+~~~~
+
+# qc
+
+~~~~
+$ ./qc
+encode/eq: [OK, passed 100 tests]
+encode/decode (Base): [OK, passed 100 tests]
+encode/decode (Binary): [OK, passed 100 tests]
+
+         Properties  Total
+ Passed  3           3
+ Failed  0           0
+ Total   3           3
+$
+~~~~

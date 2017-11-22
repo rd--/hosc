@@ -4,7 +4,7 @@ Synopsis:          Haskell Open Sound Control
 Description:       @hosc@ implements a subset of the Open Sound Control
                    byte protocol, <http://opensoundcontrol.org/>.
                    .
-                   See "Sound.OSC".
+                   See "Sound.OSC.Core" or "Sound.OSC" or "Sound.OSC.FD".
 License:           GPL
 Category:          Sound
 Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2007-2017
@@ -55,34 +55,3 @@ Library
 Source-Repository  head
   Type:            darcs
   Location:        http://rd.slavepianos.org/sw/hosc/
-
-Benchmark hosc-benchmark
-  Type: exitcode-stdio-1.0
-  Hs-Source-Dirs: benchmarks
-  Main-Is: benchmark.hs
-  Other-Modules:
-      Sound.OSC.NFData
-  Build-Depends:
-      base == 4.*
-    , hosc == 0.16.*
-    , bytestring
-    , criterion
-    , deepseq
-  GHC-Options:      -Wall -fwarn-tabs -rtsopts -fno-warn-orphans
-  GHC-Prof-Options: -Wall -fwarn-tabs -rtsopts -auto-all
-
-Test-Suite hosc-test
-  Type: exitcode-stdio-1.0
-  Hs-Source-Dirs: tests
-  Main-Is: test.hs
-  Other-Modules:
-      Sound.OSC.Arbitrary
-  Build-Depends:
-      base == 4.*
-    , bytestring >= 0.10
-    , hosc == 0.16.*
-    , QuickCheck >= 2
-    , test-framework >= 0.2
-    , test-framework-quickcheck2 >= 0.2
-  GHC-Options:      -Wall -fwarn-tabs -rtsopts -fno-warn-orphans
-  GHC-Prof-Options: -Wall -fwarn-tabs -rtsopts -auto-all

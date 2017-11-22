@@ -1,6 +1,5 @@
 module Sound.OSC.Arbitrary () where
 
-import Control.Applicative {- base -}
 import qualified Data.ByteString.Char8 as C {- bytestring -}
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 import Test.QuickCheck {- QuickCheck -}

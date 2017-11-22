@@ -7,6 +7,7 @@ import Sound.OSC.Packet {- hosc -}
 
 instance NFData Datum where
     rnf (Int32 x1) = rnf x1 `seq` ()
+    rnf (Int64 x1) = rnf x1 `seq` ()
     rnf (Float x1) = rnf x1 `seq` ()
     rnf (Double x1) = rnf x1 `seq` ()
     rnf (ASCII_String x1) = rnf x1 `seq` ()
