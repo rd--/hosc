@@ -7,13 +7,12 @@ import Data.Maybe {- base -}
 
 import Sound.OSC.Datum {- hosc -}
 import Sound.OSC.Packet {- hosc -}
-import Sound.OSC.Packet.Class {- hosc -}
 import qualified Sound.OSC.Wait as Wait {- hosc -}
 
 -- | Abstract over the underlying transport protocol.
 class Transport t where
    -- | Encode and send an OSC packet.
-   sendOSC :: OSC o => t -> o -> IO ()
+   sendPacket :: t -> Packet -> IO ()
    -- | Receive and decode an OSC packet.
    recvPacket :: t -> IO Packet
    -- | Close an existing connection.
@@ -25,19 +24,15 @@ withTransport u = bracket u close
 
 -- * Send
 
--- | Type restricted synonym for 'sendOSC'.
+-- | 'sendPacket' of 'Packet_Message'.
 sendMessage :: Transport t => t -> Message -> IO ()
-sendMessage = sendOSC
+sendMessage t = sendPacket t . Packet_Message
 
--- | Type restricted synonym for 'sendOSC'.
+-- | 'sendPacket' of 'Packet_Bundle'.
 sendBundle :: Transport t => t -> Bundle -> IO ()
-sendBundle = sendOSC
+sendBundle t = sendPacket t . Packet_Bundle
 
 -- * Receive
-
--- | Variant of 'recvPacket' that runs 'fromPacket'.
-recvOSC :: (Transport t,OSC o) => t -> IO (Maybe o)
-recvOSC = fmap fromPacket . recvPacket
 
 -- | Variant of 'recvPacket' that runs 'packet_to_bundle'.
 recvBundle :: (Transport t) => t -> IO Bundle

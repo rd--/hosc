@@ -9,15 +9,14 @@ import System.IO {- base -}
 import Sound.OSC.Coding.Class {- hosc -}
 import Sound.OSC.Coding.Byte {- hosc -}
 import Sound.OSC.Transport.FD {- hosc -}
-import Sound.OSC.Packet.Class {- hosc -}
 
 -- | The TCP transport handle data type.
 data TCP = TCP {tcpHandle :: Handle}
 
 -- | 'TCP' is an instance of 'Transport'.
 instance Transport TCP where
-   sendOSC (TCP fd) msg =
-      do let b = encodeOSC msg
+   sendPacket (TCP fd) p =
+      do let b = encodePacket p
              n = fromIntegral (B.length b)
          B.hPut fd (B.append (encode_u32 n) b)
          hFlush fd

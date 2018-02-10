@@ -5,10 +5,9 @@ import Control.Monad {- base -}
 import qualified Network.Socket as N {- network -}
 import qualified Network.Socket.ByteString as C {- network -}
 
-import Sound.OSC.Coding.Class
-import Sound.OSC.Packet
-import Sound.OSC.Packet.Class
-import Sound.OSC.Transport.FD
+import Sound.OSC.Coding.Class {- hosc -}
+import Sound.OSC.Packet {- hosc -}
+import Sound.OSC.Transport.FD {- hosc -}
 
 -- | The UDP transport handle data type.
 data UDP = UDP {udpSocket :: N.Socket}
@@ -20,7 +19,7 @@ udpPort (UDP fd) = fmap fromIntegral (N.socketPort fd)
 -- | 'UDP' is an instance of 'Transport'.
 instance Transport UDP where
    -- C.L.send is not implemented for W32
-   sendOSC (UDP fd) msg = void (C.send fd (encodeOSC msg))
+   sendPacket (UDP fd) p = void (C.send fd (encodePacket p))
    recvPacket (UDP fd) = liftM decodePacket (C.recv fd 8192)
    close (UDP fd) = N.close fd
 
@@ -63,10 +62,10 @@ udpServer :: String -> Int -> IO UDP
 udpServer = udp_socket N.bind
 
 -- | Send variant to send to specified address.
-sendTo :: OSC o => UDP -> o -> N.SockAddr -> IO ()
-sendTo (UDP fd) o a = do
+sendTo :: UDP -> Packet -> N.SockAddr -> IO ()
+sendTo (UDP fd) p a = do
   -- C.L.sendTo does not exist
-  void (C.sendTo fd (encodeOSC o) a)
+  void (C.sendTo fd (encodePacket p) a)
 
 -- | Recv variant to collect message source address.
 recvFrom :: UDP -> IO (Packet, N.SockAddr)

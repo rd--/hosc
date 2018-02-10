@@ -1,7 +1,7 @@
 -- | Monad class implementing an Open Sound Control transport.
 module Sound.OSC.Transport.Monad where
 
-import Control.Monad (liftM) {- base -}
+import Control.Monad {- base -}
 import Control.Monad.Trans.Reader {- transformers -}
 import Control.Monad.IO.Class as M {- transformers -}
 import Data.List {- base -}
@@ -10,13 +10,12 @@ import Data.Maybe {- base -}
 import Sound.OSC.Datum {- hosc -}
 import qualified Sound.OSC.Transport.FD as T {- hosc -}
 import Sound.OSC.Packet {- hosc -}
-import Sound.OSC.Packet.Class {- hosc -}
 import Sound.OSC.Wait {- hosc -}
 
 -- | Sender monad.
 class Monad m => SendOSC m where
    -- | Encode and send an OSC packet.
-   sendOSC :: OSC o => o -> m ()
+   sendPacket :: Packet -> m ()
 
 -- | Receiver monad.
 class Monad m => RecvOSC m where
@@ -31,7 +30,7 @@ class (DuplexOSC m,MonadIO m) => Transport m where
 
 -- | 'SendOSC' over 'ReaderT'.
 instance (T.Transport t,MonadIO io) => SendOSC (ReaderT t io) where
-   sendOSC o = ReaderT (M.liftIO . flip T.sendOSC o)
+   sendPacket p = ReaderT (M.liftIO . flip T.sendPacket p)
 
 -- | 'RecvOSC' over 'ReaderT'.
 instance (T.Transport t,MonadIO io) => RecvOSC (ReaderT t io) where
@@ -54,17 +53,13 @@ withTransport u = T.withTransport u . runReaderT
 
 -- | Type restricted synonym for 'sendOSC'.
 sendMessage :: SendOSC m => Message -> m ()
-sendMessage = sendOSC
+sendMessage = sendPacket . Packet_Message
 
 -- | Type restricted synonym for 'sendOSC'.
 sendBundle :: SendOSC m => Bundle -> m ()
-sendBundle = sendOSC
+sendBundle = sendPacket . Packet_Bundle
 
 -- * Receive
-
--- | Variant of 'recvPacket' that runs 'fromPacket'.
-recvOSC :: (RecvOSC m,OSC o) => m (Maybe o)
-recvOSC = liftM fromPacket recvPacket
 
 -- | Variant of 'recvPacket' that runs 'packet_to_bundle'.
 recvBundle :: (RecvOSC m) => m Bundle
