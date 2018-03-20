@@ -61,6 +61,19 @@ openUDP = udp_socket N.connect
 udpServer :: String -> Int -> IO UDP
 udpServer = udp_socket N.bind
 
+-- | Variant of 'udpServer' that doesn't require the host address.
+udp_server :: Int -> IO UDP
+udp_server p = do
+  let hints =
+        N.defaultHints
+        {N.addrFlags = [N.AI_PASSIVE,N.AI_NUMERICSERV]
+        ,N.addrSocketType = N.Datagram}
+  a:_ <- N.getAddrInfo (Just hints) Nothing (Just (show p))
+  s <- N.socket (N.addrFamily a) (N.addrSocketType a) (N.addrProtocol a)
+  N.setSocketOption s N.ReuseAddr 1
+  N.bind s (N.addrAddress a)
+  return (UDP s)
+
 -- | Send variant to send to specified address.
 sendTo :: UDP -> Packet -> N.SockAddr -> IO ()
 sendTo (UDP fd) p a = do
