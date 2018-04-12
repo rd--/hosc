@@ -5,9 +5,9 @@ Description:       @hosc@ implements a subset of the Open Sound Control
                    byte protocol, <http://opensoundcontrol.org/>.
                    .
                    See "Sound.OSC.Core" or "Sound.OSC" or "Sound.OSC.FD".
-License:           GPL
+License:           GPL-3
 Category:          Sound
-Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2007-2017
+Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2007-2018
 Author:            Rohan Drape, Stefan Kersten
 Maintainer:        rd@slavepianos.org
 Stability:         Experimental
