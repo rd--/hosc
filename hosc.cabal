@@ -9,22 +9,22 @@ License:           GPL-3
 Category:          Sound
 Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2007-2018
 Author:            Rohan Drape, Stefan Kersten
-Maintainer:        rd@slavepianos.org
+Maintainer:        rd@rohandrape.net
 Stability:         Experimental
-Homepage:          http://rd.slavepianos.org/t/hosc
+Homepage:          http://rohandrape.net/t/hosc
 Tested-With:       GHC == 8.2.2
 Build-Type:        Simple
 Cabal-Version:     >= 1.8
 Data-Files:        README
 
 Library
-  Build-Depends:   base >= 4.7 && < 5,
+  Build-Depends:   base >= 4.8 && < 5,
                    binary >= 0.7.2,
                    blaze-builder >= 0.3,
                    bytestring,
                    data-binary-ieee754,
                    network >= 2.3,
-                   time,
+                   time >= 1.5,
                    transformers
   GHC-Options:     -Wall -fwarn-tabs
   Exposed-modules: Sound.OSC
@@ -54,4 +54,4 @@ Library
 
 Source-Repository  head
   Type:            darcs
-  Location:        http://rd.slavepianos.org/sw/hosc/
+  Location:        http://rohandrape.net/sw/hosc/
