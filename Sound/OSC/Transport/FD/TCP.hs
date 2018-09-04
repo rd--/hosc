@@ -2,8 +2,7 @@
 module Sound.OSC.Transport.FD.TCP where
 
 import qualified Data.ByteString.Lazy as B {- bytestring -}
-import Control.Monad {- base -}
-import qualified Network as N {- network -}
+import qualified Network.Socket as N {- network -}
 import System.IO {- base -}
 
 import Sound.OSC.Coding.Class {- hosc -}
@@ -26,6 +25,22 @@ instance Transport TCP where
          return (decodePacket b1)
    close (TCP fd) = hClose fd
 
+-- | Create and initialise TCP socket.
+tcp_socket :: (N.Socket -> N.SockAddr -> IO ()) -> Maybe String -> Int -> IO N.Socket
+tcp_socket f host port = do
+  fd <- N.socket N.AF_INET N.Stream 0
+  i:_ <- N.getAddrInfo Nothing host (Just (show port))
+  let sa = N.addrAddress i
+  _ <- f fd sa
+  return fd
+
+socket_to_tcp :: N.Socket -> IO TCP
+socket_to_tcp fd = fmap TCP (N.socketToHandle fd ReadWriteMode)
+
+-- | Create and initialise TCP.
+tcp_handle :: (N.Socket -> N.SockAddr -> IO ()) -> String -> Int -> IO TCP
+tcp_handle f host port = tcp_socket f (Just host) port >>= socket_to_tcp
+
 {- | Make a 'TCP' connection.
 
 > import Sound.OSC.Core
@@ -38,16 +53,14 @@ instance Transport TCP where
 
 -}
 openTCP :: String -> Int -> IO TCP
-openTCP host =
-    liftM TCP .
-    N.connectTo host .
-    N.PortNumber .
-    fromIntegral
+openTCP = tcp_handle N.connect
 
 -- | A trivial 'TCP' /OSC/ server.
 tcpServer' :: Int -> (TCP -> IO ()) -> IO ()
-tcpServer' p f = do
-  s <- N.listenOn (N.PortNumber (fromIntegral p))
-  (sequence_ . repeat) (do (fd, _, _) <- N.accept s
-                           f (TCP fd)
+tcpServer' port f = do
+  s <- tcp_socket N.bind Nothing port
+  N.listen s 1
+  (sequence_ . repeat) (do (fd, _) <- N.accept s
+                           h <- socket_to_tcp fd
+                           f h
                            return ())

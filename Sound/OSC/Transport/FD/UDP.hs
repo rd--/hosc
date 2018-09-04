@@ -27,8 +27,8 @@ instance Transport UDP where
 udp_socket :: (N.Socket -> N.SockAddr -> IO ()) -> String -> Int -> IO UDP
 udp_socket f host port = do
   fd <- N.socket N.AF_INET N.Datagram 0
-  a <- N.inet_addr host
-  let sa = N.SockAddrInet (fromIntegral port) a
+  i:_ <- N.getAddrInfo Nothing (Just host) (Just (show port))
+  let sa = N.addrAddress i
   f fd sa
   return (UDP fd)
 

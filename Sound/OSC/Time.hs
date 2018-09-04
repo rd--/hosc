@@ -1,5 +1,5 @@
 -- | OSC related timing functions.
---   OSC timestamps are @NTP@ values, <http://ntp.org/>.
+--   OSC timestamps are 64-bit @NTP@ values, <http://ntp.org/>.
 module Sound.OSC.Time where
 
 import Control.Concurrent {- base -}
@@ -12,39 +12,45 @@ import qualified Data.Time.Clock.POSIX as T {- time -}
 
 -- * Temporal types
 
--- | Type for integer (binary) representation of @NTP@ time.
-type NTPi = Word64
+-- | Type for binary (integeral) representation of a 64-bit @NTP@ timestamp (ie. @ntpi@).
+--   The NTP epoch is January 1, 1900.
+--   NTPv4 also includes a 128-bit format, which is not used by OSC.
+type NTP64 = Word64
 
 -- | @NTP@ time in real-valued (fractional) form (ie. @ntpr@).
 type Time = Double
 
 -- | Constant indicating a bundle to be executed immediately.
+--   It has the NTP64 representation of @1@.
 immediately :: Time
 immediately = 1 / 2^(32::Int)
 
--- | @Unix/Posix@ epoch time in real-valued (fractional) form.
+-- | @Unix/Posix@ time in real-valued (fractional) form.
+--   The Unix/Posix epoch is January 1, 1970.
 type UT = Double
 
 -- * Time conversion
 
 -- | Convert a real-valued NTP timestamp to an 'NTPi' timestamp.
 --
+-- > ntpr_to_ntpi immediately == 1
 -- > fmap ntpr_to_ntpi time
-ntpr_to_ntpi :: RealFrac n => n -> NTPi
-ntpr_to_ntpi t = round (t * 2^(32::Int))
+ntpr_to_ntpi :: RealFrac n => n -> NTP64
+ntpr_to_ntpi t = round (t * (2 ^ (32::Int)))
 
 -- | Convert an 'NTPi' timestamp to a real-valued NTP timestamp.
-ntpi_to_ntpr :: Fractional n => NTPi -> n
+ntpi_to_ntpr :: Fractional n => NTP64 -> n
 ntpi_to_ntpr t = fromIntegral t / 2^(32::Int)
 
 -- | Difference (in seconds) between /NTP/ and /UT/ epochs.
 --
 -- > ntp_ut_epoch_diff / (24 * 60 * 60) == 25567
+-- > 25567 `div` 365 == 70
 ntp_ut_epoch_diff :: Num n => n
 ntp_ut_epoch_diff = (70 * 365 + 17) * 24 * 60 * 60
 
 -- | Convert a 'UT' timestamp to an 'NTPi' timestamp.
-ut_to_ntpi :: UT -> NTPi
+ut_to_ntpi :: UT -> NTP64
 ut_to_ntpi t = ntpr_to_ntpi (t + ntp_ut_epoch_diff)
 
 -- | Convert @Unix/Posix@ to @NTP@.
@@ -56,7 +62,7 @@ ntpr_to_ut :: Num n => n -> n
 ntpr_to_ut = (+) (negate ntp_ut_epoch_diff)
 
 -- | Convert 'NTPi' to @Unix/Posix@.
-ntpi_to_ut :: NTPi -> UT
+ntpi_to_ut :: NTP64 -> UT
 ntpi_to_ut = ntpr_to_ut . ntpi_to_ntpr
 
 -- | Convert 'Time' to 'T.POSIXTime'.
@@ -82,24 +88,26 @@ utc_to_ut t = realToFrac (T.diffUTCTime t ut_epoch)
 
 -- * Clock operations
 
--- | Read current real-valued @NTP@ timestamp.
---
--- > do {ct <- fmap utc_to_ut T.getCurrentTime
--- >    ;pt <- fmap realToFrac T.getPOSIXTime
--- >    ;print (pt - ct,pt - ct < 1e-5)}
+{- | Read current real-valued @NTP@ timestamp.
+
+> get_ct = fmap utc_to_ut T.getCurrentTime
+> get_pt = fmap realToFrac T.getPOSIXTime
+> (ct,pt) <- get_ct >>= \t0 -> get_pt >>= \t1 -> return (t0,t1)
+> print (pt - ct,pt - ct < 1e-5)
+
+-}
 time :: MonadIO m => m Time
 time = liftIO (fmap posixtime_to_ntpr T.getPOSIXTime)
 
 -- * Thread operations.
 
--- | The 'pauseThread' limit (in seconds).  Values larger than this
--- require a different thread delay mechanism, see 'sleepThread'.  The
--- value is the number of microseconds in @maxBound::Int@.
+-- | The 'pauseThread' limit (in seconds).
+--   Values larger than this require a different thread delay mechanism, see 'sleepThread'.
+--   The value is the number of microseconds in @maxBound::Int@.
 pauseThreadLimit :: Fractional n => n
 pauseThreadLimit = fromIntegral (maxBound::Int) / 1e6
 
--- | Pause current thread for the indicated duration (in seconds), see
---   'pauseThreadLimit'.
+-- | Pause current thread for the indicated duration (in seconds), see 'pauseThreadLimit'.
 pauseThread :: (MonadIO m,RealFrac n) => n -> m ()
 pauseThread n = when (n > 0) (liftIO (threadDelay (floor (n * 1e6))))
 
@@ -107,8 +115,7 @@ pauseThread n = when (n > 0) (liftIO (threadDelay (floor (n * 1e6))))
 wait :: MonadIO m => Double -> m ()
 wait = pauseThread
 
--- | Pause current thread until the given 'Time', see
--- 'pauseThreadLimit'.
+-- | Pause current thread until the given 'Time', see 'pauseThreadLimit'.
 pauseThreadUntil :: MonadIO m => Time -> m ()
 pauseThreadUntil t = pauseThread . (t -) =<< time
 
@@ -121,15 +128,14 @@ sleepThread n =
          in pauseThread n >> sleepThread (n - n')
     else pauseThread n
 
--- | Sleep current thread until the given 'Time'.  Divides long sleeps
--- into parts smaller than 'pauseThreadLimit'.
+-- | Sleep current thread until the given 'Time'.
+--   Divides long sleeps into parts smaller than 'pauseThreadLimit'.
 sleepThreadUntil :: MonadIO m => Time -> m ()
 sleepThreadUntil t = sleepThread . (t -) =<< time
 
 -- * Pretty printing
 
--- | Detailed 37-character ISO 8601 format, including fractional
--- seconds and '+0000' suffix.
+-- | Detailed 37-character ISO 8601 format, including fractional seconds and '+0000' suffix.
 iso_8601_fmt :: String
 iso_8601_fmt = "%Y-%m-%dT%H:%M:%S,%q+0000"
 
@@ -142,7 +148,7 @@ iso_8601_to_utctime = T.parseTimeM True T.defaultTimeLocale iso_8601_fmt
 -- | UTC time in 'iso_8601_fmt'.
 --
 -- > tm <- fmap (utctime_to_iso_8601 . T.posixSecondsToUTCTime) T.getPOSIXTime
--- > (length tm,sum [4+1+2+1+2,1,2+1+2+1+2,1,12,1,4],sum [10,1,8,1,12,1,4])
+-- > (length tm,sum [4+1+2+1+2,1,2+1+2+1+2,1,12,1,4],sum [10,1,8,1,12,1,4]) == (37,37,37)
 utctime_to_iso_8601 :: T.UTCTime -> String
 utctime_to_iso_8601 = T.formatTime T.defaultTimeLocale iso_8601_fmt
 
@@ -152,18 +158,23 @@ utctime_to_iso_8601 = T.formatTime T.defaultTimeLocale iso_8601_fmt
 -- > import System.Process {- process -}
 -- > rawSystem "date" ["-d",tm]
 --
--- > ntpr_to_iso_8601 (ntpi_to_ntpr 15708783354150518784)
+-- > t = 15708783354150518784
+-- > s = "2015-11-26T00:22:19,366058349609+0000"
+-- > ntpr_to_iso_8601 (ntpi_to_ntpr t) == s
 ntpr_to_iso_8601 :: Time -> String
 ntpr_to_iso_8601 = utctime_to_iso_8601 . T.posixSecondsToUTCTime . ntpr_to_posixtime
 
 -- | 'Time' of ISO 8601.
 --
--- > fmap ntpr_to_ntpi (iso_8601_to_ntpr "2015-11-26T00:22:19,366058349609+0000")
+-- > t = 15708783354150518784
+-- > s = "2015-11-26T00:22:19,366058349609+0000"
+-- > fmap ntpr_to_ntpi (iso_8601_to_ntpr s) == Just t
 iso_8601_to_ntpr :: String -> Maybe Time
 iso_8601_to_ntpr = fmap (posixtime_to_ntpr . T.utcTimeToPOSIXSeconds) . iso_8601_to_utctime
 
 -- | Alias for 'ntpr_to_iso_8601'.
 --
+-- > time_pp immediately == "1900-01-01T00:00:00,000000000000+0000"
 -- > fmap time_pp time
 time_pp :: Time -> String
 time_pp = ntpr_to_iso_8601

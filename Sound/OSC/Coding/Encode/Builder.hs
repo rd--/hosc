@@ -62,7 +62,7 @@ build_message (Message c l) =
             ,mconcat (map build_datum l)]
 
 -- Encode an OSC 'Bundle'.
-build_bundle_ntpi :: NTPi -> [Message] -> B.Builder
+build_bundle_ntpi :: NTP64 -> [Message] -> B.Builder
 build_bundle_ntpi t l =
     mconcat [B.fromLazyByteString Byte.bundleHeader
             ,B.fromWord64be t
