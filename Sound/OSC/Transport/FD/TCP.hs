@@ -49,7 +49,7 @@ tcp_handle f host port = tcp_socket f (Just host) port >>= socket_to_tcp
 > let t = openTCP "127.0.0.1" 57110
 > let m1 = message "/dumpOSC" [Int32 1]
 > let m2 = message "/g_new" [Int32 1]
-> withTransport t (\fd -> let f = sendMessage fd in f m1 >> f m2)
+> withTransport t (\fd -> let f = sendMessage fd in f m1 >> pauseThread 0.25 >> f m2)
 
 -}
 openTCP :: String -> Int -> IO TCP
