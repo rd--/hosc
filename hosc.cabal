@@ -53,5 +53,5 @@ Library
                    Sound.OSC.Wait
 
 Source-Repository  head
-  Type:            darcs
-  Location:        http://rohandrape.net/sw/hosc/
+  Type:            git
+  Location:        https://github.com/rd--/hosc.git
