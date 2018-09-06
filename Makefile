@@ -1,11 +1,13 @@
+R=https://github.com/rd--/hosc
+
 clean:
 	rm -Rf dist
 
 push-gh:
-	git push https://github.com/rd--/hosc
+	git push $(R)
 
 pull-gh:
-	git pull https://github.com/rd--/hosc
+	git pull $(R)
 
 update-rd:
-	ssh rd@rohandrape.net "(cd sw/hosc;make pull-gh)"
+	ssh rd@rohandrape.net "(cd sw/hosc;git pull $(R))"
