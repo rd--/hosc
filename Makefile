@@ -1,8 +1,11 @@
 clean:
 	rm -Rf dist
 
-push-rd:
-	darcs push -a rd@rohandrape.net:sw/hosc
+push-gh:
+	git push https://github.com/rd--/hosc
 
-pull-rd:
-	darcs pull -a http://rohandrape.net/sw/hosc
+pull-gh:
+	git pull https://github.com/rd--/hosc
+
+update-rd:
+	ssh rd@rohandrape.net "(cd sw/hosc;make pull-gh)"
