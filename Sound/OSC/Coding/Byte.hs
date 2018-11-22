@@ -194,6 +194,18 @@ decode_str = S.C.pack . L.C.unpack
 
 -- * IO
 
+-- | 'decode_i8' of 'L.hGet'.
+read_i8 :: Handle -> IO Int
+read_i8 = fmap decode_i8 . flip L.hGet 1
+
+-- | 'decode_i16' of 'L.hGet'.
+read_i16 :: Handle -> IO Int
+read_i16 = fmap decode_i16 . flip L.hGet 2
+
+-- | 'decode_i32' of 'L.hGet'.
+read_i32 :: Handle -> IO Int
+read_i32 = fmap decode_i32 . flip L.hGet 4
+
 -- | 'decode_u32' of 'L.hGet'.
 read_u32 :: Handle -> IO Int
 read_u32 = fmap decode_u32 . flip L.hGet 4
@@ -201,6 +213,12 @@ read_u32 = fmap decode_u32 . flip L.hGet 4
 -- | 'decode_u32_le' of 'L.hGet'.
 read_u32_le :: Handle -> IO Int
 read_u32_le = fmap decode_u32_le . flip L.hGet 4
+
+-- | Read u8 length prefixed ASCII string (pascal string).
+read_pstr :: Handle -> IO S.C.ByteString
+read_pstr h = do
+  n <- fmap decode_u8 (L.hGet h 1)
+  fmap decode_str (L.hGet h n)
 
 -- | 'L.hPut' of 'encode_u32'.
 write_u32 :: Handle -> Int -> IO ()
