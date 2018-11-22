@@ -214,6 +214,10 @@ read_u32 = fmap decode_u32 . flip L.hGet 4
 read_u32_le :: Handle -> IO Int
 read_u32_le = fmap decode_u32_le . flip L.hGet 4
 
+-- | 'decode_f32' of 'L.hGet'.
+read_f32 :: Handle -> IO Float
+read_f32 = fmap decode_f32 . flip L.hGet 4
+
 -- | Read u8 length prefixed ASCII string (pascal string).
 read_pstr :: Handle -> IO S.C.ByteString
 read_pstr h = do
