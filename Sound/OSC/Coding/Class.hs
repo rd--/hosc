@@ -30,18 +30,18 @@ instance Coding String where
     decodePacket = decodePacket . Char8.pack
 -}
 
--- | 'encodePacket' '.' 'Packet_Message'.
+-- | 'encodePacket' of 'Packet_Message'.
 encodeMessage :: Coding c => Message -> c
 encodeMessage = encodePacket . Packet_Message
 
--- | 'encodePacket' '.' 'Packet_Bundle'.
+-- | 'encodePacket' of 'Packet_Bundle'.
 encodeBundle :: Coding c => Bundle -> c
 encodeBundle = encodePacket . Packet_Bundle
 
--- | 'packet_to_message' '.' 'decodePacket'.
+-- | 'packet_to_message' of 'decodePacket'.
 decodeMessage :: Coding c => c -> Maybe Message
 decodeMessage = packet_to_message . decodePacket
 
--- | 'packet_to_bundle' '.' 'decodePacket'.
+-- | 'packet_to_bundle' of 'decodePacket'.
 decodeBundle :: Coding c => c -> Bundle
 decodeBundle = packet_to_bundle . decodePacket

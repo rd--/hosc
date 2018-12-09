@@ -10,7 +10,7 @@ import Numeric {- base -}
 import qualified Data.ByteString.Lazy as Lazy {- bytestring -}
 import qualified Data.ByteString.Char8 as Char8 {- bytestring -}
 
-import Sound.OSC.Time {- hosc -}
+import qualified Sound.OSC.Time as Time {- hosc -}
 
 -- * Datum
 
@@ -50,7 +50,7 @@ data Datum = Int32 {d_int32 :: Int32}
            | Double {d_double :: Double}
            | ASCII_String {d_ascii_string :: ASCII}
            | Blob {d_blob :: BLOB}
-           | TimeStamp {d_timestamp :: Time} -- ie. NTPr
+           | TimeStamp {d_timestamp :: Time.Time} -- ie. NTPr
            | Midi {d_midi :: MIDI}
              deriving (Eq,Read,Show)
 
@@ -208,7 +208,7 @@ floatPP p n =
 -- | Pretty printer for 'Time'.
 --
 -- > timePP (Just 4) (1/3) == "0.3333"
-timePP :: FP_Precision -> Time -> String
+timePP :: FP_Precision -> Time.Time -> String
 timePP = floatPP
 
 -- | Pretty printer for vectors.

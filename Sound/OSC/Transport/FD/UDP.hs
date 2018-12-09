@@ -2,26 +2,39 @@
 module Sound.OSC.Transport.FD.UDP where
 
 import Control.Monad {- base -}
+import Data.Bifunctor {- base -}
 import qualified Network.Socket as N {- network -}
 import qualified Network.Socket.ByteString as C {- network -}
 
-import Sound.OSC.Coding.Class {- hosc -}
-import Sound.OSC.Packet {- hosc -}
-import Sound.OSC.Transport.FD {- hosc -}
+import qualified Sound.OSC.Coding.Decode.Binary as Binary {- hosc -}
+import qualified Sound.OSC.Coding.Encode.Builder as Builder {- hosc -}
+import qualified Sound.OSC.Packet as Packet {- hosc -}
+import qualified Sound.OSC.Transport.FD as FD {- hosc -}
 
 -- | The UDP transport handle data type.
 data UDP = UDP {udpSocket :: N.Socket}
 
 -- | Return the port number associated with the UDP socket.
 udpPort :: Integral n => UDP -> IO n
-udpPort (UDP fd) = fmap fromIntegral (N.socketPort fd)
+udpPort = fmap fromIntegral . N.socketPort . udpSocket
 
--- | 'UDP' is an instance of 'Transport'.
-instance Transport UDP where
-   -- C.L.send is not implemented for W32
-   sendPacket (UDP fd) p = void (C.send fd (encodePacket p))
-   recvPacket (UDP fd) = liftM decodePacket (C.recv fd 8192)
-   close (UDP fd) = N.close fd
+-- | Send packet over UDP.
+upd_send_packet :: UDP -> Packet.Packet -> IO ()
+upd_send_packet (UDP fd) p = void (C.send fd (Builder.encodePacket_strict p))
+
+-- | Receive packet over UDP.
+udp_recv_packet :: UDP -> IO Packet.Packet
+udp_recv_packet (UDP fd) = liftM Binary.decodePacket_strict (C.recv fd 8192)
+
+-- | Close UDP.
+udp_close :: UDP -> IO ()
+udp_close (UDP fd) = N.close fd
+
+-- | 'UDP' is an instance of 'FD.Transport'.
+instance FD.Transport UDP where
+   sendPacket = upd_send_packet
+   recvPacket = udp_recv_packet
+   close = udp_close
 
 -- | Create and initialise UDP socket.
 udp_socket :: (N.Socket -> N.SockAddr -> IO ()) -> String -> Int -> IO UDP
@@ -41,23 +54,19 @@ get_udp_opt :: N.SocketOption -> UDP -> IO Int
 get_udp_opt k (UDP s) = N.getSocketOption s k
 
 -- | Make a 'UDP' connection.
---
--- > let t = openUDP "127.0.0.1" 57110
--- > in withTransport t (\fd -> recvT 0.5 fd >>= print)
 openUDP :: String -> Int -> IO UDP
 openUDP = udp_socket N.connect
--- N.setSocketOption fd N.RecvTimeOut 1000
 
--- | Trivial 'UDP' server socket.
---
--- > import Control.Concurrent
---
--- > let {f fd = forever (recvMessage fd >>= print)
--- >     ;t = udpServer "127.0.0.1" 57300}
--- > in void (forkIO (withTransport t f))
---
--- > let t = openUDP "127.0.0.1" 57300
--- > in withTransport t (\fd -> sendMessage fd (message "/n" []))
+{- | Trivial 'UDP' server socket.
+
+> import Control.Concurrent {- base -}
+
+> let t0 = udpServer "127.0.0.1" 57300
+> forkIO (FD.withTransport t0 (\fd -> forever (FD.recvMessage fd >>= print)))
+
+> let t1 = openUDP "127.0.0.1" 57300
+> FD.withTransport t1 (\fd -> FD.sendMessage fd (Packet.message "/n" []))
+-}
 udpServer :: String -> Int -> IO UDP
 udpServer = udp_socket N.bind
 
@@ -75,14 +84,9 @@ udp_server p = do
   return (UDP s)
 
 -- | Send variant to send to specified address.
-sendTo :: UDP -> Packet -> N.SockAddr -> IO ()
-sendTo (UDP fd) p a = do
-  -- C.L.sendTo does not exist
-  void (C.sendTo fd (encodePacket p) a)
+sendTo :: UDP -> Packet.Packet -> N.SockAddr -> IO ()
+sendTo (UDP fd) p = void . C.sendTo fd (Builder.encodePacket_strict p)
 
 -- | Recv variant to collect message source address.
-recvFrom :: UDP -> IO (Packet, N.SockAddr)
-recvFrom (UDP fd) = do
-  -- C.L.recvFrom does not exist
-  (s,a) <- C.recvFrom fd 8192
-  return (decodePacket s,a)
+recvFrom :: UDP -> IO (Packet.Packet, N.SockAddr)
+recvFrom (UDP fd) = fmap (first Binary.decodePacket_strict) (C.recvFrom fd 8192)

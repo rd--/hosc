@@ -7,10 +7,10 @@ import Control.Monad.IO.Class as M {- transformers -}
 import Data.List {- base -}
 import Data.Maybe {- base -}
 
-import Sound.OSC.Datum {- hosc -}
-import qualified Sound.OSC.Transport.FD as T {- hosc -}
+import qualified Sound.OSC.Datum as Datum {- hosc -}
+import qualified Sound.OSC.Transport.FD as FD {- hosc -}
 import Sound.OSC.Packet {- hosc -}
-import Sound.OSC.Wait {- hosc -}
+import qualified Sound.OSC.Wait as Wait {- hosc -}
 
 -- | Sender monad.
 class Monad m => SendOSC m where
@@ -29,25 +29,25 @@ class (SendOSC m,RecvOSC m) => DuplexOSC m where
 class (DuplexOSC m,MonadIO m) => Transport m where
 
 -- | 'SendOSC' over 'ReaderT'.
-instance (T.Transport t,MonadIO io) => SendOSC (ReaderT t io) where
-   sendPacket p = ReaderT (M.liftIO . flip T.sendPacket p)
+instance (FD.Transport t,MonadIO io) => SendOSC (ReaderT t io) where
+   sendPacket p = ReaderT (M.liftIO . flip FD.sendPacket p)
 
 -- | 'RecvOSC' over 'ReaderT'.
-instance (T.Transport t,MonadIO io) => RecvOSC (ReaderT t io) where
-   recvPacket = ReaderT (M.liftIO . T.recvPacket)
+instance (FD.Transport t,MonadIO io) => RecvOSC (ReaderT t io) where
+   recvPacket = ReaderT (M.liftIO . FD.recvPacket)
 
 -- | 'DuplexOSC' over 'ReaderT'.
-instance (T.Transport t,MonadIO io) => DuplexOSC (ReaderT t io) where
+instance (FD.Transport t,MonadIO io) => DuplexOSC (ReaderT t io) where
 
 -- | 'Transport' over 'ReaderT'.
-instance (T.Transport t,MonadIO io) => Transport (ReaderT t io) where
+instance (FD.Transport t,MonadIO io) => Transport (ReaderT t io) where
 
 -- | Transport connection.
 type Connection t a = ReaderT t IO a
 
 -- | Bracket Open Sound Control communication.
-withTransport :: T.Transport t => IO t -> Connection t a -> IO a
-withTransport u = T.withTransport u . runReaderT
+withTransport :: FD.Transport t => IO t -> Connection t a -> IO a
+withTransport u = FD.withTransport u . runReaderT
 
 -- * Send
 
@@ -82,12 +82,12 @@ recvMessages = liftM packetMessages recvPacket
 -- | Wait for a 'Packet' where the supplied predicate is 'True',
 -- discarding intervening packets.
 waitUntil :: (RecvOSC m) => (Packet -> Bool) -> m Packet
-waitUntil f = untilPredicate f recvPacket
+waitUntil f = Wait.untilPredicate f recvPacket
 
 -- | Wait for a 'Packet' where the supplied function does not give
 -- 'Nothing', discarding intervening packets.
 waitFor :: (RecvOSC m) => (Packet -> Maybe a) -> m a
-waitFor f = untilMaybe f recvPacket
+waitFor f = Wait.untilMaybe f recvPacket
 
 -- | 'waitUntil' 'packet_is_immediate'.
 waitImmediate :: RecvOSC m => m Packet
@@ -114,5 +114,5 @@ waitReply s =
     in liftM f (waitAddress s)
 
 -- | Variant of 'waitReply' that runs 'messageDatum'.
-waitDatum :: RecvOSC m => Address_Pattern -> m [Datum]
+waitDatum :: RecvOSC m => Address_Pattern -> m [Datum.Datum]
 waitDatum = liftM messageDatum . waitReply
