@@ -1,6 +1,7 @@
 -- | OSC over TCP implementation.
 module Sound.OSC.Transport.FD.TCP where
 
+import qualified Control.Exception as Exception {- base -}
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 import qualified Network.Socket as N {- network -}
 import qualified System.IO as IO {- base -}
@@ -38,6 +39,10 @@ instance FD.Transport TCP where
    sendPacket = tcp_send_packet
    recvPacket = tcp_recv_packet
    close = tcp_close
+
+-- | Bracket UDP communication.
+with_tcp :: IO TCP -> (TCP -> IO t) -> IO t
+with_tcp u = Exception.bracket u tcp_close
 
 -- | Create and initialise TCP socket.
 tcp_socket :: (N.Socket -> N.SockAddr -> IO ()) -> Maybe String -> Int -> IO N.Socket

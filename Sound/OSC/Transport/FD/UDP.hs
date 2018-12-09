@@ -1,6 +1,7 @@
 -- | OSC over UDP implementation.
 module Sound.OSC.Transport.FD.UDP where
 
+import Control.Exception {- base -}
 import Control.Monad {- base -}
 import Data.Bifunctor {- base -}
 import qualified Network.Socket as N {- network -}
@@ -35,6 +36,10 @@ instance FD.Transport UDP where
    sendPacket = upd_send_packet
    recvPacket = udp_recv_packet
    close = udp_close
+
+-- | Bracket UDP communication.
+with_udp :: IO UDP -> (UDP -> IO t) -> IO t
+with_udp u = bracket u udp_close
 
 -- | Create and initialise UDP socket.
 udp_socket :: (N.Socket -> N.SockAddr -> IO ()) -> String -> Int -> IO UDP
