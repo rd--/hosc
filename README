@@ -8,6 +8,7 @@ hosc is required by the [hsc3][hsc3] haskell [supercollider][sc3] bindings.
 See also:
 
 - [hosc-json](?t=hosc-json): JSON text encoding of OSC
+- [hosc-util](?t=hosc-util): non-core OSC functions
 
 © [rohan drape][rd], [stefan kersten][sk] and others, 2007-2018,
 [gpl][gpl]. with contributions by:
