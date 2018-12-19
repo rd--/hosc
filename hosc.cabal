@@ -30,7 +30,6 @@ Library
   Exposed-modules: Sound.OSC
                    Sound.OSC.Coding.Byte
                    Sound.OSC.Coding.Cast
-                   Sound.OSC.Coding.Class
                    Sound.OSC.Coding.Convert
                    Sound.OSC.Coding.Decode.Base
                    Sound.OSC.Coding.Decode.Binary
@@ -38,13 +37,8 @@ Library
                    Sound.OSC.Coding.Encode.Builder
                    Sound.OSC.Core
                    Sound.OSC.Datum
-                   Sound.OSC.Datum.Datem
-                   Sound.OSC.Datum.Normalise
-                   Sound.OSC.Datum.Unpack
                    Sound.OSC.FD
                    Sound.OSC.Packet
-                   Sound.OSC.Packet.Class
-                   Sound.OSC.Packet.Coerce
                    Sound.OSC.Time
                    Sound.OSC.Transport.FD
                    Sound.OSC.Transport.FD.TCP

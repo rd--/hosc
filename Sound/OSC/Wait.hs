@@ -5,9 +5,9 @@ import System.Timeout {- base -}
 
 -- * Timeout
 
--- | Real valued variant of 'timeout'.
+-- | Variant of 'timeout' where time is given in fractional seconds.
 timeout_r :: Double -> IO a -> IO (Maybe a)
-timeout_r t = timeout (floor (t * 1000000))
+timeout_r = timeout . floor . (* 1000000)
 
 -- * Wait
 
@@ -21,6 +21,6 @@ untilPredicate f act =
 -- | Repeat action until /f/ does not give 'Nothing' when applied to result.
 untilMaybe :: Monad m => (a -> Maybe b) -> m a -> m b
 untilMaybe f act =
-    let g p = case f p of {Nothing -> recur;Just r -> return r}
+    let g p = maybe recur return (f p)
         recur = act >>= g
     in recur

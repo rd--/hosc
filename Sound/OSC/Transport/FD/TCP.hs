@@ -53,6 +53,7 @@ tcp_socket f host port = do
   _ <- f fd sa
   return fd
 
+-- | Convert 'N.Socket' to 'TCP'.
 socket_to_tcp :: N.Socket -> IO TCP
 socket_to_tcp fd = fmap TCP (N.socketToHandle fd IO.ReadWriteMode)
 
@@ -73,12 +74,20 @@ tcp_handle f host port = tcp_socket f (Just host) port >>= socket_to_tcp
 openTCP :: String -> Int -> IO TCP
 openTCP = tcp_handle N.connect
 
+-- | 'N.accept' connection at /s/ and run /f/.
+tcp_server_f :: N.Socket -> (TCP -> IO ()) -> IO ()
+tcp_server_f s f = do
+  (fd, _) <- N.accept s
+  h <- socket_to_tcp fd
+  f h
+
+-- | 'sequence_' of 'repeat'.
+repeatM_ :: (Monad m) => m a -> m ()
+repeatM_ = sequence_ . repeat
+
 -- | A trivial 'TCP' /OSC/ server.
 tcp_server :: Int -> (TCP -> IO ()) -> IO ()
 tcp_server port f = do
   s <- tcp_socket N.bind Nothing port
   N.listen s 1
-  (sequence_ . repeat) (do (fd, _) <- N.accept s
-                           h <- socket_to_tcp fd
-                           f h
-                           return ())
+  repeatM_ (tcp_server_f s f)

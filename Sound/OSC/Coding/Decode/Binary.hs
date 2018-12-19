@@ -7,7 +7,7 @@ module Sound.OSC.Coding.Decode.Binary
     ,decodePacket_strict) where
 
 import Control.Applicative {- base -}
-import Control.Monad (when) {- base -}
+import Control.Monad {- base -}
 import qualified Data.Binary.Get as G {- binary -}
 import qualified Data.Binary.IEEE754 as I {- data-binary-ieee754 -}
 import qualified Data.ByteString.Char8 as S.C {- bytestring -}
@@ -16,10 +16,10 @@ import qualified Data.ByteString.Lazy.Char8 as C {- bytestring -}
 import Data.Int {- base -}
 import Data.Word {- base -}
 
-import Sound.OSC.Coding.Byte {- hosc -}
+import qualified Sound.OSC.Coding.Byte as Byte {- hosc -}
 import Sound.OSC.Datum {- hosc -}
 import Sound.OSC.Packet {- hosc -}
-import Sound.OSC.Time {- hosc -}
+import qualified Sound.OSC.Time as Time {- hosc -}
 
 -- | Get a 32 bit integer in big-endian byte order.
 getInt32be :: G.Get Int32
@@ -33,14 +33,14 @@ getInt64be = fromIntegral <$> G.getWord64be
 get_string :: G.Get String
 get_string = do
     s <- G.getLazyByteStringNul
-    G.skip (fromIntegral (align (B.length s + 1)))
+    G.skip (fromIntegral (Byte.align (B.length s + 1)))
     return $ C.unpack s
 
 -- | Get an aligned OSC string.
 get_ascii :: G.Get ASCII
 get_ascii = do
     s <- G.getLazyByteStringNul
-    G.skip (fromIntegral (align (B.length s + 1)))
+    G.skip (fromIntegral (Byte.align (B.length s + 1)))
     return (S.C.pack (C.unpack s))
 
 -- | Get binary data prefixed by byte count.
@@ -49,7 +49,7 @@ get_bytes n = do
     b <- G.getLazyByteString (fromIntegral n)
     if n /= fromIntegral (B.length b)
         then fail "get_bytes: end of stream"
-        else G.skip (fromIntegral (align n))
+        else G.skip (fromIntegral (Byte.align n))
     return b
 
 -- | Get an OSC datum.
@@ -62,7 +62,7 @@ get_datum ty =
       'd' -> Double <$> I.getFloat64be
       's' -> ASCII_String <$> get_ascii
       'b' -> Blob   <$> (get_bytes =<< G.getWord32be)
-      't' -> TimeStamp <$> ntpi_to_ntpr <$> G.getWord64be
+      't' -> TimeStamp <$> Time.ntpi_to_ntpr <$> G.getWord64be
       'm' -> do b0 <- G.getWord8
                 b1 <- G.getWord8
                 b2 <- G.getWord8
@@ -95,9 +95,9 @@ get_message_seq = do
 -- | Get a bundle. Fail if bundle header is not found in packet.
 get_bundle :: G.Get Bundle
 get_bundle = do
-    h <- G.getByteString (S.C.length bundleHeader_strict)
-    when (h /= bundleHeader_strict) (fail "get_bundle: not a bundle")
-    t <- ntpi_to_ntpr <$> G.getWord64be
+    h <- G.getByteString (S.C.length Byte.bundleHeader_strict)
+    when (h /= Byte.bundleHeader_strict) (fail "get_bundle: not a bundle")
+    t <- Time.ntpi_to_ntpr <$> G.getWord64be
     ps <- get_message_seq
     return $ Bundle t ps
 

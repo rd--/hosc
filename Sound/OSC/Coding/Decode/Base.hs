@@ -1,5 +1,5 @@
--- | Base-level decode function for OSC packets (slow).  For ordinary
---   use see 'Sound.OSC.Coding.Decode.Binary'.
+-- | Base-level decode function for OSC packets.
+--   For ordinary use see 'Sound.OSC.Coding.Decode.Binary'.
 module Sound.OSC.Coding.Decode.Base (decodeMessage
                                     ,decodeBundle
                                     ,decodePacket) where

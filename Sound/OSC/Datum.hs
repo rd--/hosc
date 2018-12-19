@@ -6,6 +6,7 @@ import Data.List {- base -}
 import Data.Maybe {- base -}
 import Data.Word {- base -}
 import Numeric {- base -}
+import Text.Read {- base -}
 
 import qualified Data.ByteString.Lazy as Lazy {- bytestring -}
 import qualified Data.ByteString.Char8 as Char8 {- bytestring -}
@@ -53,6 +54,8 @@ data Datum = Int32 {d_int32 :: Int32}
            | TimeStamp {d_timestamp :: Time.Time} -- ie. NTPr
            | Midi {d_midi :: MIDI}
              deriving (Eq,Read,Show)
+
+-- * Datum types
 
 -- | List of required data types (tag,name).
 osc_types_required :: [(Datum_Type,String)]
@@ -110,10 +113,12 @@ datum_tag d =
 datum_type_name :: Datum -> (Datum_Type,String)
 datum_type_name d = let c = datum_tag d in (c,osc_type_name_err c)
 
+-- * Generalised element access
+
 -- | 'Datum' as 'Integral' if Int32 or Int64.
 --
 -- > let d = [Int32 5,Int64 5,Float 5.5,Double 5.5]
--- > in map datum_integral d == [Just (5::Int),Just 5,Nothing,Nothing]
+-- > map datum_integral d == [Just (5::Int),Just 5,Nothing,Nothing]
 datum_integral :: Integral i => Datum -> Maybe i
 datum_integral d =
     case d of
@@ -124,7 +129,7 @@ datum_integral d =
 -- | 'Datum' as 'Floating' if Int32, Int64, Float, Double or TimeStamp.
 --
 -- > let d = [Int32 5,Int64 5,Float 5,Double 5,TimeStamp 5]
--- > in Data.Maybe.mapMaybe datum_floating d == replicate 5 (5::Double)
+-- > mapMaybe datum_floating d == replicate 5 (5::Double)
 datum_floating :: Floating n => Datum -> Maybe n
 datum_floating d =
     case d of
@@ -134,6 +139,8 @@ datum_floating d =
       Double n -> Just (realToFrac n)
       TimeStamp n -> Just (realToFrac n)
       _ -> Nothing
+
+-- * Constructors
 
 -- | Type generalised Int32.
 --
@@ -181,7 +188,7 @@ midi (p,q,r,s) = Midi (MIDI p q r s)
 
 -- | Message argument types are given by a descriptor.
 --
--- > Char8.unpack (descriptor [Int32 1,Float 1,string "1"]) == ",ifs"
+-- > descriptor [Int32 1,Float 1,string "1"] == ascii ",ifs"
 descriptor :: [Datum] -> ASCII
 descriptor l = Char8.pack (',' : map datum_tag l)
 
@@ -240,13 +247,6 @@ datum_pp_typed :: FP_Precision -> Datum -> String
 datum_pp_typed fp d = datumPP fp d ++ ":" ++ snd (datum_type_name d)
 
 -- * Parser
-
--- | Variant of 'read'.
-readMaybe :: (Read a) => String -> Maybe a
-readMaybe s =
-    case reads s of
-      [(x, "")] -> Just x
-      _ -> Nothing
 
 -- | Given 'Datum_Type' attempt to parse 'Datum' at 'String'.
 --

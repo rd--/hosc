@@ -18,6 +18,7 @@ import qualified Data.Time.Clock.POSIX as T {- time -}
 type NTP64 = Word64
 
 -- | @NTP@ time in real-valued (fractional) form (ie. @ntpr@).
+--   This is the primary form of timestamp used by hosc.
 type Time = Double
 
 -- | Constant indicating a bundle to be executed immediately.

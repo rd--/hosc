@@ -75,27 +75,33 @@ build_packet o =
       Packet_Message m -> build_message m
       Packet_Bundle (Bundle t m) -> build_bundle_ntpi (ntpr_to_ntpi t) m
 
+{-# INLINE encodePacket #-}
 {-# INLINE encodeMessage #-}
 {-# INLINE encodeBundle #-}
-{-# INLINE encodePacket #-}
 {-# INLINE encodePacket_strict #-}
-
-{- | Encode an OSC 'Message'.
-
-> let b = L.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
-> encodeMessage (Message "/g_free" [Int32 0]) == b
-
--}
-encodeMessage :: Message -> L.ByteString
-encodeMessage = B.toLazyByteString . build_packet . Packet_Message
-
--- | Encode an OSC 'Bundle'.
-encodeBundle :: Bundle -> L.ByteString
-encodeBundle = B.toLazyByteString . build_packet . Packet_Bundle
 
 -- | Encode an OSC 'Packet'.
 encodePacket :: Packet -> L.ByteString
 encodePacket = B.toLazyByteString . build_packet
+
+{- | Encode an OSC 'Message', ie. 'encodePacket' of 'Packet_Message'.
+
+> let m = [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
+> encodeMessage (Message "/g_free" [Int32 0]) == L.pack m
+
+-}
+encodeMessage :: Message -> L.ByteString
+encodeMessage = encodePacket . Packet_Message
+
+{- | Encode an OSC 'Bundle', ie. 'encodePacket' of 'Packet_Bundle'.
+
+> let m = [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
+> let b = [35,98,117,110,100,108,101,0,0,0,0,0,0,0,0,1,0,0,0,16] ++ m
+> encodeBundle (Bundle immediately [Message "/g_free" [Int32 0]]) == L.pack b
+
+-}
+encodeBundle :: Bundle -> L.ByteString
+encodeBundle = encodePacket . Packet_Bundle
 
 -- | Encode an OSC 'Packet' to a strict 'S.ByteString'.
 encodePacket_strict :: Packet -> S.ByteString

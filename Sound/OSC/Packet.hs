@@ -8,12 +8,12 @@ import Sound.OSC.Time {- hosc3 -}
 
 -- * Message
 
--- | OSC address pattern.  This is strictly an ASCII value, but it is
--- very common to pattern match on addresses and matching on
--- 'C.ByteString' requires @OverloadedStrings@.
+-- | OSC address pattern.  This is strictly an ASCII value, however it
+--   is very common to pattern match on addresses and matching on
+--   'C.ByteString' requires @OverloadedStrings@.
 type Address_Pattern = String
 
--- | An OSC message.
+-- | An OSC message, an 'Address_Pattern' and a sequence of 'Datum'.
 data Message = Message {messageAddress :: Address_Pattern
                        ,messageDatum :: [Datum]}
                deriving (Eq,Read,Show)
@@ -28,7 +28,7 @@ message a xs =
 
 -- * Bundle
 
--- | An OSC bundle.
+-- | An OSC bundle, a 'Time' and a sequence of 'Message's.
 data Bundle = Bundle {bundleTime :: Time
                      ,bundleMessages :: [Message]}
               deriving (Eq,Read,Show)
@@ -52,11 +52,11 @@ data Packet = Packet_Message {packetMessage :: Message}
             | Packet_Bundle {packetBundle :: Bundle}
               deriving (Eq,Read,Show)
 
--- | 'Packet_Bundle' '.' 'bundle'.
+-- | 'Packet_Bundle' of 'bundle'.
 p_bundle :: Time -> [Message] -> Packet
 p_bundle t = Packet_Bundle . bundle t
 
--- | 'Packet_Message' '.' 'message'.
+-- | 'Packet_Message' of 'message'.
 p_message :: Address_Pattern -> [Datum] -> Packet
 p_message a = Packet_Message . message a
 
