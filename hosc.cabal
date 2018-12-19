@@ -1,5 +1,5 @@
 Name:              hosc
-Version:           0.17
+Version:           0.18
 Synopsis:          Haskell Open Sound Control
 Description:       @hosc@ implements a subset of the Open Sound Control
                    byte protocol, <http://opensoundcontrol.org/>.
