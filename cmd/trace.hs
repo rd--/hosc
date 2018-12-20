@@ -19,15 +19,17 @@ u8_to_char = toEnum . fromIntegral
 print_u8 :: Word8 -> String
 print_u8 x = printf "%02x (%c)" x (u8_to_char x)
 
-bytes_pp :: B.ByteString -> [String]
+bytes_pp :: B.ByteString -> String
 bytes_pp =
   let f = intercalate "  " . map print_u8
-  in map f . chunksOf 4 . B.unpack
+  in unlines . map f . chunksOf 4 . B.unpack
+
+packet_pp :: B.ByteString -> String
+packet_pp b = O.packetPP (Just 5) (O.decodePacket_strict b)
 
 osc_trace :: Int -> IO ()
 osc_trace p = do
-  let pr b = putStrLn (unlines (bytes_pp b)) >>
-             putStrLn (O.packetPP (Just 5) (O.decodePacket_strict b) ++ "\n")
+  let pr b = putStrLn (unlines [bytes_pp b,packet_pp b])
       fn fd = forever (udp_recv_bytes fd >>= pr)
   O.withTransport (O.udp_server p) fn
 
