@@ -6,12 +6,12 @@ import System.Environment {- base -}
 import Text.Printf {- base -}
 
 import qualified Data.ByteString as B {- bytestring -}
-import qualified Network.Socket.ByteString as C {- network -}
+import qualified Network.Socket.ByteString as N {- network -}
 
 import qualified Sound.OSC.FD as O {- hosc -}
 
 udp_recv_bytes :: O.UDP -> IO B.ByteString
-udp_recv_bytes = flip C.recv 8192 . O.udpSocket
+udp_recv_bytes = flip N.recv 8192 . O.udpSocket
 
 u8_to_char :: Word8 -> Char
 u8_to_char = toEnum . fromIntegral
