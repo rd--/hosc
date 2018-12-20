@@ -25,7 +25,7 @@ upd_send_packet (UDP fd) p = void (C.send fd (Builder.encodePacket_strict p))
 
 -- | Receive packet over UDP.
 udp_recv_packet :: UDP -> IO Packet.Packet
-udp_recv_packet (UDP fd) = liftM Binary.decodePacket_strict (C.recv fd 8192)
+udp_recv_packet (UDP fd) = fmap Binary.decodePacket_strict (C.recv fd 8192)
 
 -- | Close UDP.
 udp_close :: UDP -> IO ()
@@ -66,11 +66,11 @@ openUDP = udp_socket N.connect
 
 > import Control.Concurrent {- base -}
 
-> let t0 = udpServer "127.0.0.1" 57300
-> forkIO (FD.withTransport t0 (\fd -> forever (FD.recvMessage fd >>= print)))
+> let u0 = udpServer "127.0.0.1" 57300
+> t0 <- forkIO (FD.withTransport u0 (\fd -> forever (FD.recvMessage fd >>= print)))
 
-> let t1 = openUDP "127.0.0.1" 57300
-> FD.withTransport t1 (\fd -> FD.sendMessage fd (Packet.message "/n" []))
+> let u1 = openUDP "127.0.0.1" 57300
+> FD.withTransport u1 (\fd -> FD.sendMessage fd (Packet.message "/n" []))
 -}
 udpServer :: String -> Int -> IO UDP
 udpServer = udp_socket N.bind
