@@ -25,7 +25,7 @@ bytes_pp =
   in unlines . map f . chunksOf 4 . B.unpack
 
 packet_pp :: B.ByteString -> String
-packet_pp b = O.packetPP (Just 5) (O.decodePacket_strict b)
+packet_pp = O.packetPP (Just 5) . O.decodePacket_strict
 
 osc_trace :: Int -> IO ()
 osc_trace p = do
