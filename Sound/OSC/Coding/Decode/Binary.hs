@@ -80,7 +80,7 @@ get_message = do
         ',':tags -> do
             arg <- mapM get_datum tags
             return $ Message cmd arg
-        _ -> fail "get_message: invalid type descriptor string"
+        e -> fail ("get_message: invalid type descriptor string: " ++ e)
 
 -- | Get a sequence of OSC 'Message's, each one headed by its length.
 get_message_seq :: G.Get [Message]

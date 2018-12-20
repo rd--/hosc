@@ -4,14 +4,16 @@ import qualified Data.ByteString.Char8 as C {- bytestring -}
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 import Test.QuickCheck {- QuickCheck -}
 
-import Sound.OSC
+import Sound.OSC {- hosc -}
+import Sound.OSC.Coding.Convert {- hosc -}
 
--- Avoid floating point representation/conversion errors
+-- | Avoid floating point representation/conversion errors
 genTime :: Gen Time
 genTime = ntpi_to_ntpr <$> arbitrary
 
+-- | Geneate only ASCII strings
 genString :: Gen String
-genString = resize 128 (listOf (arbitrary `suchThat` (/= '\0')))
+genString = map (toEnum . word8_to_int) <$> resize 128 (listOf (arbitrary `suchThat` (/= 0)))
 
 genASCII :: Gen ASCII
 genASCII = fmap C.pack genString
