@@ -7,6 +7,7 @@ import qualified Data.ByteString.Char8 as C {- bytestring -}
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 
 import Sound.OSC.Coding.Byte {- hosc -}
+import Sound.OSC.Coding.Convert {- hosc -}
 import Sound.OSC.Datum {- hosc -}
 import Sound.OSC.Packet {- hosc -}
 import Sound.OSC.Time {- hosc -}
@@ -26,7 +27,7 @@ encode_datum dt =
       TimeStamp t -> encode_u64 $ ntpr_to_ntpi t
       ASCII_String s -> extend 0 (B.snoc (encode_str s) 0)
       Midi (MIDI b0 b1 b2 b3) -> B.pack [b0,b1,b2,b3]
-      Blob b -> let n = encode_i32 (fromIntegral (B.length b))
+      Blob b -> let n = encode (int64_to_int32 (B.length b))
                 in B.append n (extend 0 b)
 
 -- | Encode OSC 'Message'.

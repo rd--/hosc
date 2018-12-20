@@ -4,6 +4,8 @@ module Sound.OSC.Coding.Convert where
 import Data.Int {- base -}
 import Data.Word {- base -}
 
+-- * Int -> N
+
 -- | Type specialised 'fromIntegral'
 int_to_word8 :: Int -> Word8
 int_to_word8 = fromIntegral
@@ -29,6 +31,12 @@ int_to_int32 :: Int -> Int32
 int_to_int32 = fromIntegral
 
 -- | Type specialised 'fromIntegral'
+int_to_int64 :: Int -> Int64
+int_to_int64 = fromIntegral
+
+-- * N -> Int
+
+-- | Type specialised 'fromIntegral'
 int8_to_int :: Int8 -> Int
 int8_to_int = fromIntegral
 
@@ -39,6 +47,10 @@ int16_to_int = fromIntegral
 -- | Type specialised 'fromIntegral'
 int32_to_int :: Int32 -> Int
 int32_to_int = fromIntegral
+
+-- | Type specialised 'fromIntegral'
+int64_to_int :: Int64 -> Int
+int64_to_int = fromIntegral
 
 -- | Type specialised 'fromIntegral'
 word8_to_int :: Word8 -> Int
@@ -52,3 +64,30 @@ word16_to_int = fromIntegral
 word32_to_int :: Word32 -> Int
 word32_to_int = fromIntegral
 
+-- * N -> N
+
+-- | Type specialised 'fromIntegral'
+int64_to_int32 :: Int64 -> Int32
+int64_to_int32 = fromIntegral
+
+-- | Type specialised 'fromIntegral'
+int64_to_word32 :: Int64 -> Word32
+int64_to_word32 = fromIntegral
+
+-- | Type specialised 'fromIntegral'
+word32_to_int32 :: Word32 -> Int32
+word32_to_int32 = fromIntegral
+
+-- | Type specialised 'fromIntegral'
+word32_to_int64 :: Word32 -> Int64
+word32_to_int64 = fromIntegral
+
+-- | Type specialised 'fromIntegral'
+word64_to_int64 :: Word64 -> Int64
+word64_to_int64 = fromIntegral
+
+-- * N -> Real
+
+-- | Type specialised 'fromIntegral'
+word64_to_double :: Word64 -> Double
+word64_to_double = fromIntegral

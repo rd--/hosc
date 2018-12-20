@@ -9,6 +9,7 @@ import qualified System.IO as IO {- base -}
 import qualified Sound.OSC.Coding.Decode.Binary as Binary {- hosc -}
 import qualified Sound.OSC.Coding.Encode.Builder as Builder {- hosc -}
 import qualified Sound.OSC.Coding.Byte as Byte {- hosc -}
+import qualified Sound.OSC.Coding.Convert as Convert {- hosc -}
 import qualified Sound.OSC.Packet as Packet {- hosc -}
 import qualified Sound.OSC.Transport.FD as FD {- hosc -}
 
@@ -19,15 +20,15 @@ data TCP = TCP {tcpHandle :: IO.Handle}
 tcp_send_packet :: TCP -> Packet.Packet -> IO ()
 tcp_send_packet (TCP fd) p = do
   let b = Builder.encodePacket p
-      n = fromIntegral (B.length b)
-  B.hPut fd (B.append (Byte.encode_u32 n) b)
+      n = Convert.int64_to_word32 (B.length b)
+  B.hPut fd (B.append (Byte.encode_w32 n) b)
   IO.hFlush fd
 
 -- | Receive packet over TCP.
 tcp_recv_packet :: TCP -> IO Packet.Packet
 tcp_recv_packet (TCP fd) = do
   b0 <- B.hGet fd 4
-  b1 <- B.hGet fd (fromIntegral (Byte.decode_u32 b0))
+  b1 <- B.hGet fd (Convert.word32_to_int (Byte.decode_word32 b0))
   return (Binary.decodePacket b1)
 
 -- | Close TCP.

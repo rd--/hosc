@@ -10,6 +10,8 @@ import Data.Word {- base -}
 import qualified Data.Time as T {- time -}
 import qualified Data.Time.Clock.POSIX as T {- time -}
 
+import Sound.OSC.Coding.Convert {- hosc -}
+
 -- * Temporal types
 
 -- | Type for binary (integeral) representation of a 64-bit @NTP@ timestamp (ie. @ntpi@).
@@ -36,12 +38,12 @@ type UT = Double
 --
 -- > ntpr_to_ntpi immediately == 1
 -- > fmap ntpr_to_ntpi time
-ntpr_to_ntpi :: RealFrac n => n -> NTP64
+ntpr_to_ntpi :: Time -> NTP64
 ntpr_to_ntpi t = round (t * (2 ^ (32::Int)))
 
 -- | Convert an 'NTPi' timestamp to a real-valued NTP timestamp.
-ntpi_to_ntpr :: Fractional n => NTP64 -> n
-ntpi_to_ntpr t = fromIntegral t / 2^(32::Int)
+ntpi_to_ntpr :: NTP64 -> Time
+ntpi_to_ntpr t = word64_to_double t / 2^(32::Int)
 
 -- | Difference (in seconds) between /NTP/ and /UT/ epochs.
 --

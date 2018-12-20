@@ -11,6 +11,7 @@ import Data.List {- base -}
 import Data.Maybe {- base -}
 
 import Sound.OSC.Coding.Byte {- hosc -}
+import Sound.OSC.Coding.Convert {- hosc -}
 import Sound.OSC.Datum {- hosc -}
 import Sound.OSC.Packet {- hosc -}
 import Sound.OSC.Time {- hosc -}
@@ -24,7 +25,7 @@ size ty b =
       'd' -> 8
       't' -> 8 -- timetag
       'm' -> 4 -- MIDI message
-      's' -> fromIntegral (fromMaybe
+      's' -> int64_to_int (fromMaybe
                            (error ("size: no terminating zero: " ++ show b))
                            (B.elemIndex 0 b))
       'b' -> decode_i32 (B.take 4 b)
@@ -58,7 +59,7 @@ decode_datum_seq :: ASCII -> B.ByteString -> [Datum]
 decode_datum_seq cs b =
     let swap (x,y) = (y,x)
         cs' = C.unpack cs
-        f b' c = swap (B.splitAt (fromIntegral (storage c b')) b')
+        f b' c = swap (B.splitAt (int_to_int64 (storage c b')) b')
     in zipWith decode_datum cs' (snd (mapAccumL f b cs'))
 
 -- | Decode an OSC 'Message'.
@@ -102,8 +103,8 @@ decodePacket b =
 
 -- | 'B.take' with 'Int' count.
 b_take :: Int -> B.ByteString -> B.ByteString
-b_take = B.take . fromIntegral
+b_take = B.take . int_to_int64
 
 -- | 'B.drop' with 'Int' count.
 b_drop :: Int -> B.ByteString -> B.ByteString
-b_drop = B.drop . fromIntegral
+b_drop = B.drop . int_to_int64
