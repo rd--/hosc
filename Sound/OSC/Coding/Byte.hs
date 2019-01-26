@@ -144,10 +144,14 @@ decode_i16_le :: L.ByteString -> Int
 decode_i16_le = decode_i16 . L.reverse
 
 -- | Decode a signed 32-bit integer.
+--
+-- > decode_i32 (L.pack [0x00,0x00,0x03,0xe7]) == 0x03e7
 decode_i32 :: L.ByteString -> Int
 decode_i32 = int32_to_int . Binary.decode
 
 -- | Little-endian variant of 'decode_i32'.
+--
+-- > decode_i32_le (L.pack [0xe7,0x03,0x00,0x00]) == 0x03e7
 decode_i32_le :: L.ByteString -> Int
 decode_i32_le = decode_i32 . L.reverse
 
