@@ -147,6 +147,10 @@ decode_i16_le = decode_i16 . L.reverse
 decode_i32 :: L.ByteString -> Int
 decode_i32 = int32_to_int . Binary.decode
 
+-- | Little-endian variant of 'decode_i32'.
+decode_i32_le :: L.ByteString -> Int
+decode_i32_le = decode_i32 . L.reverse
+
 -- | Type specialised 'Binary.decode'.
 decode_word32 :: L.ByteString -> Word32
 decode_word32 = Binary.decode
@@ -194,29 +198,41 @@ decode_str = S.C.pack . L.C.unpack
 
 -- * IO
 
+-- | Read /n/ bytes from /h/ and run /f/.
+read_decode :: (L.ByteString -> t) -> Int -> Handle -> IO t
+read_decode f n = fmap f . flip L.hGet n
+
 -- | 'decode_i8' of 'L.hGet'.
 read_i8 :: Handle -> IO Int
-read_i8 = fmap decode_i8 . flip L.hGet 1
+read_i8 = read_decode decode_i8 1
 
 -- | 'decode_i16' of 'L.hGet'.
 read_i16 :: Handle -> IO Int
-read_i16 = fmap decode_i16 . flip L.hGet 2
+read_i16 = read_decode decode_i16 2
 
 -- | 'decode_i32' of 'L.hGet'.
 read_i32 :: Handle -> IO Int
-read_i32 = fmap decode_i32 . flip L.hGet 4
+read_i32 = read_decode decode_i32 4
+
+-- | 'decode_i32_le' of 'L.hGet'.
+read_i32_le :: Handle -> IO Int
+read_i32_le = read_decode decode_i32_le 4
 
 -- | 'decode_u32' of 'L.hGet'.
 read_u32 :: Handle -> IO Int
-read_u32 = fmap decode_u32 . flip L.hGet 4
+read_u32 = read_decode decode_u32 4
 
 -- | 'decode_u32_le' of 'L.hGet'.
 read_u32_le :: Handle -> IO Int
-read_u32_le = fmap decode_u32_le . flip L.hGet 4
+read_u32_le = read_decode decode_u32_le 4
 
 -- | 'decode_f32' of 'L.hGet'.
 read_f32 :: Handle -> IO Float
-read_f32 = fmap decode_f32 . flip L.hGet 4
+read_f32 = read_decode decode_f32 4
+
+-- | 'decode_f32_le' of 'L.hGet'.
+read_f32_le :: Handle -> IO Float
+read_f32_le = read_decode decode_f32_le 4
 
 -- | Read u8 length prefixed ASCII string (pascal string).
 read_pstr :: Handle -> IO S.C.ByteString
