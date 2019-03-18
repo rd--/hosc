@@ -67,12 +67,12 @@ word32_to_int = fromIntegral
 -- * N -> N
 
 -- | Type specialised 'fromIntegral'
-int64_to_int32 :: Int64 -> Int32
-int64_to_int32 = fromIntegral
+word16_to_word32 :: Word16 -> Word32
+word16_to_word32 = fromIntegral
 
 -- | Type specialised 'fromIntegral'
-int64_to_word32 :: Int64 -> Word32
-int64_to_word32 = fromIntegral
+word32_to_word16 :: Word32 -> Word16
+word32_to_word16 = fromIntegral
 
 -- | Type specialised 'fromIntegral'
 word32_to_int32 :: Word32 -> Int32
@@ -86,8 +86,44 @@ word32_to_int64 = fromIntegral
 word64_to_int64 :: Word64 -> Int64
 word64_to_int64 = fromIntegral
 
+-- | Type specialised 'fromIntegral'
+int64_to_int32 :: Int64 -> Int32
+int64_to_int32 = fromIntegral
+
+-- | Type specialised 'fromIntegral'
+int64_to_word32 :: Int64 -> Word32
+int64_to_word32 = fromIntegral
+
 -- * N -> Real
 
 -- | Type specialised 'fromIntegral'
 word64_to_double :: Word64 -> Double
 word64_to_double = fromIntegral
+
+-- * Enum
+
+-- | Type-specialised 'toEnum' of 'fromIntegral'
+word8_to_enum :: Enum e => Word8 -> e
+word8_to_enum = toEnum . fromIntegral
+
+-- | Type-specialised 'toEnum' of 'fromIntegral'
+word16_to_enum :: Enum e => Word16 -> e
+word16_to_enum = toEnum . fromIntegral
+
+-- | Type-specialised 'fromIntegral' of 'fromEnum'.
+enum_to_word8 :: Enum e => e -> Word8
+enum_to_word8 = fromIntegral . fromEnum
+
+-- | Type-specialised 'fromIntegral' of 'fromEnum'.
+enum_to_word16 :: Enum e => e -> Word16
+enum_to_word16 = fromIntegral . fromEnum
+
+-- * Enum/Char
+
+-- | Type-specialised 'word8_to_enum'.
+word8_to_char :: Word8 -> Char
+word8_to_char = word8_to_enum
+
+-- | Type-specialised 'enum_to_word8'.
+char_to_word8 :: Char -> Word8
+char_to_word8 = enum_to_word8

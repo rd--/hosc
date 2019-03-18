@@ -21,7 +21,7 @@ tcp_send_packet :: TCP -> Packet.Packet -> IO ()
 tcp_send_packet (TCP fd) p = do
   let b = Builder.encodePacket p
       n = Convert.int64_to_word32 (B.length b)
-  B.hPut fd (B.append (Byte.encode_w32 n) b)
+  B.hPut fd (B.append (Byte.encode_word32 n) b)
   IO.hFlush fd
 
 -- | Receive packet over TCP.

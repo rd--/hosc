@@ -17,6 +17,8 @@ extend :: Word8 -> B.ByteString -> B.ByteString
 extend p s = B.append s (B.replicate (align (B.length s)) p)
 
 -- | Encode OSC 'Datum'.
+--
+-- MIDI: Bytes from MSB to LSB are: port id, status byte, data1, data2.
 encode_datum :: Datum -> B.ByteString
 encode_datum dt =
     case dt of
@@ -24,8 +26,8 @@ encode_datum dt =
       Int64 i -> encode i
       Float f -> encode_f32 f
       Double d -> encode_f64 d
-      TimeStamp t -> encode_u64 $ ntpr_to_ntpi t
-      ASCII_String s -> extend 0 (B.snoc (encode_str s) 0)
+      TimeStamp t -> encode_word64 $ ntpr_to_ntpi t
+      ASCII_String s -> extend 0 (B.snoc (encode_ascii s) 0)
       Midi (MIDI b0 b1 b2 b3) -> B.pack [b0,b1,b2,b3]
       Blob b -> let n = encode (int64_to_int32 (B.length b))
                 in B.append n (extend 0 b)
@@ -45,7 +47,7 @@ encode_message_blob = Blob . encodeMessage
 encodeBundle :: Bundle -> B.ByteString
 encodeBundle (Bundle t m) =
     B.concat [bundleHeader
-             ,encode_u64 (ntpr_to_ntpi t)
+             ,encode_word64 (ntpr_to_ntpi t)
              ,B.concat (map (encode_datum . encode_message_blob) m)]
 
 -- | Encode OSC 'Packet'.
