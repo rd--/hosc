@@ -6,6 +6,7 @@ import Data.List {- base -}
 import Data.Maybe {- base -}
 import Data.Word {- base -}
 import Numeric {- base -}
+import Text.Printf {- base -}
 import Text.Read {- base -}
 
 import qualified Data.ByteString.Lazy as Lazy {- bytestring -}
@@ -224,6 +225,10 @@ timePP = floatPP
 vecPP :: Show a => [a] -> String
 vecPP v = '<' : intercalate "," (map show v) ++ ">"
 
+-- | Pretty printer for blobs, two-digit zero-padded hexadecimal.
+blobPP :: BLOB -> String
+blobPP = unwords . map (printf "%02X") . Lazy.unpack
+
 {- | Pretty printer for 'Datum'.
 
 > let d = [Int32 1,Float 1.2,string "str",midi (0,0x90,0x40,0x60)]
@@ -238,7 +243,7 @@ datumPP p d =
       Float n -> floatPP p n
       Double n -> floatPP p n
       ASCII_String s -> show (Char8.unpack s)
-      Blob s -> show s
+      Blob s -> blobPP s
       TimeStamp t -> timePP p t
       Midi (MIDI b1 b2 b3 b4) -> vecPP [b1,b2,b3,b4]
 
