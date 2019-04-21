@@ -20,27 +20,39 @@ import Sound.OSC.Coding.Convert {- hosc -}
 
 -- * Encode
 
--- | Type specialised 'Binary.encode'.
+-- | Type specialised 'Binary.encode' (big-endian).
 encode_int8 :: Int8 -> L.ByteString
 encode_int8 = Binary.encode
 
--- | Encode a signed 64-bit integer.
+-- | Type specialised 'Binary.encode' (big-endian).
+--
+-- > encode_int16 0x0102 == L.pack [0x01,0x02]
+encode_int16 :: Int16 -> L.ByteString
+encode_int16 = Binary.encode
+
+-- | Little-endian.
+--
+-- > encode_int16_le 0x0102 == L.pack [0x02,0x01]
+encode_int16_le :: Int16 -> L.ByteString
+encode_int16_le = Put.runPut . Put.putInt16le
+
+-- | Encode a signed 64-bit integer (big-endian).
 encode_int64 :: Int64 -> L.ByteString
 encode_int64 = Binary.encode
 
--- | Type specialised 'Binary.encode'.
+-- | Type specialised 'Binary.encode' (big-endian).
 encode_word8 :: Word8 -> L.ByteString
 encode_word8 = Binary.encode
 
--- | Type specialised 'Binary.encode'.
+-- | Type specialised 'Binary.encode' (big-endian).
 --
--- > encode_word16 0x0102 == L.pack [1,2]
+-- > encode_word16 0x0102 == L.pack [0x01,0x02]
 encode_word16 :: Word16 -> L.ByteString
 encode_word16 = Binary.encode
 
 -- | Little-endian.
 --
--- > encode_word16_le 0x0102 == L.pack [2,1]
+-- > encode_word16_le 0x0102 == L.pack [0x02,0x01]
 encode_word16_le :: Word16 -> L.ByteString
 encode_word16_le = Put.runPut . Put.putWord16le
 
@@ -111,6 +123,10 @@ encode_f32_le = Put.runPut . Put.putWord32le . Cast.f32_w32
 -- | Encode a 64-bit IEEE floating point number.
 encode_f64 :: Double -> L.ByteString
 encode_f64 = Binary.encode . Cast.f64_w64
+
+-- | Little-endian variant of 'encode_f64'.
+encode_f64_le :: Double -> L.ByteString
+encode_f64_le = Put.runPut . Put.putWord64le . Cast.f64_w64
 
 -- * Encode/ASCII
 
