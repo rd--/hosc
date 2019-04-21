@@ -47,7 +47,7 @@ decode_datum ty b =
       'h' -> Int64 (decode b)
       'f' -> Float (decode_f32 b)
       'd' -> Double (decode_f64 b)
-      's' -> ASCII_String (decode_str (b_take (size 's' b) b))
+      's' -> ASCII_String (decode_ascii (b_take (size 's' b) b))
       'b' -> Blob (b_take (size 'b' b) (B.drop 4 b))
       't' -> TimeStamp (ntpi_to_ntpr (decode_word64 b))
       'm' -> let [b0,b1,b2,b3] = B.unpack (B.take 4 b)

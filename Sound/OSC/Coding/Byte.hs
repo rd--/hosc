@@ -214,10 +214,10 @@ decode_f64 b = Cast.w64_f64 (Binary.decode b :: Word64)
 
 -- * Decode/ASCII
 
--- | Decode an ASCII string, inverse of 'encode_str'.
-decode_str :: L.ByteString -> S.C.ByteString
-{-# INLINE decode_str #-}
-decode_str = S.C.pack . L.C.unpack
+-- | Decode an ASCII string, inverse of 'encode_ascii'.
+decode_ascii :: L.ByteString -> S.C.ByteString
+{-# INLINE decode_ascii #-}
+decode_ascii = S.C.pack . L.C.unpack
 
 -- * IO
 
@@ -291,7 +291,7 @@ read_f32_le = read_decode decode_f32_le 4
 read_pstr :: Handle -> IO S.C.ByteString
 read_pstr h = do
   n <- fmap decode_u8 (L.hGet h 1)
-  fmap decode_str (L.hGet h n)
+  fmap decode_ascii (L.hGet h n)
 
 -- * Util
 
