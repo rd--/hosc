@@ -47,8 +47,12 @@ instance (FD.Transport t,M.MonadIO io) => Transport (R.ReaderT t io) where
 type Connection t a = R.ReaderT t IO a
 
 -- | Bracket Open Sound Control communication.
-withTransport :: FD.Transport t => IO t -> Connection t a -> IO a
+withTransport :: FD.Transport t => IO t -> Connection t r -> IO r
 withTransport u = FD.withTransport u . R.runReaderT
+
+-- | 'void' of 'withTransport'.
+withTransport_ :: FD.Transport t => IO t -> Connection t r -> IO ()
+withTransport_ u = void . withTransport u
 
 -- * Send
 
