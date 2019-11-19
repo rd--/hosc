@@ -12,7 +12,7 @@ Author:            Rohan Drape, Stefan Kersten
 Maintainer:        rd@rohandrape.net
 Stability:         Experimental
 Homepage:          http://rohandrape.net/t/hosc
-Tested-With:       GHC == 8.4.3
+Tested-With:       GHC == 8.6.5
 Build-Type:        Simple
 Cabal-Version:     >= 1.8
 Data-Files:        README
