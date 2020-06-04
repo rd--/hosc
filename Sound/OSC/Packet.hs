@@ -1,7 +1,12 @@
 -- | Data types for OSC messages, bundles and packets.
+
+{-# language DeriveGeneric #-}
+
 module Sound.OSC.Packet where
 
 import Data.List {- base -}
+import GHC.Generics
+import Control.DeepSeq
 
 import Sound.OSC.Datum {- hosc3 -}
 import Sound.OSC.Time {- hosc3 -}
@@ -16,7 +21,8 @@ type Address_Pattern = String
 -- | An OSC message, an 'Address_Pattern' and a sequence of 'Datum'.
 data Message = Message {messageAddress :: Address_Pattern
                        ,messageDatum :: [Datum]}
-               deriving (Eq,Read,Show)
+               deriving (Eq,Read,Show,Generic)
+instance NFData Message
 
 -- | 'Message' constructor.  It is an 'error' if the 'Address_Pattern'
 -- doesn't conform to the OSC specification.

@@ -1,4 +1,7 @@
 -- | Data type for OSC datum.
+
+{-# language DeriveGeneric #-}
+
 module Sound.OSC.Datum where
 
 import Data.Int {- base -}
@@ -8,6 +11,8 @@ import Data.Word {- base -}
 import Numeric {- base -}
 import Text.Printf {- base -}
 import Text.Read {- base -}
+import Control.DeepSeq
+import GHC.Generics
 
 import qualified Data.ByteString.Lazy as Lazy {- bytestring -}
 import qualified Data.ByteString.Char8 as Char8 {- bytestring -}
@@ -43,7 +48,9 @@ blob_unpack = Lazy.unpack
 
 -- | Four-byte midi message: port-id, status-byte, data, data.
 data MIDI = MIDI Word8 Word8 Word8 Word8
-    deriving (Eq,Show,Read)
+    deriving (Eq,Show,Read,Generic)
+
+instance NFData MIDI
 
 -- | The basic elements of OSC messages.
 data Datum = Int32 {d_int32 :: Int32}
@@ -54,7 +61,9 @@ data Datum = Int32 {d_int32 :: Int32}
            | Blob {d_blob :: BLOB}
            | TimeStamp {d_timestamp :: Time.Time} -- ie. NTPr
            | Midi {d_midi :: MIDI}
-             deriving (Eq,Read,Show)
+             deriving (Eq,Read,Show,Generic)
+
+instance NFData Datum
 
 -- * Datum types
 

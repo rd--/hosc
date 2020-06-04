@@ -25,7 +25,8 @@ Library
                    data-binary-ieee754,
                    network >= 2.3,
                    time >= 1.5,
-                   transformers
+                   transformers,
+                   deepseq
   GHC-Options:     -Wall -fwarn-tabs
   Exposed-modules: Sound.OSC
                    Sound.OSC.Coding.Byte
