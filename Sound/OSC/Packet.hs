@@ -3,8 +3,8 @@ module Sound.OSC.Packet where
 
 import Data.List {- base -}
 
-import Sound.OSC.Datum {- hosc3 -}
-import Sound.OSC.Time {- hosc3 -}
+import Sound.OSC.Datum {- hosc -}
+import Sound.OSC.Time {- hosc -}
 
 -- * Message
 
@@ -14,8 +14,8 @@ import Sound.OSC.Time {- hosc3 -}
 type Address_Pattern = String
 
 -- | An OSC message, an 'Address_Pattern' and a sequence of 'Datum'.
-data Message = Message {messageAddress :: Address_Pattern
-                       ,messageDatum :: [Datum]}
+data Message = Message {messageAddress :: !Address_Pattern
+                       ,messageDatum :: ![Datum]}
                deriving (Eq,Read,Show)
 
 -- | 'Message' constructor.  It is an 'error' if the 'Address_Pattern'
@@ -29,8 +29,8 @@ message a xs =
 -- * Bundle
 
 -- | An OSC bundle, a 'Time' and a sequence of 'Message's.
-data Bundle = Bundle {bundleTime :: Time
-                     ,bundleMessages :: [Message]}
+data Bundle = Bundle {bundleTime :: !Time
+                     ,bundleMessages :: ![Message]}
               deriving (Eq,Read,Show)
 
 -- | OSC 'Bundle's can be ordered (time ascending).
@@ -48,8 +48,8 @@ bundle t xs =
 -- * Packet
 
 -- | An OSC 'Packet' is either a 'Message' or a 'Bundle'.
-data Packet = Packet_Message {packetMessage :: Message}
-            | Packet_Bundle {packetBundle :: Bundle}
+data Packet = Packet_Message {packetMessage :: !Message}
+            | Packet_Bundle {packetBundle :: !Bundle}
               deriving (Eq,Read,Show)
 
 -- | 'Packet_Bundle' of 'bundle'.

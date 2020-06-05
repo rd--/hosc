@@ -42,18 +42,18 @@ blob_unpack :: BLOB -> [Word8]
 blob_unpack = Lazy.unpack
 
 -- | Four-byte midi message: port-id, status-byte, data, data.
-data MIDI = MIDI Word8 Word8 Word8 Word8
+data MIDI = MIDI !Word8 !Word8 !Word8 !Word8
     deriving (Eq,Show,Read)
 
 -- | The basic elements of OSC messages.
-data Datum = Int32 {d_int32 :: Int32}
-           | Int64 {d_int64 :: Int64}
-           | Float {d_float :: Float}
-           | Double {d_double :: Double}
-           | ASCII_String {d_ascii_string :: ASCII}
-           | Blob {d_blob :: BLOB}
-           | TimeStamp {d_timestamp :: Time.Time} -- ie. NTPr
-           | Midi {d_midi :: MIDI}
+data Datum = Int32 {d_int32 :: !Int32}
+           | Int64 {d_int64 :: !Int64}
+           | Float {d_float :: !Float}
+           | Double {d_double :: !Double}
+           | ASCII_String {d_ascii_string :: !ASCII}
+           | Blob {d_blob :: !BLOB}
+           | TimeStamp {d_timestamp :: !Time.Time} -- ie. NTPr
+           | Midi {d_midi :: !MIDI}
              deriving (Eq,Read,Show)
 
 -- * Datum types
