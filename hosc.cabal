@@ -14,7 +14,7 @@ Stability:         Experimental
 Homepage:          http://rohandrape.net/t/hosc
 Tested-With:       GHC == 8.6.5
 Build-Type:        Simple
-Cabal-Version:     >= 1.8
+Cabal-Version:     >= 1.10
 Data-Files:        README
 
 Library
