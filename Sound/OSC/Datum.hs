@@ -232,7 +232,7 @@ blobPP = unwords . map (printf "%02X") . Lazy.unpack
 {- | Pretty printer for 'Datum'.
 
 > let d = [Int32 1,Float 1.2,string "str",midi (0,0x90,0x40,0x60)]
-> in map (datumPP (Just 5)) d ==  ["1","1.2","\"str\"","<0,144,64,96>"]
+> map (datumPP (Just 5)) d ==  ["1","1.2","\"str\"","<0,144,64,96>"]
 
 -}
 datumPP :: FP_Precision -> Datum -> String

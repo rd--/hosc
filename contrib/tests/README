@@ -3,28 +3,32 @@
 ~~~~
 $ ./bm
 benchmarking encodeOSC/Base
-time                 95.07 μs   (94.81 μs .. 95.29 μs)
+time                 25.40 μs   (25.36 μs .. 25.44 μs)
                      1.000 R²   (1.000 R² .. 1.000 R²)
-mean                 94.16 μs   (93.98 μs .. 94.36 μs)
-std dev              634.2 ns   (505.7 ns .. 854.6 ns)
+mean                 25.44 μs   (25.35 μs .. 25.73 μs)
+std dev              485.6 ns   (131.5 ns .. 1.010 μs)
+variance introduced by outliers: 16% (moderately inflated)
 
 benchmarking encodeOSC/Builder
-time                 50.22 μs   (50.14 μs .. 50.31 μs)
+time                 10.78 μs   (10.77 μs .. 10.81 μs)
                      1.000 R²   (1.000 R² .. 1.000 R²)
-mean                 49.81 μs   (49.69 μs .. 49.92 μs)
-std dev              384.0 ns   (332.6 ns .. 465.6 ns)
+mean                 10.82 μs   (10.77 μs .. 10.96 μs)
+std dev              246.1 ns   (52.96 ns .. 513.7 ns)
+variance introduced by outliers: 24% (moderately inflated)
 
 benchmarking decodeOSC/Base
-time                 91.75 μs   (91.54 μs .. 91.94 μs)
-                     1.000 R²   (1.000 R² .. 1.000 R²)
-mean                 90.93 μs   (90.73 μs .. 91.13 μs)
-std dev              683.7 ns   (579.3 ns .. 831.8 ns)
+time                 23.19 μs   (23.15 μs .. 23.25 μs)
+                     1.000 R²   (0.998 R² .. 1.000 R²)
+mean                 23.49 μs   (23.32 μs .. 24.12 μs)
+std dev              1.013 μs   (197.4 ns .. 2.134 μs)
+variance introduced by outliers: 50% (severely inflated)
 
 benchmarking decodeOSC/Binary
-time                 143.4 μs   (143.2 μs .. 143.5 μs)
+time                 41.91 μs   (41.83 μs .. 41.98 μs)
                      1.000 R²   (1.000 R² .. 1.000 R²)
-mean                 142.5 μs   (142.3 μs .. 142.8 μs)
-std dev              748.0 ns   (556.0 ns .. 1.138 μs)
+mean                 42.15 μs   (41.98 μs .. 42.95 μs)
+std dev              1.061 μs   (197.7 ns .. 2.401 μs)
+variance introduced by outliers: 24% (moderately inflated)
 ~~~~
 
 # qc

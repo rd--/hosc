@@ -2,7 +2,6 @@ R=https://github.com/rd--/hosc
 
 clean:
 	rm -Rf dist
-	(cd cmd ; make clean)
 	(cd contrib/tests ; make clean)
 
 push-gh:
