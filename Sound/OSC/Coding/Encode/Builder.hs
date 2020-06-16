@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 -- | Optimised encode function for OSC packets.
 module Sound.OSC.Coding.Encode.Builder
     (build_packet
@@ -13,6 +15,10 @@ import qualified Data.ByteString as S {- bytestring -}
 import qualified Data.ByteString.Lazy as L {- bytestring -}
 import qualified Blaze.ByteString.Builder as B {- bytestring -}
 import qualified Blaze.ByteString.Builder.Char8 as B {- bytestring -}
+
+#ifdef IMPORT_SEMIGROUP
+import Data.Semigroup
+#endif
 
 import qualified Sound.OSC.Coding.Byte as Byte {- hosc -}
 import qualified Sound.OSC.Coding.Convert as Convert {- hosc -}
