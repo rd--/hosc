@@ -1,5 +1,5 @@
 Name:              hosc
-Version:           0.19
+Version:           0.18.1
 Synopsis:          Haskell Open Sound Control
 Description:       @hosc@ implements a subset of the Open Sound Control
                    byte protocol, <http://opensoundcontrol.org/>.
@@ -28,6 +28,8 @@ Library
                    transformers
   Default-Language:Haskell2010
   GHC-Options:     -Wall -fwarn-tabs
+  if impl(ghc < 8.4)
+    cpp-options: -DIMPORT_SEMIGROUP
   Exposed-modules: Sound.OSC
                    Sound.OSC.Coding.Byte
                    Sound.OSC.Coding.Cast
