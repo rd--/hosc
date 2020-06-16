@@ -7,6 +7,9 @@ clean:
 push-gh:
 	git push $(R)
 
+push-tags-gh:
+	git push $(R) --tag
+
 pull-gh:
 	git pull $(R)
 
