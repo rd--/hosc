@@ -143,7 +143,7 @@ datum_floating d =
 
 -- * Constructors
 
--- | Type generalised Int32.
+-- | Type generalised 'Int32'.
 --
 -- > int32 (1::Int32) == int32 (1::Integer)
 -- > d_int32 (int32 (maxBound::Int32)) == maxBound
@@ -205,7 +205,7 @@ type FP_Precision = Maybe Int
 -- | Variant of 'showFFloat' that deletes trailing zeros.
 --
 -- > map (floatPP (Just 4)) [1,pi] == ["1.0","3.1416"]
-floatPP :: RealFloat n => Maybe Int -> n -> String
+floatPP :: RealFloat n => FP_Precision -> n -> String
 floatPP p n =
     let s = showFFloat p n ""
         s' = dropWhile (== '0') (reverse s)
