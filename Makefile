@@ -1,5 +1,5 @@
 GH=https://github.com/rd--/hosc
-GL=https://gitlab.com/rd--/hosc
+GL=https://gitlab.com/rd--/hosc.git
 
 all:
 	echo "hosc"
