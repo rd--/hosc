@@ -1,6 +1,12 @@
 GH=https://github.com/rd--/hosc
 GL=https://gitlab.com/rd--/hosc
 
+all:
+	echo "hosc"
+
+mk-cmd:
+	echo "hosc - NIL"
+
 clean:
 	rm -Rf dist
 	(cd contrib/tests ; make clean)
@@ -10,6 +16,9 @@ push-gl:
 
 update-rd:
 	ssh rd@rohandrape.net "(cd sw/hosc;git pull $(GL))"
+
+push-rd:
+	make push-gl update-rd
 
 push-gh:
 	git push $(GH)
