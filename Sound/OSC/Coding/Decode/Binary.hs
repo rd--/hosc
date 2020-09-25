@@ -8,13 +8,14 @@ module Sound.OSC.Coding.Decode.Binary
 
 import Control.Applicative {- base -}
 import Control.Monad {- base -}
+import Data.Int {- base -}
+import Data.Word {- base -}
+
 import qualified Data.Binary.Get as G {- binary -}
 import qualified Data.Binary.IEEE754 as I {- data-binary-ieee754 -}
 import qualified Data.ByteString.Char8 as S.C {- bytestring -}
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 import qualified Data.ByteString.Lazy.Char8 as C {- bytestring -}
-import Data.Int {- base -}
-import Data.Word {- base -}
 
 import qualified Sound.OSC.Coding.Byte as Byte {- hosc -}
 import Sound.OSC.Coding.Convert {- hosc -}
@@ -35,7 +36,7 @@ get_string :: G.Get String
 get_string = do
     s <- G.getLazyByteStringNul
     G.skip (int64_to_int (Byte.align (B.length s + 1)))
-    return $ C.unpack s
+    return (C.unpack s)
 
 -- | Get an aligned OSC string.
 get_ascii :: G.Get ASCII
@@ -62,13 +63,13 @@ get_datum ty =
       'f' -> Float <$> I.getFloat32be
       'd' -> Double <$> I.getFloat64be
       's' -> ASCII_String <$> get_ascii
-      'b' -> Blob   <$> (get_bytes =<< G.getWord32be)
+      'b' -> Blob <$> (get_bytes =<< G.getWord32be)
       't' -> TimeStamp <$> Time.ntpi_to_ntpr <$> G.getWord64be
       'm' -> do b0 <- G.getWord8
                 b1 <- G.getWord8
                 b2 <- G.getWord8
                 b3 <- G.getWord8
-                return $ Midi (MIDI b0 b1 b2 b3)
+                return (Midi (MIDI b0 b1 b2 b3))
       _ -> fail ("get_datum: illegal type " ++ show ty)
 
 -- | Get an OSC 'Message', fail if type descriptor is invalid.
@@ -79,7 +80,7 @@ get_message = do
     case S.C.unpack dsc of
         ',':tags -> do
             arg <- mapM get_datum tags
-            return $ Message cmd arg
+            return (Message cmd arg)
         e -> fail ("get_message: invalid type descriptor string: " ++ e)
 
 -- | Get a sequence of OSC 'Message's, each one headed by its length.
@@ -100,7 +101,7 @@ get_bundle = do
     when (h /= Byte.bundleHeader_strict) (fail "get_bundle: not a bundle")
     t <- Time.ntpi_to_ntpr <$> G.getWord64be
     ps <- get_message_seq
-    return $ Bundle t ps
+    return (Bundle t ps)
 
 -- | Get an OSC 'Packet'.
 get_packet :: G.Get Packet
@@ -131,6 +132,6 @@ decodeBundle = G.runGet get_bundle
 decodePacket :: B.ByteString -> Packet
 decodePacket = G.runGet get_packet
 
--- | Decode an OSC packet from a strict ByteString.
+-- | Decode an OSC packet from a strict Char8 ByteString.
 decodePacket_strict :: S.C.ByteString -> Packet
 decodePacket_strict = G.runGet get_packet . B.fromChunks . (:[])

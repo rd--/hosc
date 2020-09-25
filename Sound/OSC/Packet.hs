@@ -10,7 +10,7 @@ import Sound.OSC.Time {- hosc -}
 
 -- | OSC address pattern.  This is strictly an ASCII value, however it
 --   is very common to pattern match on addresses and matching on
---   'C.ByteString' requires @OverloadedStrings@.
+--   Data.ByteString.Char8 requires @OverloadedStrings@.
 type Address_Pattern = String
 
 -- | An OSC message, an 'Address_Pattern' and a sequence of 'Datum'.
@@ -116,7 +116,10 @@ packet_has_address x =
 
 -- * Pretty printing
 
--- | Pretty printer for 'Message'.
+{- | Pretty printer for 'Message'.
+
+> messagePP Nothing (Message "/m" [int32 0,float 1.0,string "s",midi (1,2,3,4)])
+-}
 messagePP :: FP_Precision -> Message -> String
 messagePP p (Message a d) =
     let d' = map (datumPP p) d

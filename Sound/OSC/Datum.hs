@@ -185,6 +185,10 @@ string = ASCII_String . Char8.pack
 midi :: (Word8,Word8,Word8,Word8) -> Datum
 midi (p,q,r,s) = Midi (MIDI p q r s)
 
+-- | 'Blob' of 'blob_pack'.
+blob :: [Word8] -> Datum
+blob = Blob . blob_pack
+
 -- * Descriptor
 
 -- | Message argument types are given by a descriptor.
@@ -221,18 +225,18 @@ timePP = floatPP
 
 -- | Pretty printer for vectors.
 --
--- > vecPP [1::Int,2,3] == "<1,2,3>"
-vecPP :: Show a => [a] -> String
-vecPP v = '<' : intercalate "," (map show v) ++ ">"
+-- > vecPP show [1::Int,2,3] == "<1,2,3>"
+vecPP :: (a -> String) -> [a] -> String
+vecPP f v = '<' : intercalate "," (map f v) ++ ">"
 
 -- | Pretty printer for blobs, two-digit zero-padded hexadecimal.
 blobPP :: BLOB -> String
-blobPP = unwords . map (printf "%02X") . Lazy.unpack
+blobPP = ('B':) . vecPP (printf "%02X") . Lazy.unpack
 
 {- | Pretty printer for 'Datum'.
 
-> let d = [Int32 1,Float 1.2,string "str",midi (0,0x90,0x40,0x60)]
-> map (datumPP (Just 5)) d ==  ["1","1.2","\"str\"","<0,144,64,96>"]
+> let d = [Int32 1,Float 1.2,string "str",midi (0,0x90,0x40,0x60),blob [12,16]]
+> map (datumPP (Just 5)) d==  ["1","1.2","\"str\"","M<0,144,64,96>","B<0C,10>"]
 
 -}
 datumPP :: FP_Precision -> Datum -> String
@@ -245,7 +249,7 @@ datumPP p d =
       ASCII_String s -> show (Char8.unpack s)
       Blob s -> blobPP s
       TimeStamp t -> timePP p t
-      Midi (MIDI b1 b2 b3 b4) -> vecPP [b1,b2,b3,b4]
+      Midi (MIDI b1 b2 b3 b4) -> 'M': vecPP show [b1,b2,b3,b4]
 
 -- | Variant of 'datumPP' that appends the 'datum_type_name'.
 datum_pp_typed :: FP_Precision -> Datum -> String

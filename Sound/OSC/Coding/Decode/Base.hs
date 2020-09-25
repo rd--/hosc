@@ -16,22 +16,22 @@ import Sound.OSC.Datum {- hosc -}
 import Sound.OSC.Packet {- hosc -}
 import Sound.OSC.Time {- hosc -}
 
--- The plain byte count of an OSC value.
+-- | The plain byte count of an OSC value.
 size :: Datum_Type -> B.ByteString -> Int
 size ty b =
     case ty of
-      'i' -> 4
-      'f' -> 4
-      'd' -> 8
-      't' -> 8 -- timetag
-      'm' -> 4 -- MIDI message
+      'i' -> 4 -- Int32
+      'f' -> 4 -- Float
+      'd' -> 8 -- Double
+      't' -> 8 -- Time (NTP)
+      'm' -> 4 -- MIDI
       's' -> int64_to_int (fromMaybe
                            (error ("size: no terminating zero: " ++ show b))
                            (B.elemIndex 0 b))
       'b' -> decode_i32 (B.take 4 b)
       _ -> error "size: illegal type"
 
--- The storage byte count of an OSC value.
+-- | The storage byte count (aligned) of an OSC value.
 storage :: Datum_Type -> B.ByteString -> Int
 storage ty b =
     case ty of
@@ -39,7 +39,7 @@ storage ty b =
       'b' -> let n = size 'b' b in n + align n + 4
       _ -> size ty B.empty
 
--- Decode an OSC datum
+-- | Decode an OSC datum
 decode_datum :: Datum_Type -> B.ByteString -> Datum
 decode_datum ty b =
     case ty of
@@ -50,11 +50,10 @@ decode_datum ty b =
       's' -> ASCII_String (decode_ascii (b_take (size 's' b) b))
       'b' -> Blob (b_take (size 'b' b) (B.drop 4 b))
       't' -> TimeStamp (ntpi_to_ntpr (decode_word64 b))
-      'm' -> let [b0,b1,b2,b3] = B.unpack (B.take 4 b)
-             in midi (b0,b1,b2,b3)
+      'm' -> let [b0,b1,b2,b3] = B.unpack (B.take 4 b) in midi (b0,b1,b2,b3)
       _ -> error ("decode_datum: illegal type (" ++ [ty] ++ ")")
 
--- Decode a sequence of OSC datum given a type descriptor string.
+-- | Decode a sequence of OSC datum given a type descriptor string.
 decode_datum_seq :: ASCII -> B.ByteString -> [Datum]
 decode_datum_seq cs b =
     let swap (x,y) = (y,x)
@@ -72,7 +71,7 @@ decodeMessage b =
         arg = decode_datum_seq (descriptor_tags dsc) (b_drop (n + m) b)
     in Message (C.unpack cmd) arg
 
--- Decode a sequence of OSC messages, each one headed by its length
+-- | Decode a sequence of length prefixed (Int32) OSC messages.
 decode_message_seq :: B.ByteString -> [Message]
 decode_message_seq b =
     let s = decode_i32 b
@@ -84,7 +83,7 @@ decode_message_seq b =
 decodeBundle :: B.ByteString -> Bundle
 decodeBundle b =
     let h = storage 's' b -- header (should be '#bundle')
-        t = storage 't' (b_drop h b) -- time tag
+        t = storage 't' (b_drop h b) -- time
         (TimeStamp timeStamp) = decode_datum 't' (b_drop h b)
         ms = decode_message_seq (b_drop (h+t) b)
     in Bundle timeStamp ms
