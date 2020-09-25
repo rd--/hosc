@@ -118,7 +118,7 @@ packet_has_address x =
 
 {- | Pretty printer for 'Message'.
 
-> messagePP Nothing (Message "/m" [int32 0,float 1.0,string "s",midi (1,2,3,4)])
+> messagePP Nothing (Message "/m" [int32 0,float 1.0,string "s",midi (1,2,3,4),blob [1,2,3]])
 -}
 messagePP :: FP_Precision -> Message -> String
 messagePP p (Message a d) =
