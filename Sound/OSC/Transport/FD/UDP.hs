@@ -92,6 +92,11 @@ udp_server p = do
 sendTo :: UDP -> Packet.Packet -> N.SockAddr -> IO ()
 sendTo (UDP fd) p = void . C.sendTo fd (Builder.encodePacket_strict p)
 
+-- | Send variant to send to specified address, that raises an exception 
+-- on error.
+sendAllTo :: UDP -> Packet.Packet -> N.SockAddr -> IO ()
+sendAllTo (UDP fd) p = C.sendAllTo fd (Builder.encodePacket_strict p)
+
 -- | Recv variant to collect message source address.
 recvFrom :: UDP -> IO (Packet.Packet, N.SockAddr)
 recvFrom (UDP fd) = fmap (first Binary.decodePacket_strict) (C.recvFrom fd 8192)
