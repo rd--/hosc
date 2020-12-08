@@ -1,7 +1,8 @@
-GH=https://github.com/rd--/hosc
-
 GL_GIT=git@gitlab.com:rd--/hosc.git
 GL_HTTP=https://gitlab.com/rd--/hosc.git
+
+GH_GIT=git@github.com:rd--/hosc.git
+GH_HTTP=https://github.com/rd--/hosc.git
 
 all:
 	echo "hosc"
@@ -26,11 +27,10 @@ push-rd:
 	make push-gl update-rd
 
 push-gh:
-	git push $(GH)
+	git push $(GH_GIT)
 
 push-tags-gh:
-	git push $(GH) --tag
+	git push $(GH_GIT) --tag
 
 pull-gh:
-	git pull $(GH)
-
+	git pull $(GH_HTTP)
