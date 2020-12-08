@@ -25,11 +25,11 @@ import qualified Sound.OSC.Time as Time {- hosc -}
 
 -- | Get a 32 bit integer in big-endian byte order.
 getInt32be :: G.Get Int32
-getInt32be = word32_to_int32 <$> G.getWord32be
+getInt32be = fmap word32_to_int32 G.getWord32be
 
 -- | Get a 64 bit integer in big-endian byte order.
 getInt64be :: G.Get Int64
-getInt64be = word64_to_int64 <$> G.getWord64be
+getInt64be = fmap word64_to_int64 G.getWord64be
 
 -- | Get an aligned OSC string.
 get_string :: G.Get String
@@ -58,13 +58,13 @@ get_bytes n = do
 get_datum :: Datum_Type -> G.Get Datum
 get_datum ty =
     case ty of
-      'i' -> Int32 <$> getInt32be
-      'h' -> Int64 <$> getInt64be
-      'f' -> Float <$> I.getFloat32be
-      'd' -> Double <$> I.getFloat64be
-      's' -> ASCII_String <$> get_ascii
-      'b' -> Blob <$> (get_bytes =<< G.getWord32be)
-      't' -> TimeStamp <$> Time.ntpi_to_ntpr <$> G.getWord64be
+      'i' -> fmap Int32 getInt32be
+      'h' -> fmap Int64 getInt64be
+      'f' -> fmap Float I.getFloat32be
+      'd' -> fmap Double I.getFloat64be
+      's' -> fmap ASCII_String get_ascii
+      'b' -> fmap Blob (get_bytes =<< G.getWord32be)
+      't' -> fmap (TimeStamp . Time.ntpi_to_ntpr) G.getWord64be
       'm' -> do b0 <- G.getWord8
                 b1 <- G.getWord8
                 b2 <- G.getWord8
@@ -99,7 +99,7 @@ get_bundle :: G.Get Bundle
 get_bundle = do
     h <- G.getByteString (S.C.length Byte.bundleHeader_strict)
     when (h /= Byte.bundleHeader_strict) (fail "get_bundle: not a bundle")
-    t <- Time.ntpi_to_ntpr <$> G.getWord64be
+    t <- fmap Time.ntpi_to_ntpr G.getWord64be
     ps <- get_message_seq
     return (Bundle t ps)
 
