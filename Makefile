@@ -20,12 +20,6 @@ push-gl:
 pull-gl:
 	git pull $(GL_HTTP)
 
-update-rd:
-	ssh rd@rohandrape.net "(cd sw/hosc;git pull $(GL_HTTP))"
-
-push-rd:
-	make push-gl update-rd
-
 push-gh:
 	git push $(GH_GIT)
 
@@ -34,3 +28,9 @@ push-tags-gh:
 
 pull-gh:
 	git pull $(GH_HTTP)
+
+update-rd:
+	ssh rd@rohandrape.net "(cd sw/hosc;git pull $(GL_HTTP))"
+
+push-all:
+	make push-gl push-gh update-rd
