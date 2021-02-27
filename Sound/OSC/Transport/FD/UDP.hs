@@ -45,7 +45,8 @@ with_udp u = bracket u udp_close
 udp_socket :: (N.Socket -> N.SockAddr -> IO ()) -> String -> Int -> IO UDP
 udp_socket f host port = do
   fd <- N.socket N.AF_INET N.Datagram 0
-  i:_ <- N.getAddrInfo Nothing (Just host) (Just (show port))
+  let hints = N.defaultHints {N.addrFamily = N.AF_INET} -- localhost=ipv4
+  i:_ <- N.getAddrInfo (Just hints) (Just host) (Just (show port))
   let sa = N.addrAddress i
   f fd sa
   return (UDP fd)
@@ -80,7 +81,8 @@ udp_server :: Int -> IO UDP
 udp_server p = do
   let hints =
         N.defaultHints
-        {N.addrFlags = [N.AI_PASSIVE,N.AI_NUMERICSERV]
+        {N.addrFamily = N.AF_INET -- localhost=ipv4
+        ,N.addrFlags = [N.AI_PASSIVE,N.AI_NUMERICSERV]
         ,N.addrSocketType = N.Datagram}
   a:_ <- N.getAddrInfo (Just hints) Nothing (Just (show p))
   s <- N.socket (N.addrFamily a) (N.addrSocketType a) (N.addrProtocol a)

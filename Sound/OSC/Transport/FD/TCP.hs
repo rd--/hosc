@@ -49,7 +49,8 @@ with_tcp u = Exception.bracket u tcp_close
 tcp_socket :: (N.Socket -> N.SockAddr -> IO ()) -> Maybe String -> Int -> IO N.Socket
 tcp_socket f host port = do
   fd <- N.socket N.AF_INET N.Stream 0
-  i:_ <- N.getAddrInfo Nothing host (Just (show port))
+  let hints = N.defaultHints {N.addrFamily = N.AF_INET} -- localhost=ipv4
+  i:_ <- N.getAddrInfo (Just hints) host (Just (show port))
   let sa = N.addrAddress i
   _ <- f fd sa
   return fd
