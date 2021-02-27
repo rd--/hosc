@@ -2,8 +2,8 @@
 module Sound.OSC.Transport.FD.UDP where
 
 import Control.Exception {- base -}
-import Control.Monad {- base -}
 import Data.Bifunctor {- base -}
+
 import qualified Network.Socket as N {- network -}
 import qualified Network.Socket.ByteString as C {- network -}
 
@@ -19,9 +19,9 @@ data UDP = UDP {udpSocket :: N.Socket}
 udpPort :: Integral n => UDP -> IO n
 udpPort = fmap fromIntegral . N.socketPort . udpSocket
 
--- | Send packet over UDP.
+-- | Send packet over UDP using 'C.sendAll'.
 upd_send_packet :: UDP -> Packet.Packet -> IO ()
-upd_send_packet (UDP fd) p = void (C.send fd (Builder.encodePacket_strict p))
+upd_send_packet (UDP fd) p = C.sendAll fd (Builder.encodePacket_strict p)
 
 -- | Receive packet over UDP.
 udp_recv_packet :: UDP -> IO Packet.Packet
@@ -88,9 +88,9 @@ udp_server p = do
   N.bind s (N.addrAddress a)
   return (UDP s)
 
--- | Send variant to send to specified address.
+-- | Send to specified address using 'C.sendAllTo.
 sendTo :: UDP -> Packet.Packet -> N.SockAddr -> IO ()
-sendTo (UDP fd) p = void . C.sendTo fd (Builder.encodePacket_strict p)
+sendTo (UDP fd) p = C.sendAllTo fd (Builder.encodePacket_strict p)
 
 -- | Recv variant to collect message source address.
 recvFrom :: UDP -> IO (Packet.Packet, N.SockAddr)
