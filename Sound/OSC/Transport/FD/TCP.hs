@@ -14,7 +14,7 @@ import qualified Sound.OSC.Packet as Packet {- hosc -}
 import qualified Sound.OSC.Transport.FD as FD {- hosc -}
 
 -- | The TCP transport handle data type.
-data TCP = TCP {tcpHandle :: IO.Handle}
+newtype TCP = TCP {tcpHandle :: IO.Handle}
 
 -- | Send packet over TCP.
 tcp_send_packet :: TCP -> Packet.Packet -> IO ()

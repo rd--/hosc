@@ -13,7 +13,7 @@ import qualified Sound.OSC.Packet as Packet {- hosc -}
 import qualified Sound.OSC.Transport.FD as FD {- hosc -}
 
 -- | The UDP transport handle data type.
-data UDP = UDP {udpSocket :: N.Socket}
+newtype UDP = UDP {udpSocket :: N.Socket}
 
 -- | Return the port number associated with the UDP socket.
 udpPort :: Integral n => UDP -> IO n

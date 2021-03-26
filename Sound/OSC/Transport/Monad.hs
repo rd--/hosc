@@ -68,11 +68,11 @@ sendBundle = sendPacket . Packet.Packet_Bundle
 
 -- | Variant of 'recvPacket' that runs 'packet_to_bundle'.
 recvBundle :: (RecvOSC m) => m Packet.Bundle
-recvBundle = liftM Packet.packet_to_bundle recvPacket
+recvBundle = fmap Packet.packet_to_bundle recvPacket
 
 -- | Variant of 'recvPacket' that runs 'packet_to_message'.
 recvMessage :: (RecvOSC m) => m (Maybe Packet.Message)
-recvMessage = liftM Packet.packet_to_message recvPacket
+recvMessage = fmap Packet.packet_to_message recvPacket
 
 -- | Erroring variant.
 recvMessage_err :: RecvOSC m => m Packet.Message
@@ -80,7 +80,7 @@ recvMessage_err = fmap (fromMaybe (error "recvMessage")) recvMessage
 
 -- | Variant of 'recvPacket' that runs 'packetMessages'.
 recvMessages :: (RecvOSC m) => m [Packet.Message]
-recvMessages = liftM Packet.packetMessages recvPacket
+recvMessages = fmap Packet.packetMessages recvPacket
 
 -- * Wait
 
@@ -116,8 +116,8 @@ waitReply s =
     let f = fromMaybe (error "waitReply: message not located?") .
             find (Packet.message_has_address s) .
             Packet.packetMessages
-    in liftM f (waitAddress s)
+    in fmap f (waitAddress s)
 
 -- | Variant of 'waitReply' that runs 'messageDatum'.
 waitDatum :: RecvOSC m => Packet.Address_Pattern -> m [Datum.Datum]
-waitDatum = liftM Packet.messageDatum . waitReply
+waitDatum = fmap Packet.messageDatum . waitReply

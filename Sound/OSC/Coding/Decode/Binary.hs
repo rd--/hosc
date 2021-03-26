@@ -100,12 +100,11 @@ get_bundle = do
     h <- G.getByteString (S.C.length Byte.bundleHeader_strict)
     when (h /= Byte.bundleHeader_strict) (fail "get_bundle: not a bundle")
     t <- fmap Time.ntpi_to_ntpr G.getWord64be
-    ps <- get_message_seq
-    return (Bundle t ps)
+    fmap (Bundle t) get_message_seq
 
 -- | Get an OSC 'Packet'.
 get_packet :: G.Get Packet
-get_packet = (Packet_Bundle <$> get_bundle) <|> (Packet_Message <$> get_message)
+get_packet = fmap Packet_Bundle get_bundle <|> fmap Packet_Message get_message
 
 {-# INLINE decodeMessage #-}
 {-# INLINE decodeBundle #-}
