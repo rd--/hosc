@@ -6,6 +6,7 @@ Description:       @hosc@ implements a subset of the Open Sound Control
                    .
                    See "Sound.OSC.Core" or "Sound.OSC" or "Sound.OSC.FD".
 License:           GPL-3
+License-File:      contrib/LICENSE
 Category:          Sound
 Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2007-2021
 Author:            Rohan Drape, Stefan Kersten
