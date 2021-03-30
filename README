@@ -11,7 +11,7 @@ See also:
 - [hosc-util](http://rohandrape.net/?t=hosc-util): non-core OSC functions
 
 © [rohan drape][rd], [stefan kersten][sk] and others, 2007-2021,
-[gpl][gpl]. with contributions by:
+[gpl-3][gpl-3]. with contributions by:
 
 - [alex mclean][am]
 - [henning thielemann][ht]
@@ -28,5 +28,6 @@ see the [git](https://git-scm.com/) [history](http://rohandrape.net/?t=hosc&q=hi
 [am]: http://yaxu.org/
 [ht]: http://www.henning-thielemann.de/Research.html
 [gpl]: http://gnu.org/copyleft/
+[gpl-3]: http://gnu.org/licenses/gpl-3.0.html
 
 -*- mode: markdown; -*-
