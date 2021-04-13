@@ -1,6 +1,7 @@
 -- | Data type for OSC datum.
 module Sound.OSC.Datum where
 
+import Data.Char {- base -}
 import Data.Int {- base -}
 import Data.List {- base -}
 import Data.Maybe {- base -}
@@ -233,10 +234,14 @@ vecPP f v = '<' : intercalate "," (map f v) ++ ">"
 blobPP :: BLOB -> String
 blobPP = ('B':) . vecPP (printf "%02X") . Lazy.unpack
 
+-- | Print strings in double quotes iff they contain white space.
+stringPP :: String -> String
+stringPP x = if any isSpace x then show x else x
+
 {- | Pretty printer for 'Datum'.
 
 > let d = [Int32 1,Float 1.2,string "str",midi (0,0x90,0x40,0x60),blob [12,16]]
-> map (datumPP (Just 5)) d==  ["1","1.2","\"str\"","M<0,144,64,96>","B<0C,10>"]
+> map (datumPP (Just 5)) d==  ["1","1.2","str","M<0,144,64,96>","B<0C,10>"]
 
 -}
 datumPP :: FP_Precision -> Datum -> String
@@ -246,7 +251,7 @@ datumPP p d =
       Int64 n -> show n
       Float n -> floatPP p n
       Double n -> floatPP p n
-      ASCII_String s -> show (Char8.unpack s)
+      ASCII_String s -> stringPP (Char8.unpack s)
       Blob s -> blobPP s
       TimeStamp t -> timePP p t
       Midi (MIDI b1 b2 b3 b4) -> 'M': vecPP show [b1,b2,b3,b4]
