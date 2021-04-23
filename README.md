@@ -29,5 +29,3 @@ see the [git](https://git-scm.com/) [history](http://rohandrape.net/?t=hosc&q=hi
 [ht]: http://www.henning-thielemann.de/Research.html
 [gpl]: http://gnu.org/copyleft/
 [gpl-3]: http://gnu.org/licenses/gpl-3.0.html
-
--*- mode: markdown; -*-
