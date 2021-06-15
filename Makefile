@@ -23,7 +23,8 @@ pull-gl:
 push-gh:
 	git push $(GH_GIT)
 
-push-tags-gh:
+push-tags:
+	git push $(GL_GIT) --tag
 	git push $(GH_GIT) --tag
 
 pull-gh:
