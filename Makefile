@@ -11,7 +11,7 @@ mk-cmd:
 	echo "hosc - NIL"
 
 clean:
-	rm -Rf dist
+	rm -Rf dist dist-newstyle
 	(cd contrib/tests ; make clean)
 
 push-gl:

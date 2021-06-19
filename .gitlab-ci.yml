@@ -1,0 +1,9 @@
+image: haskell:8
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - cabal build
