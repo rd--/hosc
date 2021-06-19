@@ -17,9 +17,7 @@ jobs:
             cabal: 3.2.0.0
           - ghc: 8.8.3
             cabal: 3.0.0.0
-          - ghc: 8.4.4
-            cabal: 2.4.1.0
-    name: cabal ${{ matrix.versions.cabal }} - ghc ${{ matrix.versions.ghc }}
+    name: ghc-${{ matrix.versions.ghc }}, cabal-${{ matrix.versions.cabal }}
     steps:
       - uses: actions/checkout@v2
       - name: install cabal and ghc
