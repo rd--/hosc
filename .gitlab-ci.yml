@@ -8,3 +8,6 @@ build:
   script:
     - cabal update
     - cabal build
+
+rules:
+  - when: manual
