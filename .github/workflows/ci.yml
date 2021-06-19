@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push
+
+jobs:
+  cabal:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        versions:
+          - ghc: latest
+            cabal: latest
+          - ghc: 9.0.1
+            cabal: 3.4.0.0
+          - ghc: 8.10.1
+            cabal: 3.2.0.0
+          - ghc: 8.8.3
+            cabal: 3.0.0.0
+    name: cabal ${{ matrix.versions.cabal }} - ghc ${{ matrix.versions.ghc }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: install cabal and ghc
+        uses: haskell/actions/setup@v1
+        with:
+          ghc-version: ${{ matrix.versions.ghc }}
+          cabal-version: ${{ matrix.versions.cabal }}
+      - name: update
+        run: cabal update
+      - name: build
+        run: cabal build ${{ matrix.versions.args }}
