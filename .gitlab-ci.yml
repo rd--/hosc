@@ -1,9 +1,17 @@
-image: haskell:8
-
 stages:
   - build
 
-build:
+build:8:
+  image: haskell:8
+  stage: build
+  script:
+    - cabal update
+    - cabal build
+  rules:
+    - when: manual
+
+build:9:
+  image: haskell:9
   stage: build
   script:
     - cabal update
