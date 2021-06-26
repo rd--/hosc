@@ -16,7 +16,7 @@ See also:
 - [alex mclean][am]
 - [henning thielemann][ht]
 
-see the [git](https://git-scm.com/) [history](http://rohandrape.net/?t=hosc&q=history) for details
+see the [history](http://rohandrape.net/?t=hosc&q=history) for details
 
 [hosc]: http://rohandrape.net/?t=hosc
 [hs]: http://haskell.org/

@@ -2,10 +2,7 @@ Cabal-Version:     2.4
 Name:              hosc
 Version:           0.20
 Synopsis:          Haskell Open Sound Control
-Description:       @hosc@ implements a subset of the Open Sound Control
-                   byte protocol, <http://opensoundcontrol.org/>.
-                   .
-                   See "Sound.OSC.Core" or "Sound.OSC" or "Sound.OSC.FD".
+Description:       Haskell Open Sound Control
 License:           GPL-3.0-only
 License-File:      contrib/LICENSE
 Category:          Sound

@@ -65,11 +65,7 @@ get_datum ty =
       's' -> fmap ASCII_String get_ascii
       'b' -> fmap Blob (get_bytes =<< G.getWord32be)
       't' -> fmap (TimeStamp . Time.ntpi_to_ntpr) G.getWord64be
-      'm' -> do b0 <- G.getWord8
-                b1 <- G.getWord8
-                b2 <- G.getWord8
-                b3 <- G.getWord8
-                return (Midi (MIDI b0 b1 b2 b3))
+      'm' -> fmap Midi (liftM4 MIDI G.getWord8 G.getWord8 G.getWord8 G.getWord8)
       _ -> fail ("get_datum: illegal type " ++ show ty)
 
 -- | Get an OSC 'Message', fail if type descriptor is invalid.
