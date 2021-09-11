@@ -4,11 +4,13 @@ module Sound.OSC.Time where
 
 import Control.Concurrent {- base -}
 import Control.Monad {- base -}
-import Control.Monad.IO.Class {- transformers -}
+import Control.Monad.IO.Class {- base -}
+import Data.Int {- base -}
 import Data.Word {- base -}
 
 import qualified Data.Time as T {- time -}
 import qualified Data.Time.Clock.POSIX as T {- time -}
+import qualified Data.Time.Clock.System as T {- time -}
 
 import Sound.OSC.Coding.Convert {- hosc -}
 
@@ -90,6 +92,19 @@ utc_to_ut :: Fractional n => T.UTCTime -> n
 utc_to_ut t = realToFrac (T.diffUTCTime t ut_epoch)
 
 -- * Clock operations
+
+-- | Get the system time, epoch start of 1970 UTC, leap-seconds ignored.
+--   getSystemTime is typically much faster than getCurrentTime.
+getSystemTimeAsDouble :: IO Double
+getSystemTimeAsDouble = do
+  tm <- T.getSystemTime
+  return (fromIntegral (T.systemSeconds tm) + (fromIntegral (T.systemNanoseconds tm) * 1.0e-9))
+
+-- | System time with fractional part in microseconds (us) instead of nanoseconds (ns).
+getSystemTimeInMicroseconds :: IO (Int64,Int)
+getSystemTimeInMicroseconds = do
+  tm <- T.getSystemTime
+  return (T.systemSeconds tm,fromIntegral (T.systemNanoseconds tm) `div` 1000)
 
 {- | Read current real-valued @NTP@ timestamp.
 

@@ -2,11 +2,11 @@
 module Sound.OSC.Transport.Monad where
 
 import Control.Monad {- base -}
+import Control.Monad.IO.Class {- base -}
 import Data.List {- base -}
 import Data.Maybe {- base -}
 
 import qualified Control.Monad.Trans.Reader as R {- transformers -}
-import qualified Control.Monad.IO.Class as M {- transformers -}
 
 import qualified Sound.OSC.Datum as Datum {- hosc -}
 import qualified Sound.OSC.Transport.FD as FD {- hosc -}
@@ -27,21 +27,21 @@ class Monad m => RecvOSC m where
 class (SendOSC m,RecvOSC m) => DuplexOSC m where
 
 -- | 'Transport' is 'DuplexOSC' with a 'MonadIO' constraint.
-class (DuplexOSC m,M.MonadIO m) => Transport m where
+class (DuplexOSC m,MonadIO m) => Transport m where
 
 -- | 'SendOSC' over 'ReaderT'.
-instance (FD.Transport t,M.MonadIO io) => SendOSC (R.ReaderT t io) where
-   sendPacket p = R.ReaderT (M.liftIO . flip FD.sendPacket p)
+instance (FD.Transport t,MonadIO io) => SendOSC (R.ReaderT t io) where
+   sendPacket p = R.ReaderT (liftIO . flip FD.sendPacket p)
 
 -- | 'RecvOSC' over 'ReaderT'.
-instance (FD.Transport t,M.MonadIO io) => RecvOSC (R.ReaderT t io) where
-   recvPacket = R.ReaderT (M.liftIO . FD.recvPacket)
+instance (FD.Transport t,MonadIO io) => RecvOSC (R.ReaderT t io) where
+   recvPacket = R.ReaderT (liftIO . FD.recvPacket)
 
 -- | 'DuplexOSC' over 'ReaderT'.
-instance (FD.Transport t,M.MonadIO io) => DuplexOSC (R.ReaderT t io) where
+instance (FD.Transport t,MonadIO io) => DuplexOSC (R.ReaderT t io) where
 
 -- | 'Transport' over 'ReaderT'.
-instance (FD.Transport t,M.MonadIO io) => Transport (R.ReaderT t io) where
+instance (FD.Transport t,MonadIO io) => Transport (R.ReaderT t io) where
 
 -- | Transport connection.
 type Connection t a = R.ReaderT t IO a
