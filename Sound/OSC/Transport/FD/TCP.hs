@@ -83,13 +83,10 @@ tcp_server_f s f = do
   h <- socket_to_tcp fd
   f h
 
--- | 'sequence_' of 'repeat'.
-repeatM_ :: (Monad m) => m a -> m ()
-repeatM_ = sequence_ . repeat
-
 -- | A trivial 'TCP' /OSC/ server.
 tcp_server :: Int -> (TCP -> IO ()) -> IO ()
 tcp_server port f = do
   s <- tcp_socket N.bind Nothing port
   N.listen s 1
+  let repeatM_ = sequence_ . repeat
   repeatM_ (tcp_server_f s f)
