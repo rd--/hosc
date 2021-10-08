@@ -16,7 +16,7 @@ type Address_Pattern = String
 -- | An OSC message, an 'Address_Pattern' and a sequence of 'Datum'.
 data Message = Message {messageAddress :: !Address_Pattern
                        ,messageDatum :: ![Datum]}
-               deriving (Eq,Read,Show)
+               deriving (Ord, Eq, Read, Show)
 
 -- | 'Message' constructor.  It is an 'error' if the 'Address_Pattern'
 -- doesn't conform to the OSC specification.
