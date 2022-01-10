@@ -16,9 +16,12 @@ import Sound.OSC.Time {- hosc -}
 extend :: Word8 -> B.ByteString -> B.ByteString
 extend p s = B.append s (B.replicate (align (B.length s)) p)
 
--- | Encode OSC 'Datum'.
---
--- MIDI: Bytes from MSB to LSB are: port id, status byte, data1, data2.
+{- | Encode OSC 'Datum'.
+
+MIDI: Bytes from MSB to LSB are: port id, status byte, data1, data2.
+
+> encode_datum (blob [1, 2, 3, 4]) == B.pack [0, 0, 0, 4, 1, 2, 3, 4]
+-}
 encode_datum :: Datum -> B.ByteString
 encode_datum dt =
     case dt of

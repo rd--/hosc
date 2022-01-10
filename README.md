@@ -10,7 +10,7 @@ See also:
 - [hosc-json](http://rohandrape.net/?t=hosc-json): JSON text encoding of OSC
 - [hosc-util](http://rohandrape.net/?t=hosc-util): non-core OSC functions
 
-© [rohan drape][rd], [stefan kersten][sk] and others, 2007-2021,
+© [rohan drape][rd], [stefan kersten][sk] and others, 2007-2022,
 [gpl-3][gpl-3]. with contributions by:
 
 - [alex mclean][am]
@@ -20,7 +20,7 @@ see the [history](http://rohandrape.net/?t=hosc&q=history) for details
 
 [hosc]: http://rohandrape.net/?t=hosc
 [hs]: http://haskell.org/
-[osc]: http://opensoundcontrol.org/
+[osc]: https://opensoundcontrol.stanford.edu/
 [hsc3]: http://rohandrape.net/?t=hsc3
 [sc3]: http://audiosynth.com/
 [rd]:  http://rohandrape.net/

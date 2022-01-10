@@ -38,6 +38,7 @@ type UT = Double
 
 -- | Convert a real-valued NTP timestamp to an 'NTPi' timestamp.
 --
+-- > ntpr_to_ntpi 0 == 0
 -- > ntpr_to_ntpi immediately == 1
 -- > fmap ntpr_to_ntpi time
 ntpr_to_ntpi :: Time -> NTP64
