@@ -112,7 +112,10 @@ encode_u32_le = encode_word32_le . int_to_word32
 
 -- * Encode/Float
 
--- | Encode a 32-bit IEEE floating point number.
+{- | Encode a 32-bit IEEE floating point number.
+
+> encode_f32 1.0 == L.pack [63, 128, 0, 0]
+-}
 encode_f32 :: Float -> L.ByteString
 encode_f32 = Binary.encode . Cast.f32_w32
 
