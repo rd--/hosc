@@ -4,6 +4,7 @@ module Sound.OSC.Transport.FD.UDP where
 import Control.Exception {- base -}
 import Data.Bifunctor {- base -}
 
+import qualified Data.ByteString {- bytestring -}
 import qualified Network.Socket as N {- network -}
 import qualified Network.Socket.ByteString as C {- network -}
 
@@ -19,9 +20,13 @@ newtype UDP = UDP {udpSocket :: N.Socket}
 udpPort :: Integral n => UDP -> IO n
 udpPort = fmap fromIntegral . N.socketPort . udpSocket
 
+-- | Send data over UDP using 'C.sendAll'.
+udp_send_data :: UDP -> Data.ByteString.ByteString -> IO ()
+udp_send_data (UDP fd) = C.sendAll fd
+
 -- | Send packet over UDP using 'C.sendAll'.
-upd_send_packet :: UDP -> Packet.Packet -> IO ()
-upd_send_packet (UDP fd) p = C.sendAll fd (Builder.encodePacket_strict p)
+udp_send_packet :: UDP -> Packet.Packet -> IO ()
+udp_send_packet (UDP fd) p = C.sendAll fd (Builder.encodePacket_strict p)
 
 -- | Receive packet over UDP.
 udp_recv_packet :: UDP -> IO Packet.Packet
@@ -33,7 +38,7 @@ udp_close (UDP fd) = N.close fd
 
 -- | 'UDP' is an instance of 'FD.Transport'.
 instance FD.Transport UDP where
-   sendPacket = upd_send_packet
+   sendPacket = udp_send_packet
    recvPacket = udp_recv_packet
    close = udp_close
 
