@@ -2,9 +2,10 @@
 module Sound.OSC.Transport.FD.UDP where
 
 import Control.Exception {- base -}
+import Control.Monad {- base -}
 import Data.Bifunctor {- base -}
 
-import qualified Data.ByteString {- bytestring -}
+import qualified Data.ByteString  as B {- bytestring -}
 import qualified Network.Socket as N {- network -}
 import qualified Network.Socket.ByteString as C {- network -}
 
@@ -20,13 +21,20 @@ newtype UDP = UDP {udpSocket :: N.Socket}
 udpPort :: Integral n => UDP -> IO n
 udpPort = fmap fromIntegral . N.socketPort . udpSocket
 
--- | Send data over UDP using 'C.sendAll'.
-udp_send_data :: UDP -> Data.ByteString.ByteString -> IO ()
-udp_send_data (UDP fd) = C.sendAll fd
+-- | Send data over UDP using 'C.send'.
+udp_send_data :: UDP -> B.ByteString -> IO ()
+udp_send_data (UDP fd) d = do
+  let l = B.length d
+  n <- C.send fd d
+  when (n /= l) (error (show ("udp_send_data", l, n)))
 
--- | Send packet over UDP using 'C.sendAll'.
+-- | Send data over UDP using 'C.sendAll'.
+udp_sendAll_data :: UDP -> B.ByteString -> IO ()
+udp_sendAll_data (UDP fd) = C.sendAll fd
+
+-- | Send packet over UDP.
 udp_send_packet :: UDP -> Packet.Packet -> IO ()
-udp_send_packet (UDP fd) p = C.sendAll fd (Builder.encodePacket_strict p)
+udp_send_packet udp = udp_sendAll_data udp . Builder.encodePacket_strict
 
 -- | Receive packet over UDP.
 udp_recv_packet :: UDP -> IO Packet.Packet

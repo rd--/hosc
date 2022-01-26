@@ -16,13 +16,16 @@ import qualified Sound.OSC.Transport.FD as FD {- hosc -}
 -- | The TCP transport handle data type.
 newtype TCP = TCP {tcpHandle :: IO.Handle}
 
+-- | Send data over TCP.
+tcp_send_data :: TCP -> B.ByteString -> IO ()
+tcp_send_data (TCP fd) d = do
+  let n = Convert.int64_to_word32 (B.length d)
+  B.hPut fd (B.append (Byte.encode_word32 n) d)
+  IO.hFlush fd
+
 -- | Send packet over TCP.
 tcp_send_packet :: TCP -> Packet.Packet -> IO ()
-tcp_send_packet (TCP fd) p = do
-  let b = Builder.encodePacket p
-      n = Convert.int64_to_word32 (B.length b)
-  B.hPut fd (B.append (Byte.encode_word32 n) b)
-  IO.hFlush fd
+tcp_send_packet tcp p = tcp_send_data tcp (Builder.encodePacket p)
 
 -- | Receive packet over TCP.
 tcp_recv_packet :: TCP -> IO Packet.Packet
