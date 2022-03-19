@@ -10,37 +10,35 @@ import Numeric {- base -}
 import Text.Printf {- base -}
 import Text.Read {- base -}
 
-import qualified Data.ByteString.Lazy as Lazy {- bytestring -}
-import qualified Data.ByteString.Char8 as Char8 {- bytestring -}
-
-import qualified Sound.OSC.Time as Time {- hosc -}
+import qualified Data.ByteString.Lazy as ByteString.Lazy {- bytestring -}
+import qualified Data.ByteString.Char8 as ByteString.Char8 {- bytestring -}
 
 -- * Datum
 
 -- | Type enumerating Datum categories.
 type Datum_Type = Char
 
--- | Type for ASCII strings (strict 'Char'8 'Char8.ByteString').
-type ASCII = Char8.ByteString
+-- | Type for ASCII strings (strict Char8 ByteString)
+type ASCII = ByteString.Char8.ByteString
 
--- | Type-specialised 'Char8.pack'.
+-- | Type-specialised 'ByteString.Char8.pack'.
 ascii :: String -> ASCII
-ascii = Char8.pack
+ascii = ByteString.Char8.pack
 
--- | Type-specialised 'Char8.unpack'.
+-- | Type-specialised 'ByteString.Char8.unpack'.
 ascii_to_string :: ASCII -> String
-ascii_to_string = Char8.unpack
+ascii_to_string = ByteString.Char8.unpack
 
 -- | Type for 'Word8' arrays, these are stored with an 'Int32' length prefix.
-type BLOB = Lazy.ByteString
+type BLOB = ByteString.Lazy.ByteString
 
--- | Type-specialised 'Lazy.pack'.
+-- | Type-specialised pack.
 blob_pack ::  [Word8] -> BLOB
-blob_pack = Lazy.pack
+blob_pack = ByteString.Lazy.pack
 
--- | Type-specialised 'Lazy.unpack'.
+-- | Type-specialised unpack.
 blob_unpack :: BLOB -> [Word8]
-blob_unpack = Lazy.unpack
+blob_unpack = ByteString.Lazy.unpack
 
 -- | Four-byte midi message: port-id, status-byte, data, data.
 data MIDI = MIDI !Word8 !Word8 !Word8 !Word8
@@ -53,7 +51,7 @@ data Datum = Int32 {d_int32 :: !Int32}
            | Double {d_double :: !Double}
            | ASCII_String {d_ascii_string :: !ASCII}
            | Blob {d_blob :: !BLOB}
-           | TimeStamp {d_timestamp :: !Time.Time} -- ie. NTPr
+           | TimeStamp {d_timestamp :: !Double} -- ie. NTPr
            | Midi {d_midi :: !MIDI}
              deriving (Ord, Eq, Read, Show)
 
@@ -174,11 +172,11 @@ float = Float . realToFrac
 double :: Real n => n -> Datum
 double = Double . realToFrac
 
--- | 'ASCII_String' of 'Char8.pack'.
+-- | 'ASCII_String' of pack.
 --
--- > string "string" == ASCII_String (Char8.pack "string")
+-- > string "string" == ASCII_String (ByteString.Char8.pack "string")
 string :: String -> Datum
-string = ASCII_String . Char8.pack
+string = ASCII_String . ByteString.Char8.pack
 
 -- | Four-tuple variant of 'Midi' '.' 'MIDI'.
 --
@@ -196,11 +194,11 @@ blob = Blob . blob_pack
 --
 -- > descriptor [Int32 1,Float 1,string "1"] == ascii ",ifs"
 descriptor :: [Datum] -> ASCII
-descriptor l = Char8.pack (',' : map datum_tag l)
+descriptor l = ByteString.Char8.pack (',' : map datum_tag l)
 
 -- | Descriptor tags are @comma@ prefixed.
 descriptor_tags :: ASCII -> ASCII
-descriptor_tags = Char8.drop 1
+descriptor_tags = ByteString.Char8.drop 1
 
 -- * Pretty printing
 
@@ -221,7 +219,7 @@ floatPP p n =
 -- | Pretty printer for 'Time'.
 --
 -- > timePP (Just 4) (1/3) == "0.3333"
-timePP :: FP_Precision -> Time.Time -> String
+timePP :: FP_Precision -> Double -> String
 timePP = floatPP
 
 -- | Pretty printer for vectors.
@@ -232,7 +230,7 @@ vecPP f v = '<' : intercalate "," (map f v) ++ ">"
 
 -- | Pretty printer for blobs, two-digit zero-padded hexadecimal.
 blobPP :: BLOB -> String
-blobPP = ('B':) . vecPP (printf "%02X") . Lazy.unpack
+blobPP = ('B':) . vecPP (printf "%02X") . ByteString.Lazy.unpack
 
 -- | Print strings in double quotes iff they contain white space.
 stringPP :: String -> String
@@ -251,7 +249,7 @@ datumPP p d =
       Int64 n -> show n
       Float n -> floatPP p n
       Double n -> floatPP p n
-      ASCII_String s -> stringPP (Char8.unpack s)
+      ASCII_String s -> stringPP (ByteString.Char8.unpack s)
       Blob s -> blobPP s
       TimeStamp t -> timePP p t
       Midi (MIDI b1 b2 b3 b4) -> 'M': vecPP show [b1,b2,b3,b4]
@@ -278,7 +276,7 @@ parse_datum ty =
       'h' -> fmap Int64 . readMaybe
       'f' -> fmap Float . readMaybe
       'd' -> fmap Double . readMaybe
-      's' -> fmap (ASCII_String . Char8.pack) . readMaybe
+      's' -> fmap (ASCII_String . ByteString.Char8.pack) . readMaybe
       'b' -> fmap (Blob . blob_pack) . readMaybe
       't' -> error "parse_datum: timestamp not implemented"
       'm' -> fmap midi . readMaybe
