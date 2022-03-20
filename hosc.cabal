@@ -36,8 +36,11 @@ Library
                    Sound.OSC.Coding.Encode.Builder
                    Sound.OSC.Core
                    Sound.OSC.Datum
+                   Sound.OSC.Datum.Parse
+                   Sound.OSC.Datum.Pp
                    Sound.OSC.FD
                    Sound.OSC.Packet
+                   Sound.OSC.Packet.Pp
                    Sound.OSC.Time
                    Sound.OSC.Transport.FD
                    Sound.OSC.Transport.FD.TCP

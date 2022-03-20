@@ -1,10 +1,7 @@
 -- | Data types for OSC messages, bundles and packets.
 module Sound.OSC.Packet where
 
-import Data.List {- base -}
-
 import Sound.OSC.Datum {- hosc -}
-import Sound.OSC.Time {- hosc -}
 
 -- * Message
 
@@ -60,8 +57,14 @@ p_bundle t = Packet_Bundle . bundle t
 p_message :: Address_Pattern -> [Datum] -> Packet
 p_message a = Packet_Message . message a
 
--- | The 'Time' of 'Packet', if the 'Packet' is a 'Message' this is
--- 'immediately'.
+{- | Constant indicating a bundle to be executed immediately.  It has the Ntp64 representation of @1@.
+
+> ntpr_to_ntpi immediately == 1
+-}
+immediately :: Time
+immediately = 1 / 2^(32::Int)
+
+-- | The 'Time' of 'Packet', if the 'Packet' is a 'Message' this is 'immediately'.
 packetTime :: Packet -> Time
 packetTime = at_packet (const immediately) bundleTime
 
@@ -84,8 +87,7 @@ packet_to_message p =
             _ -> Nothing
       Packet_Message m -> Just m
 
--- | Is 'Packet' immediate, ie. a 'Bundle' with timestamp
--- 'immediately', or a plain Message.
+-- | Is 'Packet' immediate, ie. a 'Bundle' with timestamp 'immediately', or a plain Message.
 packet_is_immediate :: Packet -> Bool
 packet_is_immediate = (== immediately) . packetTime
 
@@ -114,22 +116,3 @@ packet_has_address x =
     at_packet (message_has_address x)
               (bundle_has_address x)
 
--- * Pretty printing
-
-{- | Pretty printer for 'Message'.
-
-> messagePP Nothing (Message "/m" [int32 0,float 1.0,string "s",midi (1,2,3,4),blob [1,2,3]])
--}
-messagePP :: FP_Precision -> Message -> String
-messagePP p (Message a d) = let d' = map (datumPP p) d in unwords (a : d')
-
--- | Pretty printer for 'Bundle'.
-bundlePP :: FP_Precision -> Bundle -> String
-bundlePP p (Bundle t m) = let m' = intersperse ";" (map (messagePP p) m) in unwords (timePP p t : m')
-
--- | Pretty printer for 'Packet'.
-packetPP :: FP_Precision -> Packet -> String
-packetPP p pkt =
-    case pkt of
-      Packet_Message m -> messagePP p m
-      Packet_Bundle b -> bundlePP p b

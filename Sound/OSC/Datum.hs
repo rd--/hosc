@@ -1,14 +1,9 @@
 -- | Data type for OSC datum.
 module Sound.OSC.Datum where
 
-import Data.Char {- base -}
 import Data.Int {- base -}
-import Data.List {- base -}
 import Data.Maybe {- base -}
 import Data.Word {- base -}
-import Numeric {- base -}
-import Text.Printf {- base -}
-import Text.Read {- base -}
 
 import qualified Data.ByteString.Lazy as ByteString.Lazy {- bytestring -}
 import qualified Data.ByteString.Char8 as ByteString.Char8 {- bytestring -}
@@ -21,11 +16,11 @@ type Datum_Type = Char
 -- | Type for ASCII strings (strict Char8 ByteString)
 type ASCII = ByteString.Char8.ByteString
 
--- | Type-specialised 'ByteString.Char8.pack'.
+-- | Type-specialised pack.
 ascii :: String -> ASCII
 ascii = ByteString.Char8.pack
 
--- | Type-specialised 'ByteString.Char8.unpack'.
+-- | Type-specialised unpack.
 ascii_to_string :: ASCII -> String
 ascii_to_string = ByteString.Char8.unpack
 
@@ -44,6 +39,13 @@ blob_unpack = ByteString.Lazy.unpack
 data MIDI = MIDI !Word8 !Word8 !Word8 !Word8
     deriving (Ord, Eq, Show, Read)
 
+{- | A real-valued time stamp.
+For Osc proper this is an @Ntp@ time in real-valued (fractional) form.
+For SuperCollider Nrt programs this is elapsed time since the start of the score.
+This is the primary form of timestamp used by hosc.
+-}
+type Time = Double
+
 -- | The basic elements of OSC messages.
 data Datum = Int32 {d_int32 :: !Int32}
            | Int64 {d_int64 :: !Int64}
@@ -51,7 +53,7 @@ data Datum = Int32 {d_int32 :: !Int32}
            | Double {d_double :: !Double}
            | ASCII_String {d_ascii_string :: !ASCII}
            | Blob {d_blob :: !BLOB}
-           | TimeStamp {d_timestamp :: !Double} -- ie. NTPr
+           | TimeStamp {d_timestamp :: !Time} -- ie. real valued Ntp
            | Midi {d_midi :: !MIDI}
              deriving (Ord, Eq, Read, Show)
 
@@ -199,89 +201,3 @@ descriptor l = ByteString.Char8.pack (',' : map datum_tag l)
 -- | Descriptor tags are @comma@ prefixed.
 descriptor_tags :: ASCII -> ASCII
 descriptor_tags = ByteString.Char8.drop 1
-
--- * Pretty printing
-
--- | Perhaps a precision value for floating point numbers.
-type FP_Precision = Maybe Int
-
--- | Variant of 'showFFloat' that deletes trailing zeros.
---
--- > map (floatPP (Just 4)) [1,pi] == ["1.0","3.1416"]
-floatPP :: RealFloat n => FP_Precision -> n -> String
-floatPP p n =
-    let s = showFFloat p n ""
-        s' = dropWhile (== '0') (reverse s)
-    in case s' of
-         '.':_ -> reverse ('0' : s')
-         _ -> reverse s'
-
--- | Pretty printer for 'Time'.
---
--- > timePP (Just 4) (1/3) == "0.3333"
-timePP :: FP_Precision -> Double -> String
-timePP = floatPP
-
--- | Pretty printer for vectors.
---
--- > vecPP show [1::Int,2,3] == "<1,2,3>"
-vecPP :: (a -> String) -> [a] -> String
-vecPP f v = '<' : intercalate "," (map f v) ++ ">"
-
--- | Pretty printer for blobs, two-digit zero-padded hexadecimal.
-blobPP :: BLOB -> String
-blobPP = ('B':) . vecPP (printf "%02X") . ByteString.Lazy.unpack
-
--- | Print strings in double quotes iff they contain white space.
-stringPP :: String -> String
-stringPP x = if any isSpace x then show x else x
-
-{- | Pretty printer for 'Datum'.
-
-> let d = [Int32 1,Float 1.2,string "str",midi (0,0x90,0x40,0x60),blob [12,16]]
-> map (datumPP (Just 5)) d==  ["1","1.2","str","M<0,144,64,96>","B<0C,10>"]
-
--}
-datumPP :: FP_Precision -> Datum -> String
-datumPP p d =
-    case d of
-      Int32 n -> show n
-      Int64 n -> show n
-      Float n -> floatPP p n
-      Double n -> floatPP p n
-      ASCII_String s -> stringPP (ByteString.Char8.unpack s)
-      Blob s -> blobPP s
-      TimeStamp t -> timePP p t
-      Midi (MIDI b1 b2 b3 b4) -> 'M': vecPP show [b1,b2,b3,b4]
-
--- | Variant of 'datumPP' that appends the 'datum_type_name'.
-datum_pp_typed :: FP_Precision -> Datum -> String
-datum_pp_typed fp d = datumPP fp d ++ ":" ++ snd (datum_type_name d)
-
--- * Parser
-
--- | Given 'Datum_Type' attempt to parse 'Datum' at 'String'.
---
--- > parse_datum 'i' "42" == Just (Int32 42)
--- > parse_datum 'h' "42" == Just (Int64 42)
--- > parse_datum 'f' "3.14159" == Just (Float 3.14159)
--- > parse_datum 'd' "3.14159" == Just (Double 3.14159)
--- > parse_datum 's' "\"pi\"" == Just (string "pi")
--- > parse_datum 'b' "[112,105]" == Just (Blob (blob_pack [112,105]))
--- > parse_datum 'm' "(0,144,60,90)" == Just (midi (0,144,60,90))
-parse_datum :: Datum_Type -> String -> Maybe Datum
-parse_datum ty =
-    case ty of
-      'i' -> fmap Int32 . readMaybe
-      'h' -> fmap Int64 . readMaybe
-      'f' -> fmap Float . readMaybe
-      'd' -> fmap Double . readMaybe
-      's' -> fmap (ASCII_String . ByteString.Char8.pack) . readMaybe
-      'b' -> fmap (Blob . blob_pack) . readMaybe
-      't' -> error "parse_datum: timestamp not implemented"
-      'm' -> fmap midi . readMaybe
-      _ -> error "parse_datum: unknown type"
-
--- | Erroring variant of 'parse_datum'.
-parse_datum_err :: Datum_Type -> String -> Datum
-parse_datum_err ty = fromMaybe (error "parse_datum") . parse_datum ty
