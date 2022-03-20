@@ -42,6 +42,10 @@ Library
                    Sound.OSC.Packet
                    Sound.OSC.Packet.Pp
                    Sound.OSC.Time
+                   Sound.OSC.Time.Pp
+                   Sound.OSC.Time.System
+                   Sound.OSC.Time.Thread
+                   Sound.OSC.Time.Thread.MonadIO
                    Sound.OSC.Transport.FD
                    Sound.OSC.Transport.FD.TCP
                    Sound.OSC.Transport.FD.UDP

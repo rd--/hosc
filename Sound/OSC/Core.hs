@@ -20,4 +20,8 @@ import Sound.OSC.Datum.Pp as M
 import Sound.OSC.Packet as M
 import Sound.OSC.Packet.Pp as M
 import Sound.OSC.Time as M
+import Sound.OSC.Time.Pp as M
+import Sound.OSC.Time.System as M
+import Sound.OSC.Time.Thread as M
+import Sound.OSC.Time.Thread.MonadIO as M
 import Sound.OSC.Wait as M
