@@ -1,4 +1,4 @@
--- | Data type for OSC datum.
+-- | Osc data types.
 module Sound.OSC.Datum where
 
 import Data.Int {- base -}
@@ -11,32 +11,32 @@ import qualified Data.ByteString.Char8 as ByteString.Char8 {- bytestring -}
 -- * Datum
 
 -- | Type enumerating Datum categories.
-type Datum_Type = Char
+type DatumType = Char
 
--- | Type for ASCII strings (strict Char8 ByteString)
-type ASCII = ByteString.Char8.ByteString
+-- | Type for Ascii strings (strict Char8 ByteString)
+type Ascii = ByteString.Char8.ByteString
 
 -- | Type-specialised pack.
-ascii :: String -> ASCII
+ascii :: String -> Ascii
 ascii = ByteString.Char8.pack
 
 -- | Type-specialised unpack.
-ascii_to_string :: ASCII -> String
+ascii_to_string :: Ascii -> String
 ascii_to_string = ByteString.Char8.unpack
 
 -- | Type for 'Word8' arrays, these are stored with an 'Int32' length prefix.
-type BLOB = ByteString.Lazy.ByteString
+type Blob = ByteString.Lazy.ByteString
 
 -- | Type-specialised pack.
-blob_pack ::  [Word8] -> BLOB
+blob_pack ::  [Word8] -> Blob
 blob_pack = ByteString.Lazy.pack
 
 -- | Type-specialised unpack.
-blob_unpack :: BLOB -> [Word8]
+blob_unpack :: Blob -> [Word8]
 blob_unpack = ByteString.Lazy.unpack
 
 -- | Four-byte midi message: port-id, status-byte, data, data.
-data MIDI = MIDI !Word8 !Word8 !Word8 !Word8
+data MidiData = MidiData !Word8 !Word8 !Word8 !Word8
     deriving (Ord, Eq, Show, Read)
 
 {- | A real-valued time stamp.
@@ -51,33 +51,33 @@ data Datum = Int32 {d_int32 :: !Int32}
            | Int64 {d_int64 :: !Int64}
            | Float {d_float :: !Float}
            | Double {d_double :: !Double}
-           | ASCII_String {d_ascii_string :: !ASCII}
-           | Blob {d_blob :: !BLOB}
+           | Ascii_String {d_ascii_string :: !Ascii}
+           | Blob {d_blob :: !Blob}
            | TimeStamp {d_timestamp :: !Time} -- ie. real valued Ntp
-           | Midi {d_midi :: !MIDI}
+           | Midi {d_midi :: !MidiData}
              deriving (Ord, Eq, Read, Show)
 
 -- * Datum types
 
--- | List of required data types (tag,name).
-osc_types_required :: [(Datum_Type,String)]
+-- | List of required data types (tag, name).
+osc_types_required :: [(DatumType,String)]
 osc_types_required =
     [('i',"Int32")
     ,('f',"Float")
-    ,('s',"ASCII_String") -- ASCII
-    ,('b',"ByteArray") -- Blob
+    ,('s',"String") -- Ascii
+    ,('b',"Blob")
     ]
 
 -- | List of optional data types (tag,name).
-osc_types_optional :: [(Datum_Type,String)]
+osc_types_optional :: [(DatumType, String)]
 osc_types_optional =
     [('h',"Int64")
     ,('t',"TimeStamp")
     ,('d',"Double")
     -- ,('S',"Symbol")
-    -- ,('c',"ASCII_Character")
+    -- ,('c',"Ascii_Character")
     -- ,('r',"RGBA")
-    ,('m',"MIDI")
+    ,('m',"Midi")
     -- ,('T',"True")
     -- ,('F',"False")
     -- ,('N',"Nil")
@@ -87,32 +87,32 @@ osc_types_optional =
     ]
 
 -- | List of all data types (tag,name).
-osc_types :: [(Datum_Type,String)]
+osc_types :: [(DatumType, String)]
 osc_types = osc_types_required ++ osc_types_optional
 
 -- | Lookup name of type.
-osc_type_name :: Datum_Type -> Maybe String
+osc_type_name :: DatumType -> Maybe String
 osc_type_name c = lookup c osc_types
 
 -- | Erroring variant.
-osc_type_name_err :: Datum_Type -> String
+osc_type_name_err :: DatumType -> String
 osc_type_name_err = fromMaybe (error "osc_type_name") . osc_type_name
 
 -- | Single character identifier of an OSC datum.
-datum_tag :: Datum -> Datum_Type
+datum_tag :: Datum -> DatumType
 datum_tag d =
     case d of
       Int32 _ -> 'i'
       Int64 _ -> 'h'
       Float _ -> 'f'
       Double _ -> 'd'
-      ASCII_String _ -> 's'
+      Ascii_String _ -> 's'
       Blob _ -> 'b'
       TimeStamp _ -> 't'
       Midi _ -> 'm'
 
 -- | Type and name of 'Datum'.
-datum_type_name :: Datum -> (Datum_Type,String)
+datum_type_name :: Datum -> (DatumType, String)
 datum_type_name d = let c = datum_tag d in (c,osc_type_name_err c)
 
 -- * Generalised element access
@@ -174,17 +174,17 @@ float = Float . realToFrac
 double :: Real n => n -> Datum
 double = Double . realToFrac
 
--- | 'ASCII_String' of pack.
+-- | 'Ascii_String' of pack.
 --
--- > string "string" == ASCII_String (ByteString.Char8.pack "string")
+-- > string "string" == Ascii_String (ByteString.Char8.pack "string")
 string :: String -> Datum
-string = ASCII_String . ByteString.Char8.pack
+string = Ascii_String . ByteString.Char8.pack
 
--- | Four-tuple variant of 'Midi' '.' 'MIDI'.
+-- | Four-tuple variant of 'Midi' '.' 'MidiData'.
 --
--- > midi (0,0,0,0) == Midi (MIDI 0 0 0 0)
+-- > midi (0,0,0,0) == Midi (MidiData 0 0 0 0)
 midi :: (Word8,Word8,Word8,Word8) -> Datum
-midi (p,q,r,s) = Midi (MIDI p q r s)
+midi (p,q,r,s) = Midi (MidiData p q r s)
 
 -- | 'Blob' of 'blob_pack'.
 blob :: [Word8] -> Datum
@@ -195,9 +195,9 @@ blob = Blob . blob_pack
 -- | Message argument types are given by a descriptor.
 --
 -- > descriptor [Int32 1,Float 1,string "1"] == ascii ",ifs"
-descriptor :: [Datum] -> ASCII
+descriptor :: [Datum] -> Ascii
 descriptor l = ByteString.Char8.pack (',' : map datum_tag l)
 
 -- | Descriptor tags are @comma@ prefixed.
-descriptor_tags :: ASCII -> ASCII
+descriptor_tags :: Ascii -> Ascii
 descriptor_tags = ByteString.Char8.drop 1

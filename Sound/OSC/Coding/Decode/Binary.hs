@@ -39,7 +39,7 @@ get_string = do
     return (ByteString.Lazy.Char8.unpack s)
 
 -- | Get an aligned OSC string.
-get_ascii :: Binary.Get ASCII
+get_ascii :: Binary.Get Ascii
 get_ascii = do
     s <- Binary.getLazyByteStringNul
     Binary.skip (int64_to_int (Byte.align (ByteString.Lazy.length s + 1)))
@@ -55,17 +55,17 @@ get_bytes n = do
     return b
 
 -- | Get an OSC datum.
-get_datum :: Datum_Type -> Binary.Get Datum
+get_datum :: DatumType -> Binary.Get Datum
 get_datum ty =
     case ty of
       'i' -> fmap Int32 getInt32be
       'h' -> fmap Int64 getInt64be
       'f' -> fmap Float Ieee.getFloat32be
       'd' -> fmap Double Ieee.getFloat64be
-      's' -> fmap ASCII_String get_ascii
+      's' -> fmap Ascii_String get_ascii
       'b' -> fmap Blob (get_bytes =<< Binary.getWord32be)
       't' -> fmap (TimeStamp . Time.ntpi_to_ntpr) Binary.getWord64be
-      'm' -> fmap Midi (liftM4 MIDI Binary.getWord8 Binary.getWord8 Binary.getWord8 Binary.getWord8)
+      'm' -> fmap Midi (liftM4 MidiData Binary.getWord8 Binary.getWord8 Binary.getWord8 Binary.getWord8)
       _ -> fail ("get_datum: illegal type " ++ show ty)
 
 -- | Get an OSC 'Message', fail if type descriptor is invalid.

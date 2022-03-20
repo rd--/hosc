@@ -18,7 +18,7 @@ extend p s = B.append s (B.replicate (align (B.length s)) p)
 
 {- | Encode OSC 'Datum'.
 
-MIDI: Bytes from MSB to LSB are: port id, status byte, data1, data2.
+MidiData: Bytes from MSB to LSB are: port id, status byte, data1, data2.
 
 > encode_datum (blob [1, 2, 3, 4]) == B.pack [0, 0, 0, 4, 1, 2, 3, 4]
 -}
@@ -30,16 +30,16 @@ encode_datum dt =
       Float f -> encode_f32 f
       Double d -> encode_f64 d
       TimeStamp t -> encode_word64 $ ntpr_to_ntpi t
-      ASCII_String s -> extend 0 (B.snoc (encode_ascii s) 0)
-      Midi (MIDI b0 b1 b2 b3) -> B.pack [b0,b1,b2,b3]
+      Ascii_String s -> extend 0 (B.snoc (encode_ascii s) 0)
+      Midi (MidiData b0 b1 b2 b3) -> B.pack [b0,b1,b2,b3]
       Blob b -> let n = encode (int64_to_int32 (B.length b))
                 in B.append n (extend 0 b)
 
 -- | Encode OSC 'Message'.
 encodeMessage :: Message -> B.ByteString
 encodeMessage (Message c l) =
-    B.concat [encode_datum (ASCII_String (C.pack c))
-             ,encode_datum (ASCII_String (descriptor l))
+    B.concat [encode_datum (Ascii_String (C.pack c))
+             ,encode_datum (Ascii_String (descriptor l))
              ,B.concat (map encode_datum l) ]
 
 -- | Encode OSC 'Message' as an OSC blob.

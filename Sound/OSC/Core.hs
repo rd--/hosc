@@ -12,6 +12,7 @@ and the coding functions 'encodePacket' and 'decodePacket'.
 -}
 module Sound.OSC.Core (module M) where
 
+import Sound.OSC.Alias as M
 import Sound.OSC.Coding.Decode.Binary as M
 import Sound.OSC.Coding.Encode.Builder as M
 import Sound.OSC.Datum as M

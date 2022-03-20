@@ -27,6 +27,7 @@ Library
   Default-Language:Haskell2010
   GHC-Options:     -Wall -fwarn-tabs
   Exposed-modules: Sound.OSC
+                   Sound.OSC.Alias
                    Sound.OSC.Coding.Byte
                    Sound.OSC.Coding.Cast
                    Sound.OSC.Coding.Convert

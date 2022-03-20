@@ -17,7 +17,7 @@ import Sound.OSC.Packet {- hosc -}
 import Sound.OSC.Time {- hosc -}
 
 -- | The plain byte count of an OSC value.
-size :: Datum_Type -> B.ByteString -> Int
+size :: DatumType -> B.ByteString -> Int
 size ty b =
     case ty of
       'i' -> 4 -- Int32
@@ -32,7 +32,7 @@ size ty b =
       _ -> error "size: illegal type"
 
 -- | The storage byte count (aligned) of an OSC value.
-storage :: Datum_Type -> B.ByteString -> Int
+storage :: DatumType -> B.ByteString -> Int
 storage ty b =
     case ty of
       's' -> let n = size 's' b + 1 in n + align n
@@ -40,21 +40,21 @@ storage ty b =
       _ -> size ty B.empty
 
 -- | Decode an OSC datum
-decode_datum :: Datum_Type -> B.ByteString -> Datum
+decode_datum :: DatumType -> B.ByteString -> Datum
 decode_datum ty b =
     case ty of
       'i' -> Int32 (decode b)
       'h' -> Int64 (decode b)
       'f' -> Float (decode_f32 b)
       'd' -> Double (decode_f64 b)
-      's' -> ASCII_String (decode_ascii (b_take (size 's' b) b))
+      's' -> Ascii_String (decode_ascii (b_take (size 's' b) b))
       'b' -> Blob (b_take (size 'b' b) (B.drop 4 b))
       't' -> TimeStamp (ntpi_to_ntpr (decode_word64 b))
       'm' -> let [b0,b1,b2,b3] = B.unpack (B.take 4 b) in midi (b0,b1,b2,b3)
       _ -> error ("decode_datum: illegal type (" ++ [ty] ++ ")")
 
 -- | Decode a sequence of OSC datum given a type descriptor string.
-decode_datum_seq :: ASCII -> B.ByteString -> [Datum]
+decode_datum_seq :: Ascii -> B.ByteString -> [Datum]
 decode_datum_seq cs b =
     let swap (x,y) = (y,x)
         cs' = C.unpack cs
@@ -65,9 +65,9 @@ decode_datum_seq cs b =
 decodeMessage :: B.ByteString -> Message
 decodeMessage b =
     let n = storage 's' b
-        (ASCII_String cmd) = decode_datum 's' b
+        (Ascii_String cmd) = decode_datum 's' b
         m = storage 's' (b_drop n b)
-        (ASCII_String dsc) = decode_datum 's' (b_drop n b)
+        (Ascii_String dsc) = decode_datum 's' (b_drop n b)
         arg = decode_datum_seq (descriptor_tags dsc) (b_drop (n + m) b)
     in Message (C.unpack cmd) arg
 

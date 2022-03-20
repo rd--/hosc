@@ -6,7 +6,7 @@ import Text.Read {- base -}
 
 import Sound.OSC.Datum {- hosc -}
 
--- | Given 'Datum_Type' attempt to parse 'Datum' at 'String'.
+-- | Given 'DatumType' attempt to parse 'Datum' at 'String'.
 --
 -- > parse_datum 'i' "42" == Just (Int32 42)
 -- > parse_datum 'h' "42" == Just (Int64 42)
@@ -15,19 +15,19 @@ import Sound.OSC.Datum {- hosc -}
 -- > parse_datum 's' "\"pi\"" == Just (string "pi")
 -- > parse_datum 'b' "[112,105]" == Just (Blob (blob_pack [112,105]))
 -- > parse_datum 'm' "(0,144,60,90)" == Just (midi (0,144,60,90))
-parse_datum :: Datum_Type -> String -> Maybe Datum
+parse_datum :: DatumType -> String -> Maybe Datum
 parse_datum ty =
     case ty of
       'i' -> fmap Int32 . readMaybe
       'h' -> fmap Int64 . readMaybe
       'f' -> fmap Float . readMaybe
       'd' -> fmap Double . readMaybe
-      's' -> fmap (ASCII_String . ascii) . readMaybe
+      's' -> fmap (Ascii_String . ascii) . readMaybe
       'b' -> fmap (Blob . blob_pack) . readMaybe
       't' -> error "parse_datum: timestamp not implemented"
       'm' -> fmap midi . readMaybe
       _ -> error "parse_datum: unknown type"
 
 -- | Erroring variant of 'parse_datum'.
-parse_datum_err :: Datum_Type -> String -> Datum
+parse_datum_err :: DatumType -> String -> Datum
 parse_datum_err ty = fromMaybe (error "parse_datum") . parse_datum ty

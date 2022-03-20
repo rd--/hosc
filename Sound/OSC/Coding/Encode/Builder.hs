@@ -29,7 +29,7 @@ nul_and_padding :: Int -> B.Builder
 nul_and_padding n = B.fromWord8s (0 : padding (Byte.align n))
 
 -- Encode a string with zero padding.
-build_ascii :: ASCII -> B.Builder
+build_ascii :: Ascii -> B.Builder
 build_ascii s = B.fromByteString s <> nul_and_padding (S.length s + 1)
 
 -- Encode a string with zero padding.
@@ -52,8 +52,8 @@ build_datum d =
       Float n -> B.fromWord32be (I.floatToWord n)
       Double n -> B.fromWord64be (I.doubleToWord n)
       TimeStamp t -> B.fromWord64be (ntpr_to_ntpi t)
-      ASCII_String s -> build_ascii s
-      Midi (MIDI b0 b1 b2 b3) -> B.fromWord8s [b0,b1,b2,b3]
+      Ascii_String s -> build_ascii s
+      Midi (MidiData b0 b1 b2 b3) -> B.fromWord8s [b0,b1,b2,b3]
       Blob b -> build_bytes b
 
 -- Encode an OSC 'Message'.

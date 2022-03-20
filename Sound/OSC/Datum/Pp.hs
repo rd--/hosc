@@ -35,7 +35,7 @@ vecPP :: (a -> String) -> [a] -> String
 vecPP f v = '<' : intercalate "," (map f v) ++ ">"
 
 -- | Pretty printer for blobs, two-digit zero-padded hexadecimal.
-blobPP :: BLOB -> String
+blobPP :: Blob -> String
 blobPP = ('B':) . vecPP (printf "%02X") . blob_unpack
 
 -- | Print strings in double quotes iff they contain white space.
@@ -55,10 +55,10 @@ datumPP p d =
       Int64 n -> show n
       Float n -> floatPP p n
       Double n -> floatPP p n
-      ASCII_String s -> stringPP (ascii_to_string s)
+      Ascii_String s -> stringPP (ascii_to_string s)
       Blob s -> blobPP s
       TimeStamp t -> timePP p t
-      Midi (MIDI b1 b2 b3 b4) -> 'M': vecPP show [b1,b2,b3,b4]
+      Midi (MidiData b1 b2 b3 b4) -> 'M': vecPP show [b1,b2,b3,b4]
 
 -- | Variant of 'datumPP' that appends the 'datum_type_name'.
 datum_pp_typed :: FP_Precision -> Datum -> String
