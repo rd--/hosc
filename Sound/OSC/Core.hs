@@ -15,6 +15,9 @@ module Sound.OSC.Core (module M) where
 import Sound.OSC.Coding.Decode.Binary as M
 import Sound.OSC.Coding.Encode.Builder as M
 import Sound.OSC.Datum as M
+import Sound.OSC.Datum.Parse as M
+import Sound.OSC.Datum.Pp as M
 import Sound.OSC.Packet as M
+import Sound.OSC.Packet.Pp as M
 import Sound.OSC.Time as M
 import Sound.OSC.Wait as M
