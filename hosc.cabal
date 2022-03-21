@@ -26,32 +26,32 @@ Library
                    transformers
   Default-Language:Haskell2010
   GHC-Options:     -Wall -fwarn-tabs
-  Exposed-modules: Sound.OSC
-                   Sound.OSC.Alias
-                   Sound.OSC.Coding.Byte
-                   Sound.OSC.Coding.Cast
-                   Sound.OSC.Coding.Convert
-                   Sound.OSC.Coding.Decode.Base
-                   Sound.OSC.Coding.Decode.Binary
-                   Sound.OSC.Coding.Encode.Base
-                   Sound.OSC.Coding.Encode.Builder
-                   Sound.OSC.Core
-                   Sound.OSC.Datum
-                   Sound.OSC.Datum.Parse
-                   Sound.OSC.Datum.Pp
-                   Sound.OSC.FD
-                   Sound.OSC.Packet
-                   Sound.OSC.Packet.Pp
-                   Sound.OSC.Time
-                   Sound.OSC.Time.Pp
-                   Sound.OSC.Time.System
-                   Sound.OSC.Time.Thread
-                   Sound.OSC.Time.Thread.MonadIO
-                   Sound.OSC.Transport.FD
-                   Sound.OSC.Transport.FD.TCP
-                   Sound.OSC.Transport.FD.UDP
-                   Sound.OSC.Transport.Monad
-                   Sound.OSC.Wait
+  Exposed-modules: Sound.Osc
+                   Sound.Osc.Alias
+                   Sound.Osc.Coding.Byte
+                   Sound.Osc.Coding.Cast
+                   Sound.Osc.Coding.Convert
+                   Sound.Osc.Coding.Decode.Base
+                   Sound.Osc.Coding.Decode.Binary
+                   Sound.Osc.Coding.Encode.Base
+                   Sound.Osc.Coding.Encode.Builder
+                   Sound.Osc.Core
+                   Sound.Osc.Datum
+                   Sound.Osc.Datum.Parse
+                   Sound.Osc.Datum.Pp
+                   Sound.Osc.Fd
+                   Sound.Osc.Packet
+                   Sound.Osc.Packet.Pp
+                   Sound.Osc.Time
+                   Sound.Osc.Time.Pp
+                   Sound.Osc.Time.System
+                   Sound.Osc.Time.Thread
+                   Sound.Osc.Time.Thread.MonadIO
+                   Sound.Osc.Transport.Fd
+                   Sound.Osc.Transport.Fd.Tcp
+                   Sound.Osc.Transport.Fd.Udp
+                   Sound.Osc.Transport.Monad
+                   Sound.Osc.Wait
 
 Source-Repository  head
   Type:            git
