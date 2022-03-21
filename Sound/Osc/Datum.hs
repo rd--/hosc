@@ -182,7 +182,7 @@ double = Double . realToFrac
 --
 -- > string "string" == AsciiString (ByteString.Char8.pack "string")
 string :: String -> Datum
-string = AsciiString . ByteString.Char8.pack
+string = AsciiString . ascii
 
 -- | Four-tuple variant of 'Midi' '.' 'MidiData'.
 --
@@ -196,11 +196,19 @@ blob = Blob . blob_pack
 
 -- * Descriptor
 
--- | Message argument types are given by a descriptor.
---
--- > descriptor [Int32 1,Float 1,string "1"] == ascii ",ifs"
+{- | Message argument types are given by a signature.
+
+> signatureFor [Int32 1,Float 1,string "1"] == ",ifs"
+-}
+signatureFor :: [Datum] -> String
+signatureFor = (',' :) . map datum_tag
+
+{- | The descriptor is an Ascii encoded signature.
+
+> descriptor [Int32 1,Float 1,string "1"] == ascii ",ifs"
+-}
 descriptor :: [Datum] -> Ascii
-descriptor l = ByteString.Char8.pack (',' : map datum_tag l)
+descriptor = ascii . signatureFor
 
 -- | Descriptor tags are @comma@ prefixed.
 descriptor_tags :: Ascii -> Ascii

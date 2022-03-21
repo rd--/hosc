@@ -23,6 +23,12 @@ message a xs =
       '/':_ -> Message a xs
       _ -> error "message: ill-formed address pattern"
 
+messageSignature :: Message -> String
+messageSignature = signatureFor . messageDatum
+
+messageDescriptor :: Message -> Ascii
+messageDescriptor = descriptor . messageDatum
+
 -- * Bundle
 
 -- | An Osc bundle, a 'Time' and a sequence of 'Message's.
