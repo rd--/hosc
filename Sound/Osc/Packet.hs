@@ -121,4 +121,3 @@ packet_has_address :: Address_Pattern -> Packet -> Bool
 packet_has_address x =
     at_packet (message_has_address x)
               (bundle_has_address x)
-

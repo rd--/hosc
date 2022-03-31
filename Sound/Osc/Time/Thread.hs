@@ -17,8 +17,8 @@ pauseThreadFor :: RealFrac n => n -> IO ()
 pauseThreadFor n = when (n > 0) (threadDelay (floor (n * 1e6)))
 
 -- | Pause current thread until the given time, see 'pauseThreadLimit'.
-pauseThreadUntil :: NtpReal -> IO ()
-pauseThreadUntil t = pauseThreadFor . (t -) =<< currentTime
+pauseThreadUntilTime :: RealFrac n => n -> IO ()
+pauseThreadUntilTime t = pauseThreadFor . (t -) . realToFrac =<< currentTime
 
 -- | Sleep current thread for the indicated duration (in seconds).
 --   Divides long sleeps into parts smaller than 'pauseThreadLimit'.
@@ -31,5 +31,5 @@ sleepThreadFor n =
 
 -- | Sleep current thread until the given time.
 --   Divides long sleeps into parts smaller than 'pauseThreadLimit'.
-sleepThreadUntil :: NtpReal -> IO ()
-sleepThreadUntil t = sleepThreadFor . (t -) =<< currentTime
+sleepThreadUntilTime :: RealFrac n => n -> IO ()
+sleepThreadUntilTime t = sleepThreadFor . (t -) . realToFrac =<< currentTime

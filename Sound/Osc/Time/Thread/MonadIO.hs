@@ -15,5 +15,11 @@ pauseThread = liftIO . pauseThreadFor
 wait :: MonadIO m => Double -> m ()
 wait = pauseThread
 
+pauseThreadUntil :: (MonadIO m,RealFrac n) => n -> m ()
+pauseThreadUntil = liftIO . pauseThreadUntilTime
+
 sleepThread :: (RealFrac n, MonadIO m) => n -> m ()
 sleepThread = liftIO . sleepThreadFor
+
+sleepThreadUntil :: (RealFrac n, MonadIO m) => n -> m ()
+sleepThreadUntil = liftIO . sleepThreadUntilTime
