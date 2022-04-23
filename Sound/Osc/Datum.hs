@@ -43,8 +43,12 @@ blob_unpack_int = map fromIntegral . blob_unpack
 data MidiData = MidiData !Word8 !Word8 !Word8 !Word8
     deriving (Ord, Eq, Show, Read)
 
+-- | Type-specialised unpack.
+midi_unpack_int :: MidiData -> [Int]
+midi_unpack_int (MidiData m1 m2 m3 m4) = map fromIntegral [m1, m2, m3, m4]
+
 {- | A real-valued time stamp.
-For Osc proper this is an @Ntp@ time in real-valued (fractional) form.
+For Osc proper this is an Ntp64 time in real-valued (fractional) form.
 For SuperCollider Nrt programs this is elapsed time since the start of the score.
 This is the primary form of timestamp used by hosc.
 -}

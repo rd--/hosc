@@ -37,13 +37,10 @@ Library
                    Sound.Osc.Coding.Encode.Builder
                    Sound.Osc.Core
                    Sound.Osc.Datum
-                   Sound.Osc.Datum.Parse
-                   Sound.Osc.Datum.Pp
                    Sound.Osc.Fd
                    Sound.Osc.Packet
-                   Sound.Osc.Packet.Pp
+                   Sound.Osc.Text
                    Sound.Osc.Time
-                   Sound.Osc.Time.Pp
                    Sound.Osc.Time.System
                    Sound.Osc.Time.Thread
                    Sound.Osc.Time.Thread.MonadIO
