@@ -1,8 +1,15 @@
 -- | A simple and unambigous text encoding for Osc.
 module Sound.Osc.Text where
 
+import Control.Monad {- base -}
+import Data.Char {- base -}
 import Numeric {- base -}
 import Text.Printf {- base -}
+
+import qualified Text.ParserCombinators.Parsec as P {- parsec -}
+--import qualified Text.Parsec.Language as P {- parsec -}
+--import qualified Text.Parsec.String as P {- parsec -}
+--import qualified Text.Parsec.Token as P {- parsec -}
 
 import Sound.Osc.Datum {- hosc -}
 import Sound.Osc.Packet  {- hosc3 -}
@@ -80,5 +87,109 @@ showBundle precision aBundle =
   ,show (ntpr_to_ntpi (bundleTime aBundle))
   ,unwords (map (showMessage precision) (bundleMessages aBundle))]
 
+-- | Printer for Packet.
 showPacket :: FpPrecision -> Packet -> String
 showPacket precision = at_packet (showMessage precision) (showBundle precision)
+
+-- * Parser
+
+-- | A 'Char' parser with no user state.
+type P a = P.GenParser Char () a
+
+-- | Run p then q, returning result of p.
+(>>~) :: Monad m => m t -> m u -> m t
+p >>~ q = p >>= \x -> q >> return x
+
+-- | /p/ consuming any trailing separators.
+lexemeP :: P t -> P t
+lexemeP p = p >>~ P.many P.space
+
+-- | Any non-space and non-; character.  Allow escaped space.
+stringCharP :: P Char
+stringCharP = (P.char '\\' >> P.space) P.<|> P.satisfy (\c -> not (isSpace c) && c /= ';')
+
+-- | Parser for string.
+stringP :: P String
+stringP = lexemeP (P.many1 stringCharP)
+
+-- | Parser for Osc address.
+oscAddressP :: P String
+oscAddressP = do
+  forwardSlash <- P.char '/'
+  address <- stringP
+  return (forwardSlash : address)
+
+-- | Parser for Osc signature.
+oscSignatureP :: P String
+oscSignatureP = lexemeP (do
+  comma <- P.char ','
+  types <- P.many1 (P.oneOf "ifsbhtdm") -- 1.0 = ifsb 2.0 = htdm
+  return (comma : types))
+
+-- | Parser for semicolon lexeme.
+semicolonP :: P Char
+semicolonP = lexemeP (P.char ';')
+
+-- | Parser for decimal digit.
+digitP :: P Char
+digitP = P.oneOf "0123456789"
+
+-- | Parser for integer.
+integerP :: (Integral n, Read n) => P n
+integerP = lexemeP (fmap read (P.many1 digitP))
+
+-- | Parser for float.
+floatP :: (Fractional n, Read n) => P n
+floatP = lexemeP (do
+  integerPart <- P.many1 digitP
+  _ <- P.char '.'
+  fractionalPart <- P.many1 digitP
+  return (read (concat [integerPart, ".", fractionalPart])))
+
+-- | Parser for hexadecimal digit.
+hexdigitP :: P Char
+hexdigitP = P.oneOf "0123456789abcdef"
+
+byteP :: (Integral n, Read n) => P n
+byteP = do
+  c1 <- hexdigitP
+  c2 <- hexdigitP
+  case readHex [c1, c2] of
+    [(r,"")] -> return r
+    _ -> error "byteP?"
+
+byteSeqP :: (Integral n, Read n) => P [n]
+byteSeqP = lexemeP (P.many1 byteP)
+
+datumP :: Char -> P Datum
+datumP typeChar = do
+  case typeChar of
+    'i' -> fmap Int32 integerP
+    'f' -> fmap Float floatP
+    's' -> fmap string stringP
+    'b' -> fmap blob byteSeqP
+    'h' -> fmap Int64 integerP
+    'd' -> fmap Double floatP
+    'm' -> fmap (Midi . midi_pack) (replicateM 4 byteP)
+    't' -> fmap (TimeStamp . ntpi_to_ntpr) integerP
+    _ -> error "datumP: type?"
+
+messageP :: P Message
+messageP = do
+  address <- oscAddressP
+  typeSignature <- oscSignatureP
+  datum <- mapM datumP (tail typeSignature)
+  return (Message address datum)
+
+runP :: P t -> String -> t
+runP p txt =
+  case P.parse p "" txt of
+    Left err -> error (show err)
+    Right r -> r
+
+{- | runP of messageP
+
+> map parseMessage ["/c_set ,ifhd 1 2.3 4 5.6", "/memset ,sb addr 0708"]
+-}
+parseMessage :: String -> Message
+parseMessage = runP messageP

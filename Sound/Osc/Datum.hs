@@ -43,6 +43,12 @@ blob_unpack_int = map fromIntegral . blob_unpack
 data MidiData = MidiData !Word8 !Word8 !Word8 !Word8
     deriving (Ord, Eq, Show, Read)
 
+midi_pack ::  [Word8] -> MidiData
+midi_pack w =
+  case w of
+    [m1, m2, m3, m4] -> MidiData m1 m2 m3 m4
+    _ -> error "midi_pack?"
+
 -- | Type-specialised unpack.
 midi_unpack_int :: MidiData -> [Int]
 midi_unpack_int (MidiData m1 m2 m3 m4) = map fromIntegral [m1, m2, m3, m4]
