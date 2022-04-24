@@ -129,25 +129,35 @@ oscSignatureP = lexemeP (do
   types <- P.many1 (P.oneOf "ifsbhtdm") -- 1.0 = ifsb 2.0 = htdm
   return (comma : types))
 
--- | Parser for semicolon lexeme.
-semicolonP :: P Char
-semicolonP = lexemeP (P.char ';')
-
 -- | Parser for decimal digit.
 digitP :: P Char
 digitP = P.oneOf "0123456789"
 
+allowNegativeP :: Num n => P n -> P n
+allowNegativeP p = do
+  maybeNegative <- P.optionMaybe (P.char '-')
+  number <- p
+  return (maybe number (const (negate number)) maybeNegative)
+
+-- | Parser for non-negative integer.
+nonNegativeIntegerP :: (Integral n, Read n) => P n
+nonNegativeIntegerP = lexemeP (fmap read (P.many1 digitP))
+
 -- | Parser for integer.
 integerP :: (Integral n, Read n) => P n
-integerP = lexemeP (fmap read (P.many1 digitP))
+integerP = allowNegativeP nonNegativeIntegerP
 
--- | Parser for float.
-floatP :: (Fractional n, Read n) => P n
-floatP = lexemeP (do
+-- | Parser for non-negative float.
+nonNegativeFloatP :: (Fractional n, Read n) => P n
+nonNegativeFloatP = lexemeP (do
   integerPart <- P.many1 digitP
   _ <- P.char '.'
   fractionalPart <- P.many1 digitP
   return (read (concat [integerPart, ".", fractionalPart])))
+
+-- | Parser for non-negative float.
+floatP :: (Fractional n, Read n) => P n
+floatP = allowNegativeP nonNegativeFloatP
 
 -- | Parser for hexadecimal digit.
 hexdigitP :: P Char
@@ -211,6 +221,14 @@ runP p txt =
   case P.parse p "" txt of
     Left err -> error (show err)
     Right r -> r
+
+{- | Run datum parser.
+
+> parseDatum 'i' "-1" == Int32 (-1)
+> parseDatum 'f' "-2.3" == Float (-2.3)
+-}
+parseDatum :: Char -> String -> Datum
+parseDatum typ = runP (datumP typ)
 
 {- | Run message parser.
 
