@@ -7,9 +7,6 @@ import Numeric {- base -}
 import Text.Printf {- base -}
 
 import qualified Text.ParserCombinators.Parsec as P {- parsec -}
---import qualified Text.Parsec.Language as P {- parsec -}
---import qualified Text.Parsec.String as P {- parsec -}
---import qualified Text.Parsec.Token as P {- parsec -}
 
 import Sound.Osc.Datum {- hosc -}
 import Sound.Osc.Packet  {- hosc3 -}
@@ -30,7 +27,10 @@ showFloatWithPrecision p n =
          '.':_ -> reverse ('0' : s')
          _ -> reverse s'
 
--- | Hex encoded byte sequence.
+{- | Hex encoded byte sequence.
+
+> showBytes [0, 15, 16, 144, 255] == "000f1090ff"
+-}
 showBytes :: [Int] -> String
 showBytes = concatMap (printf "%02x")
 
@@ -44,10 +44,10 @@ escapeString txt =
     [] -> []
     c:txt' -> if c `elem` "\\\t\n " then '\\'  : c : escapeString txt' else c : escapeString txt'
 
-{- | Printer for 'Datum'.
+{- | Printer for Datum.
 
-> let d = [Int32 1,Float 1.2,string "str",midi (0,0x90,0x40,0x60),blob [12,16], TimeStamp 100.0]
-> map (showDatum (Just 5)) d == ["1","1.2","str","00904060","0c10","429496729600"]
+> aDatumSeq = [Int32 1,Float 1.2,string "str",midi (0,0x90,0x40,0x60),blob [12,16], TimeStamp 100.0]
+> map (showDatum (Just 5)) aDatumSeq == ["1","1.2","str","00904060","0c10","429496729600"]
 -}
 showDatum :: FpPrecision -> Datum -> String
 showDatum p d =
@@ -63,10 +63,11 @@ showDatum p d =
 
 {- | Printer for Message.
 
-> let format = showMessage (Just 4)
-> format (Message "/c_set" [Int32 1, Float 2.3])
-> format (Message "/s_new" [string "sine", Int32 (-1), Int32 1, Int32 1])
-> format (Message "/addr" [Int32 1, Int64 2, Float 3, Double 4, string "five", blob [6, 7], midi (8, 9, 10, 11)])
+> aMessage = Message "/addr" [Int32 1, Int64 2, Float 3, Double 4, string "five", blob [6, 7], midi (8, 9, 10, 11)]
+> showMessage (Just 4) aMessage
+
+> aMessageSeq = [Message "/c_set" [Int32 1, Float 2.3], Message "/s_new" [string "sine", Int32 (-1), Int32 1, Int32 1]]
+> map (showMessage (Just 4)) aMessageSeq
 -}
 showMessage :: FpPrecision -> Message -> String
 showMessage precision aMessage =
@@ -77,15 +78,17 @@ showMessage precision aMessage =
 
 {- | Printer for Bundle
 
-> let format = showBundle (Just 4)
-> format (Bundle 1 [Message "/c_set" [Int32 1, Float 2.3, Int64 4, Double 5.6], Message "/memset" [string "addr", blob [7, 8]]])
+> aBundle = Bundle 1 [Message "/c_set" [Int32 1, Float 2.3, Int64 4, Double 5.6], Message "/memset" [string "addr", blob [7, 8]]]
+> showBundle (Just 4) aBundle
 -}
 showBundle :: FpPrecision -> Bundle -> String
 showBundle precision aBundle =
-  unwords
-  ["#bundle"
-  ,show (ntpr_to_ntpi (bundleTime aBundle))
-  ,unwords (map (showMessage precision) (bundleMessages aBundle))]
+  let messages = bundleMessages aBundle
+  in unwords
+     ["#bundle"
+     ,show (ntpr_to_ntpi (bundleTime aBundle))
+     ,show (length messages)
+     ,unwords (map (showMessage precision) messages)]
 
 -- | Printer for Packet.
 showPacket :: FpPrecision -> Packet -> String
@@ -93,20 +96,20 @@ showPacket precision = at_packet (showMessage precision) (showBundle precision)
 
 -- * Parser
 
--- | A 'Char' parser with no user state.
+-- | A character parser with no user state.
 type P a = P.GenParser Char () a
 
 -- | Run p then q, returning result of p.
 (>>~) :: Monad m => m t -> m u -> m t
 p >>~ q = p >>= \x -> q >> return x
 
--- | /p/ consuming any trailing separators.
+-- | /p/ as lexeme, i.e. consuming any trailing white space.
 lexemeP :: P t -> P t
 lexemeP p = p >>~ P.many P.space
 
--- | Any non-space and non-; character.  Allow escaped space.
+-- | Any non-space character.  Allow escaped space.
 stringCharP :: P Char
-stringCharP = (P.char '\\' >> P.space) P.<|> P.satisfy (\c -> not (isSpace c) && c /= ';')
+stringCharP = (P.char '\\' >> P.space) P.<|> P.satisfy (\c -> not (isSpace c))
 
 -- | Parser for string.
 stringP :: P String
@@ -150,6 +153,7 @@ floatP = lexemeP (do
 hexdigitP :: P Char
 hexdigitP = P.oneOf "0123456789abcdef"
 
+-- | Byte parser.
 byteP :: (Integral n, Read n) => P n
 byteP = do
   c1 <- hexdigitP
@@ -158,9 +162,11 @@ byteP = do
     [(r,"")] -> return r
     _ -> error "byteP?"
 
+-- | Byte sequence parser.
 byteSeqP :: (Integral n, Read n) => P [n]
 byteSeqP = lexemeP (P.many1 byteP)
 
+-- | Datum parser.
 datumP :: Char -> P Datum
 datumP typeChar = do
   case typeChar of
@@ -174,6 +180,7 @@ datumP typeChar = do
     't' -> fmap (TimeStamp . ntpi_to_ntpr) integerP
     _ -> error "datumP: type?"
 
+-- | Message parser.
 messageP :: P Message
 messageP = do
   address <- oscAddressP
@@ -181,15 +188,50 @@ messageP = do
   datum <- mapM datumP (tail typeSignature)
   return (Message address datum)
 
+-- | Bundle tag parser.
+bundleTagP :: P String
+bundleTagP = lexemeP (P.string "#bundle")
+
+-- | Bundle parser.
+bundleP :: P Bundle
+bundleP = do
+  _ <- bundleTagP
+  timestamp <- fmap ntpi_to_ntpr integerP
+  messageCount <- integerP
+  messages <- replicateM messageCount messageP
+  return (Bundle timestamp messages)
+
+-- | Packet parser.
+packetP :: P Packet
+packetP = (fmap Packet_Bundle bundleP) P.<|> (fmap Packet_Message messageP)
+
+-- | Run parser.
 runP :: P t -> String -> t
 runP p txt =
   case P.parse p "" txt of
     Left err -> error (show err)
     Right r -> r
 
-{- | runP of messageP
+{- | Run message parser.
 
-> map parseMessage ["/c_set ,ifhd 1 2.3 4 5.6", "/memset ,sb addr 0708"]
+> aMessageSeq = [Message "/c_set" [Int32 1, Float 2.3, Int64 4, Double 5.6], Message "/memset" [string "addr", blob [7, 8]]]
+> map (parseMessage . showMessage (Just 4)) aMessageSeq  == aMessageSeq
 -}
 parseMessage :: String -> Message
 parseMessage = runP messageP
+
+{- | Run bundle parser.
+
+> aBundle = Bundle 1 [Message "/c_set" [Int32 1, Float 2.3, Int64 4, Double 5.6], Message "/memset" [string "addr", blob [7, 8]]]
+> parseBundle (showBundle (Just 4) aBundle) == aBundle
+-}
+parseBundle :: String -> Bundle
+parseBundle = runP bundleP
+
+{- | Run packet parser.
+
+> aPacket = Packet_Bundle (Bundle 1 [Message "/c_set" [Int32 1, Float 2.3, Int64 4, Double 5.6], Message "/memset" [string "addr", blob [7, 8]]])
+> parsePacket (showPacket (Just 4) aPacket) == aPacket
+-}
+parsePacket :: String -> Packet
+parsePacket = runP packetP
