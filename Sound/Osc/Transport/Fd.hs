@@ -46,12 +46,6 @@ recvMessage = fmap packet_to_message . recvPacket
 recvMessages :: (Transport t) => t -> IO [Message]
 recvMessages = fmap packetMessages . recvPacket
 
--- * Timeout
-
--- | Variant of 'recvPacket' that implements an /n/ second 'timeout'.
-recvPacketTimeout :: (Transport t) => Double -> t -> IO (Maybe Packet)
-recvPacketTimeout n fd = Wait.timeout_r n (recvPacket fd)
-
 -- * Wait
 
 -- | Wait for a 'Packet' where the supplied predicate is 'True',

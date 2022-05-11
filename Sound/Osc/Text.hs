@@ -135,7 +135,8 @@ digitP = P.oneOf "0123456789"
 
 allowNegativeP :: Num n => P n -> P n
 allowNegativeP p = do
-  maybeNegative <- P.optionMaybe (P.char '-')
+  let optionMaybe x = P.option Nothing (liftM Just x) -- hugs...
+  maybeNegative <- optionMaybe (P.char '-')
   number <- p
   return (maybe number (const (negate number)) maybeNegative)
 

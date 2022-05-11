@@ -1,14 +1,6 @@
 -- | Waiting (for replies).
 module Sound.Osc.Wait where
 
-import System.Timeout {- base -}
-
--- * Timeout
-
--- | Variant of 'timeout' where time is given in fractional seconds.
-timeout_r :: Double -> IO a -> IO (Maybe a)
-timeout_r = timeout . floor . (* 1000000)
-
 -- * Wait
 
 -- | Repeat action until predicate /f/ is 'True' when applied to result.
