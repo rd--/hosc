@@ -6,7 +6,7 @@ import Control.Monad.ST (runST, ST) {- base -}
 import Data.Bits (Bits, shiftL, shiftR, (.&.)) {- base -}
 import Data.Char (chr, ord) {- base -}
 import Data.Int (Int32, Int64) {- base -}
-import Data.Word (Word8) {- base -}
+import Data.Word (Word8, Word32, Word64) {- base -}
 import System.IO (openFile, IOMode(..), hPutStr, hClose) {- base -}
 
 import Data.Array.ST (MArray, newArray, readArray) {- array -}
@@ -25,6 +25,9 @@ i16_bytes n = [byte 1 n, byte 0 n]
 i32_bytes :: Int -> [Word8]
 i32_bytes n = [byte 3 n, byte 2 n, byte 1 n, byte 0 n]
 
+u32_bytes :: Int -> [Word8]
+u32_bytes = i32_bytes
+
 i64_bytes :: Integer -> [Word8]
 i64_bytes n = [byte 7 n, byte 6 n, byte 5 n, byte 4 n, byte 3 n, byte 2 n, byte 1 n, byte 0 n]
 
@@ -33,6 +36,10 @@ u64_bytes = i64_bytes
 
 cast_f32_i32 :: Float -> Int32
 cast_f32_i32 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Int32)
+
+-- > cast_f32_u32 3.141 == 1078527525
+cast_f32_u32 :: Float -> Word32
+cast_f32_u32 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Word32)
 
 f32_bytes :: Float -> [Word8]
 f32_bytes f = i32_bytes (fromIntegral (cast_f32_i32 f))
@@ -45,6 +52,10 @@ f32_f64 n = realToFrac n
 
 cast_f64_i64 :: Double -> Int64
 cast_f64_i64 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Int64)
+
+-- > cast_f64_u64 3.141 == 4614255322014802772
+cast_f64_u64 :: Double -> Word64
+cast_f64_u64 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Word64)
 
 f64_bytes :: Double -> [Word8]
 f64_bytes f = i64_bytes (fromIntegral (cast_f64_i64 f))
@@ -85,6 +96,10 @@ bytes_i64 _ = error "illegal input"
 
 cast_i32_f32 :: Int32 -> Float
 cast_i32_f32 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Float)
+
+-- > cast_u32_f32 1078527525 == 3.141
+cast_u32_f32 :: Word32 -> Float
+cast_u32_f32 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Float)
 
 bytes_f32 :: [Word8] -> Float
 bytes_f32 b = cast_i32_f32 (fromIntegral (bytes_i32 b))

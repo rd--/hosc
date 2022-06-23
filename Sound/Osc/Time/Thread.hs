@@ -26,7 +26,7 @@ sleepThreadFor :: RealFrac n => n -> IO ()
 sleepThreadFor n =
     if n >= pauseThreadLimit
     then let n' = pauseThreadLimit - 1
-         in pauseThreadFor n >> sleepThreadFor (n - n')
+         in pauseThreadFor n' >> sleepThreadFor (n - n')
     else pauseThreadFor n
 
 -- | Sleep current thread until the given time.
