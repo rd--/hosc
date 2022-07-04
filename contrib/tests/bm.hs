@@ -1,13 +1,13 @@
 import Criterion.Main {- criterion -}
 import qualified Data.ByteString.Lazy as B {- bytestring -}
 
-import Sound.OSC.Core {- hosc -}
-import qualified Sound.OSC.Coding.Decode.Binary as Default
-import qualified Sound.OSC.Coding.Encode.Builder as Default
-import qualified Sound.OSC.Coding.Decode.Base as Base
-import qualified Sound.OSC.Coding.Encode.Base as Base
+import Sound.Osc.Core {- hosc -}
+import qualified Sound.Osc.Coding.Decode.Binary as Default
+import qualified Sound.Osc.Coding.Encode.Builder as Default
+import qualified Sound.Osc.Coding.Decode.Base as Base
+import qualified Sound.Osc.Coding.Encode.Base as Base
 
-import Sound.OSC.NFData ()
+import Sound.Osc.NFData ()
 
 m0 :: Message
 m0 = Message "/command" [Float 42.0,Int32 16,string "ASCII",Blob (B.pack [0..128])]
