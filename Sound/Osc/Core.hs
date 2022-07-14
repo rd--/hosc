@@ -16,7 +16,6 @@ import Sound.Osc.Coding.Decode.Binary as M
 import Sound.Osc.Coding.Encode.Builder as M
 import Sound.Osc.Datum as M
 import Sound.Osc.Packet as M
-import Sound.Osc.Text as M
 import Sound.Osc.Time as M
 import Sound.Osc.Time.System as M
 import Sound.Osc.Time.Thread as M
