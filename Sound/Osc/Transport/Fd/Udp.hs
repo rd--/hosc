@@ -81,7 +81,8 @@ openUdp = udp_socket N.connect
 > import Control.Concurrent {- base -}
 
 > let u0 = udpServer "127.0.0.1" 57300
-> t0 <- forkIO (Fd.withTransport u0 (\fd -> forever (Fd.recvMessage fd >>= print)))
+> t0 <- forkIO (Fd.withTransport u0 (\fd -> forever (Fd.recvMessage fd >>= print >> print "Received message, continuing")))
+> killThread t0
 
 > let u1 = openUdp "127.0.0.1" 57300
 > Fd.withTransport u1 (\fd -> Fd.sendMessage fd (Packet.message "/n" []))
