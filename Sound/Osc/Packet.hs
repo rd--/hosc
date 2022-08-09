@@ -5,15 +5,17 @@ import Sound.Osc.Datum {- hosc -}
 
 -- * Message
 
--- | Osc address pattern.  This is strictly an ASCII value, however it
+-- | Osc address pattern.  This is strictly an Ascii value, however it
 --   is very common to pattern match on addresses and matching on
 --   Data.ByteString.Char8 requires @OverloadedStrings@.
 type Address_Pattern = String
 
 -- | An Osc message, an 'Address_Pattern' and a sequence of 'Datum'.
-data Message = Message {messageAddress :: !Address_Pattern
-                       ,messageDatum :: ![Datum]}
-               deriving (Ord, Eq, Read, Show)
+data Message =
+  Message
+  {messageAddress :: !Address_Pattern
+  ,messageDatum :: ![Datum]}
+  deriving (Ord, Eq, Read, Show)
 
 -- | 'Message' constructor.  It is an 'error' if the 'Address_Pattern'
 -- doesn't conform to the Osc specification.
@@ -31,17 +33,20 @@ messageDescriptor = descriptor . messageDatum
 
 -- * Bundle
 
--- | An Osc bundle, a 'Time' and a sequence of 'Message's.
-data Bundle = Bundle {bundleTime :: !Time
-                     ,bundleMessages :: ![Message]}
-              deriving (Eq,Read,Show)
+{- | An Osc bundle, a 'Time' and a sequence of 'Message's.
+Do not allow recursion, all contents must be messages.
+-}
+data Bundle =
+  Bundle
+  {bundleTime :: !Time
+  ,bundleMessages :: ![Message]}
+  deriving (Eq,Read,Show)
 
 -- | Osc 'Bundle's can be ordered (time ascending).
 instance Ord Bundle where
     compare (Bundle a _) (Bundle b _) = compare a b
 
--- | 'Bundle' constructor. It is an 'error' if the 'Message' list is
--- empty.
+-- | 'Bundle' constructor. It is an 'error' if the 'Message' list is empty.
 bundle :: Time -> [Message] -> Bundle
 bundle t xs =
     case xs of
@@ -51,9 +56,10 @@ bundle t xs =
 -- * Packet
 
 -- | An Osc 'Packet' is either a 'Message' or a 'Bundle'.
-data Packet = Packet_Message {packetMessage :: !Message}
-            | Packet_Bundle {packetBundle :: !Bundle}
-              deriving (Eq,Read,Show)
+data Packet =
+  Packet_Message {packetMessage :: !Message} |
+  Packet_Bundle {packetBundle :: !Bundle}
+  deriving (Eq,Read,Show)
 
 -- | 'Packet_Bundle' of 'bundle'.
 p_bundle :: Time -> [Message] -> Packet

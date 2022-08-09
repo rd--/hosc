@@ -131,9 +131,9 @@ encode_f64 = Binary.encode . Cast.f64_w64
 encode_f64_le :: Double -> L.ByteString
 encode_f64_le = Put.runPut . Put.putWord64le . Cast.f64_w64
 
--- * Encode/ASCII
+-- * Encode/Ascii
 
--- | Encode an ASCII string (ASCII at Datum is an alias for a Char8 Bytetring).
+-- | Encode an Ascii string (Ascii at Datum is an alias for a Char8 Bytetring).
 encode_ascii :: S.C.ByteString -> L.ByteString
 encode_ascii = L.pack . S.unpack
 
@@ -231,9 +231,9 @@ decode_f32_le = Cast.w32_f32 . decode_word32_le
 decode_f64 :: L.ByteString -> Double
 decode_f64 b = Cast.w64_f64 (Binary.decode b :: Word64)
 
--- * Decode/ASCII
+-- * Decode/Ascii
 
--- | Decode an ASCII string, inverse of 'encode_ascii'.
+-- | Decode an Ascii string, inverse of 'encode_ascii'.
 decode_ascii :: L.ByteString -> S.C.ByteString
 {-# INLINE decode_ascii #-}
 decode_ascii = S.C.pack . L.C.unpack
@@ -260,7 +260,7 @@ write_word32 h = L.hPut h . encode_word32
 write_word32_le :: Handle -> Word32 -> IO ()
 write_word32_le h = L.hPut h . encode_word32_le
 
--- * IO/Int
+-- * Io/Int
 
 -- | 'decode_i8' of 'L.hGet'.
 read_i8 :: Handle -> IO Int
@@ -294,7 +294,7 @@ write_u32 h = L.hPut h . encode_u32
 write_u32_le :: Handle -> Int -> IO ()
 write_u32_le h = L.hPut h . encode_u32_le
 
--- * IO/Float
+-- * Io/Float
 
 -- | 'decode_f32' of 'L.hGet'.
 read_f32 :: Handle -> IO Float
@@ -304,9 +304,9 @@ read_f32 = read_decode decode_f32 4
 read_f32_le :: Handle -> IO Float
 read_f32_le = read_decode decode_f32_le 4
 
--- * IO/ASCII
+-- * Io/Ascii
 
--- | Read u8 length prefixed ASCII string (pascal string).
+-- | Read u8 length prefixed Ascii string (pascal string).
 read_pstr :: Handle -> IO S.C.ByteString
 read_pstr h = do
   n <- fmap decode_u8 (L.hGet h 1)
@@ -314,11 +314,17 @@ read_pstr h = do
 
 -- * Util
 
--- | Bundle header as a (strict) 'S.C.ByteString'.
+{- | Bundle header as a (strict) 'S.C.ByteString'.
+
+> S.C.length bundleHeader_strict == 8
+-}
 bundleHeader_strict :: S.C.ByteString
 bundleHeader_strict = S.C.pack "#bundle\0"
 
--- | Bundle header as a lazy ByteString.
+{- | Bundle header as a lazy ByteString.
+
+> L.length bundleHeader == 8
+-}
 bundleHeader :: L.ByteString
 {-# INLINE bundleHeader #-}
 bundleHeader = L.C.fromChunks [bundleHeader_strict]

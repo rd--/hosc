@@ -35,7 +35,13 @@ encode_datum dt =
       Blob b -> let n = encode (int64_to_int32 (B.length b))
                 in B.append n (extend 0 b)
 
--- | Encode Osc 'Message'.
+{- | Encode Osc 'Message'.
+
+> m = Message "/n_set" [int32 (-1), string "freq", float 440, string "amp", float 0.1]
+> e = blob_unpack (encodeMessage m)
+> length e == 40
+> e == [47,110,95,115,101,116,0,0,44,105,115,102,115,102,0,0,255,255,255,255,102,114,101,113,0,0,0,0,67,220,0,0,97,109,112,0,61,204,204,205]
+-}
 encodeMessage :: Message -> B.ByteString
 encodeMessage (Message c l) =
     B.concat [encode_datum (AsciiString (C.pack c))
@@ -46,12 +52,19 @@ encodeMessage (Message c l) =
 encode_message_blob :: Message -> Datum
 encode_message_blob = Blob . encodeMessage
 
--- | Encode Osc 'Bundle'.
+{- | Encode Osc 'Bundle'.
+
+b = Bundle 0.0 [m]
+e = blob_unpack (encodeBundle b)
+length e == 60
+e == [35,98,117,110,100,108,101,0,0,0,0,0,0,0,0,0,0,0,0,40,47,110,95,115,101,116,0,0,44,105,115,102,115,102,0,0,255,255,255,255,102,114,101,113,0,0,0,0,67,220,0,0,97,109,112,0,61,204,204,205]
+-}
 encodeBundle :: Bundle -> B.ByteString
 encodeBundle (Bundle t m) =
-    B.concat [bundleHeader
-             ,encode_word64 (ntpr_to_ntpi t)
-             ,B.concat (map (encode_datum . encode_message_blob) m)]
+    B.concat
+    [bundleHeader
+    ,encode_word64 (ntpr_to_ntpi t)
+    ,B.concat (map (encode_datum . encode_message_blob) m)]
 
 -- | Encode Osc 'Packet'.
 encodePacket :: Packet -> B.ByteString

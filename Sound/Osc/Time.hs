@@ -12,9 +12,9 @@ import Sound.Osc.Coding.Convert {- hosc -}
 
 -- * Temporal types
 
--- | Type for binary (integeral) representation of a 64-bit @NTP@ timestamp (ie. @ntpi@).
---   The NTP epoch is January 1, 1900.
---   NTPv4 also includes a 128-bit format, which is not used by Osc.
+-- | Type for binary (integeral) representation of a 64-bit Ntp timestamp (ie. ntpi).
+--   The Ntp epoch is January 1, 1900.
+--   Ntp v4 also includes a 128-bit format, which is not used by Osc.
 type Ntp64 = Word64
 
 -- | @Ntp@ time in real-valued (fractional) form.
@@ -34,7 +34,10 @@ type PosixReal = Double
 ntpr_to_ntpi :: NtpReal -> Ntp64
 ntpr_to_ntpi t = round (t * (2 ^ (32::Int)))
 
--- | Convert an 'Ntp64' timestamp to a real-valued NTP timestamp.
+{- | Convert an 'Ntp64' timestamp to a real-valued Ntp timestamp.
+
+> ntpi_to_ntpr 0 == 0.0
+-}
 ntpi_to_ntpr :: Ntp64 -> NtpReal
 ntpi_to_ntpr t = word64_to_double t / 2^(32::Int)
 
@@ -54,11 +57,11 @@ posix_to_ntpi t = ntpr_to_ntpi (t + ntp_posix_epoch_diff)
 posix_to_ntpr :: Num n => n -> n
 posix_to_ntpr = (+) ntp_posix_epoch_diff
 
--- | Convert @NTP@ to @Unix/Posix@.
+-- | Convert @Ntp@ to @Unix/Posix@.
 ntpr_to_posix :: Num n => n -> n
 ntpr_to_posix = (+) (negate ntp_posix_epoch_diff)
 
--- | Convert 'NTPi' to @Unix/Posix@.
+-- | Convert 'Ntp64' to @Unix/Posix@.
 ntpi_to_ut :: Ntp64 -> PosixReal
 ntpi_to_ut = ntpr_to_posix . ntpi_to_ntpr
 
