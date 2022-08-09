@@ -62,8 +62,8 @@ ntpr_to_posix :: Num n => n -> n
 ntpr_to_posix = (+) (negate ntp_posix_epoch_diff)
 
 -- | Convert 'Ntp64' to @Unix/Posix@.
-ntpi_to_ut :: Ntp64 -> PosixReal
-ntpi_to_ut = ntpr_to_posix . ntpi_to_ntpr
+ntpi_to_posix :: Ntp64 -> PosixReal
+ntpi_to_posix = ntpr_to_posix . ntpi_to_ntpr
 
 -- | Convert 'Time' to 'Clock.Posix.POSIXTime'.
 ntpr_to_posixtime :: NtpReal -> Clock.Posix.POSIXTime
@@ -75,16 +75,16 @@ posixtime_to_ntpr = posix_to_ntpr . realToFrac
 
 -- * 'Data.Time' inter-operation.
 
--- | The time at 1970-01-01:00:00:00.
-ut_epoch :: Time.UTCTime
-ut_epoch =
+-- | The time at 1970-01-01:00:00:00 which is the Unix/Posix epoch.
+posix_epoch :: Time.UTCTime
+posix_epoch =
     let d = Time.fromGregorian 1970 1 1
         s = fromInteger 0 -- Time.secondsToDiffTime
     in Time.UTCTime d s
 
 -- | Convert 'Time.UTCTime' to @Unix/Posix@.
 utc_to_posix :: Fractional n => Time.UTCTime -> n
-utc_to_posix t = realToFrac (Time.diffUTCTime t ut_epoch)
+utc_to_posix t = realToFrac (Time.diffUTCTime t posix_epoch)
 
 -- * Clock operations
 

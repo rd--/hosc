@@ -1,4 +1,4 @@
--- | Some backwards compatability.
+-- | Some backwards compatability, not really...
 module Sound.Osc.Alias where
 
 import Sound.Osc.Datum {- hosc -}

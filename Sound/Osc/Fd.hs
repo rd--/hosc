@@ -1,4 +1,4 @@
--- | Composite of "Sound.Osc.Core" and "Sound.Osc.Transport.FD".
+-- | Composite of "Sound.Osc.Core" and "Sound.Osc.Transport.Fd".
 module Sound.Osc.Fd (module M) where
 
 import Sound.Osc.Core as M
