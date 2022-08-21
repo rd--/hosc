@@ -2,6 +2,7 @@
 module Sound.Osc.Time.System where
 
 import Data.Int {- base -}
+import Data.Word {- base -}
 
 import qualified Data.Time.Clock.System as Clock.System {- time >= 1.8 -}
 
@@ -15,7 +16,9 @@ getSystemTimeAsNtpReal = do
   return (fromIntegral (Clock.System.systemSeconds tm) + (fromIntegral (Clock.System.systemNanoseconds tm) * 1.0e-9))
 
 -- | System time with fractional part in microseconds (us) instead of nanoseconds (ns).
-getSystemTimeInMicroseconds :: IO (Int64, Int)
+getSystemTimeInMicroseconds :: IO (Int64, Word32)
 getSystemTimeInMicroseconds = do
   tm <- Clock.System.getSystemTime
-  return (Clock.System.systemSeconds tm, fromIntegral (Clock.System.systemNanoseconds tm) `div` 1000)
+  let sec = Clock.System.systemSeconds tm
+      usec = Clock.System.systemNanoseconds tm `div` 1000
+  return (sec, usec)
