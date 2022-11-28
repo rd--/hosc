@@ -2,33 +2,34 @@
 
 ~~~~
 $ ./bm
-benchmarking encodeOSC/Base
-time                 25.40 μs   (25.36 μs .. 25.44 μs)
-                     1.000 R²   (1.000 R² .. 1.000 R²)
-mean                 25.44 μs   (25.35 μs .. 25.73 μs)
-std dev              485.6 ns   (131.5 ns .. 1.010 μs)
-variance introduced by outliers: 16% (moderately inflated)
+benchmarking encodeBundle/Base
+time                 29.21 μs   (28.68 μs .. 29.61 μs)
+                     0.998 R²   (0.997 R² .. 0.999 R²)
+mean                 28.54 μs   (28.16 μs .. 28.88 μs)
+std dev              1.233 μs   (1.071 μs .. 1.427 μs)
+variance introduced by outliers: 49% (moderately inflated)
 
-benchmarking encodeOSC/Builder
-time                 10.78 μs   (10.77 μs .. 10.81 μs)
-                     1.000 R²   (1.000 R² .. 1.000 R²)
-mean                 10.82 μs   (10.77 μs .. 10.96 μs)
-std dev              246.1 ns   (52.96 ns .. 513.7 ns)
-variance introduced by outliers: 24% (moderately inflated)
+benchmarking encodeBundle/Builder
+time                 14.80 μs   (14.63 μs .. 14.97 μs)
+                     0.999 R²   (0.999 R² .. 1.000 R²)
+mean                 14.65 μs   (14.60 μs .. 14.73 μs)
+std dev              214.2 ns   (128.6 ns .. 314.5 ns)
+variance introduced by outliers: 11% (moderately inflated)
 
-benchmarking decodeOSC/Base
-time                 23.19 μs   (23.15 μs .. 23.25 μs)
-                     1.000 R²   (0.998 R² .. 1.000 R²)
-mean                 23.49 μs   (23.32 μs .. 24.12 μs)
-std dev              1.013 μs   (197.4 ns .. 2.134 μs)
-variance introduced by outliers: 50% (severely inflated)
+benchmarking decodePacket/Base
+time                 19.30 μs   (19.13 μs .. 19.43 μs)
+                     1.000 R²   (0.999 R² .. 1.000 R²)
+mean                 18.98 μs   (18.90 μs .. 19.09 μs)
+std dev              317.0 ns   (247.8 ns .. 419.9 ns)
+variance introduced by outliers: 13% (moderately inflated)
 
-benchmarking decodeOSC/Binary
-time                 41.91 μs   (41.83 μs .. 41.98 μs)
+benchmarking decodePacket/Binary
+time                 36.84 μs   (36.65 μs .. 37.00 μs)
                      1.000 R²   (1.000 R² .. 1.000 R²)
-mean                 42.15 μs   (41.98 μs .. 42.95 μs)
-std dev              1.061 μs   (197.7 ns .. 2.401 μs)
-variance introduced by outliers: 24% (moderately inflated)
+mean                 36.26 μs   (36.11 μs .. 36.43 μs)
+std dev              555.3 ns   (496.1 ns .. 648.4 ns)
+variance introduced by outliers: 11% (moderately inflated)
+$
 ~~~~
 
 # qc

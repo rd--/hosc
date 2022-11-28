@@ -1,14 +1,14 @@
 hosc - haskell open sound control
 ---------------------------------
 
-[hosc][hosc] provides `Sound.OSC`, a [haskell][hs]
+[hosc][hosc] provides `Sound.Osc`, a [haskell][hs]
 module implementing a subset of the [Open Sound Control][osc] byte protocol.
 hosc is required by the [hsc3][hsc3] haskell [supercollider][sc3] bindings.
 
 See also:
 
-- [hosc-json](http://rohandrape.net/?t=hosc-json): JSON text encoding of OSC
-- [hosc-util](http://rohandrape.net/?t=hosc-util): non-core OSC functions
+- [hosc-json](http://rohandrape.net/?t=hosc-json): Json text encoding of Osc
+- [hosc-util](http://rohandrape.net/?t=hosc-util): non-core Osc functions
 
 © [rohan drape][rd], [stefan kersten][sk] and others, 2007-2022,
 [gpl-3][gpl-3]. with contributions by:

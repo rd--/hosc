@@ -19,12 +19,12 @@ p0 :: B.ByteString
 p0 = Base.encodeBundle b0
 
 g0 :: Benchmark
-g0 = bgroup "encodeOSC"
+g0 = bgroup "encodeBundle"
      [bench "Base"  (nf Base.encodeBundle b0)
      ,bench "Builder" (nf Default.encodeBundle b0)]
 
 g1 :: Benchmark
-g1 = bgroup "decodeOSC"
+g1 = bgroup "decodePacket"
      [bench "Base" (nf Base.decodePacket p0)
      ,bench "Binary" (nf Default.decodePacket p0)]
 

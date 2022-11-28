@@ -4,7 +4,7 @@ all:
 
 clean:
 	rm -f *.hi *.o
-	rm -f Sound/OSC/*.hi Sound/OSC/*.o
+	rm -f Sound/Osc/*.hi Sound/Osc/*.o
 	rm -f bm qc
 
 pkg-dep:
