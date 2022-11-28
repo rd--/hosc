@@ -11,6 +11,8 @@ jobs:
     strategy:
       matrix:
         versions:
+          - ghc: latest
+            cabal: latest
           - ghc: 9.0.1
             cabal: 3.4.0.0
           - ghc: 8.10.1
