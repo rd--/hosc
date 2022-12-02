@@ -50,7 +50,10 @@ decode_datum ty b =
       's' -> AsciiString (decode_ascii (b_take (size 's' b) b))
       'b' -> Blob (b_take (size 'b' b) (B.drop 4 b))
       't' -> TimeStamp (ntpi_to_ntpr (decode_word64 b))
-      'm' -> let [b0,b1,b2,b3] = B.unpack (B.take 4 b) in midi (b0,b1,b2,b3)
+      'm' ->
+        case B.unpack (B.take 4 b) of
+          [b0,b1,b2,b3] -> midi (b0,b1,b2,b3)
+          _ -> error "decode_datum: illegal midi data"
       _ -> error ("decode_datum: illegal type (" ++ [ty] ++ ")")
 
 -- | Decode a sequence of Osc datum given a type descriptor string.
@@ -65,11 +68,13 @@ decode_datum_seq cs b =
 decodeMessage :: B.ByteString -> Message
 decodeMessage b =
     let n = storage 's' b
-        (AsciiString cmd) = decode_datum 's' b
+        cmd = decode_datum 's' b
         m = storage 's' (b_drop n b)
-        (AsciiString dsc) = decode_datum 's' (b_drop n b)
-        arg = decode_datum_seq (descriptor_tags dsc) (b_drop (n + m) b)
-    in Message (C.unpack cmd) arg
+    in case (cmd, decode_datum 's' (b_drop n b)) of
+         (AsciiString cmd', AsciiString dsc) ->
+           let arg = decode_datum_seq (descriptor_tags dsc) (b_drop (n + m) b)
+           in Message (C.unpack cmd') arg
+         _ -> error "decodeMessage"
 
 -- | Decode a sequence of length prefixed (Int32) Osc messages.
 decode_message_seq :: B.ByteString -> [Message]
@@ -84,9 +89,9 @@ decodeBundle :: B.ByteString -> Bundle
 decodeBundle b =
     let h = storage 's' b -- header (should be '#bundle')
         t = storage 't' (b_drop h b) -- time
-        (TimeStamp timeStamp) = decode_datum 't' (b_drop h b)
-        ms = decode_message_seq (b_drop (h+t) b)
-    in Bundle timeStamp ms
+    in case decode_datum 't' (b_drop h b) of
+         TimeStamp timeStamp -> Bundle timeStamp (decode_message_seq (b_drop (h+t) b))
+         _ -> error "decodeBundle"
 
 -- | Decode an Osc 'Packet'.
 --
