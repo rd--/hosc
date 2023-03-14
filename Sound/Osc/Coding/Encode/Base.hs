@@ -37,6 +37,9 @@ encode_datum dt =
 
 {- | Encode Osc 'Message'.
 
+> blob_unpack (encodeMessage (Message "/x" [])) == [47,120,0,0,44,0,0,0]
+> blob_unpack (encodeMessage (Message "/y" [float 3.141])) == [47,121,0,0,44,102,0,0,64,73,6,37]
+
 > m = Message "/n_set" [int32 (-1), string "freq", float 440, string "amp", float 0.1]
 > e = blob_unpack (encodeMessage m)
 > length e == 40

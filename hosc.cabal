@@ -6,12 +6,12 @@ Description:       Haskell library implementing the Open Sound Control protocol
 License:           GPL-3.0-only
 License-File:      contrib/LICENSE
 Category:          Sound
-Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2007-2022
+Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2007-2023
 Author:            Rohan Drape, Stefan Kersten
 Maintainer:        rd@rohandrape.net
 Stability:         Experimental
 Homepage:          http://rohandrape.net/t/hosc
-Tested-With:       GHC == 9.4.3
+Tested-With:       GHC == 9.6.1
 Build-Type:        Simple
 Data-Files:        README.md
 
