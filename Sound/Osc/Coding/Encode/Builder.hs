@@ -88,8 +88,9 @@ encodePacket = B.toLazyByteString . build_packet
 
 {- | Encode an Osc 'Message', ie. 'encodePacket' of 'Packet_Message'.
 
-> let m = [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
-> encodeMessage (Message "/g_free" [Int32 0]) == L.pack m
+>>> let m = [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
+>>> encodeMessage (Message "/g_free" [Int32 0]) == L.pack m
+True
 
 -}
 encodeMessage :: Message -> L.ByteString
@@ -97,9 +98,10 @@ encodeMessage = encodePacket . Packet_Message
 
 {- | Encode an Osc 'Bundle', ie. 'encodePacket' of 'Packet_Bundle'.
 
-> let m = [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
-> let b = [35,98,117,110,100,108,101,0,0,0,0,0,0,0,0,1,0,0,0,16] ++ m
-> encodeBundle (Bundle immediately [Message "/g_free" [Int32 0]]) == L.pack b
+>>> let m = [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
+>>> let b = [35,98,117,110,100,108,101,0,0,0,0,0,0,0,0,1,0,0,0,16] ++ m
+>>> encodeBundle (Bundle immediately [Message "/g_free" [Int32 0]]) == L.pack b
+True
 
 -}
 encodeBundle :: Bundle -> L.ByteString

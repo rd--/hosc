@@ -3,12 +3,10 @@
 Provides the 'Datum', 'Message', 'Time', 'Bundle' and 'Packet' types
 and the coding functions 'encodePacket' and 'decodePacket'.
 
-> import Sound.Osc.Core {- hosc -}
->
-> let o = bundle immediately [message "/g_free" [Int32 0]]
-> let e = encodeBundle o
-> decodePacket e == Packet_Bundle o
-
+>>> let o = bundle immediately [message "/g_free" [Int32 0]]
+>>> let e = encodeBundle o
+>>> decodePacket e == Packet_Bundle o
+True
 -}
 module Sound.Osc.Core (module M) where
 

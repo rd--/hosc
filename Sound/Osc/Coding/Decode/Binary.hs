@@ -109,8 +109,9 @@ get_packet = fmap Packet_Bundle get_bundle <|> fmap Packet_Message get_message
 
 {- | Decode an Osc 'Message' from a lazy ByteString.
 
-> let b = ByteString.Lazy.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
-> decodeMessage b == Message "/g_free" [Int32 0]
+>>> let b = ByteString.Lazy.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
+>>> decodeMessage b == Message "/g_free" [Int32 0]
+True
 -}
 decodeMessage :: ByteString.Lazy.ByteString -> Message
 decodeMessage = Binary.runGet get_message
@@ -121,8 +122,9 @@ decodeBundle = Binary.runGet get_bundle
 
 {- | Decode an Osc packet from a lazy ByteString.
 
-> let b = ByteString.Lazy.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
-> decodePacket b == Packet_Message (Message "/g_free" [Int32 0])
+>>> let b = ByteString.Lazy.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
+>>> decodePacket b == Packet_Message (Message "/g_free" [Int32 0])
+True
 -}
 decodePacket :: ByteString.Lazy.ByteString -> Packet
 decodePacket = Binary.runGet get_packet

@@ -17,7 +17,8 @@ type FpPrecision = Maybe Int
 
 {- | Variant of 'showFFloat' that deletes trailing zeros.
 
-> map (showFloatWithPrecision (Just 4)) [1, 2.0, pi] == ["1.0", "2.0", "3.1416"]
+>>> map (showFloatWithPrecision (Just 4)) [1, 2.0, pi]
+["1.0","2.0","3.1416"]
 -}
 showFloatWithPrecision :: RealFloat n => FpPrecision -> n -> String
 showFloatWithPrecision p n =
@@ -29,14 +30,16 @@ showFloatWithPrecision p n =
 
 {- | Hex encoded byte sequence.
 
-> showBytes [0, 15, 16, 144, 255] == "000f1090ff"
+>>> showBytes [0, 15, 16, 144, 255]
+"000f1090ff"
 -}
 showBytes :: [Int] -> String
 showBytes = concatMap (printf "%02x")
 
 {- | Escape whites space (space, tab, newline) and the escape character (backslash).
 
-> mapM_ (putStrLn .  escapeString) ["str", "str ", "st r", "s\tr", "s\\tr", "\nstr"]
+>>> map escapeString ["str", "str ", "st r", "s\tr", "s\\tr", "\nstr"]
+["str","str\\ ","st\\ r","s\\\tr","s\\\\tr","\\\nstr"]
 -}
 escapeString :: String -> String
 escapeString txt =
@@ -46,8 +49,9 @@ escapeString txt =
 
 {- | Printer for Datum.
 
-> aDatumSeq = [Int32 1,Float 1.2,string "str",midi (0,0x90,0x40,0x60),blob [12,16], TimeStamp 100.0]
-> map (showDatum (Just 5)) aDatumSeq == ["1","1.2","str","00904060","0c10","429496729600"]
+>>> let aDatumSeq = [Int32 1,Float 1.2,string "str",midi (0,0x90,0x40,0x60),blob [12,16], TimeStamp 100.0]
+>>> map (showDatum (Just 5)) aDatumSeq
+["1","1.2","str","00904060","0c10","429496729600"]
 -}
 showDatum :: FpPrecision -> Datum -> String
 showDatum p d =
@@ -63,11 +67,13 @@ showDatum p d =
 
 {- | Printer for Message.
 
-> aMessage = Message "/addr" [Int32 1, Int64 2, Float 3, Double 4, string "five", blob [6, 7], midi (8, 9, 10, 11)]
-> showMessage (Just 4) aMessage
+>>> let aMessage = Message "/addr" [Int32 1, Int64 2, Float 3, Double 4, string "five", blob [6, 7], midi (8, 9, 10, 11)]
+>>> showMessage (Just 4) aMessage
+"/addr ,ihfdsbm 1 2 3.0 4.0 five 0607 08090a0b"
 
-> aMessageSeq = [Message "/c_set" [Int32 1, Float 2.3], Message "/s_new" [string "sine", Int32 (-1), Int32 1, Int32 1]]
-> map (showMessage (Just 4)) aMessageSeq
+>>> let aMessageSeq = [Message "/c_set" [Int32 1, Float 2.3], Message "/s_new" [string "sine", Int32 (-1), Int32 1, Int32 1]]
+>>> map (showMessage (Just 4)) aMessageSeq
+["/c_set ,if 1 2.3","/s_new ,siii sine -1 1 1"]
 -}
 showMessage :: FpPrecision -> Message -> String
 showMessage precision aMessage =
@@ -78,8 +84,9 @@ showMessage precision aMessage =
 
 {- | Printer for Bundle
 
-> aBundle = Bundle 1 [Message "/c_set" [Int32 1, Float 2.3, Int64 4, Double 5.6], Message "/memset" [string "addr", blob [7, 8]]]
-> showBundle (Just 4) aBundle
+>>> let aBundle = Bundle 1 [Message "/c_set" [Int32 1, Float 2.3, Int64 4, Double 5.6], Message "/memset" [string "addr", blob [7, 8]]]
+>>> showBundle (Just 4) aBundle
+"#bundle 4294967296 2 /c_set ,ifhd 1 2.3 4 5.6 /memset ,sb addr 0708"
 -}
 showBundle :: FpPrecision -> Bundle -> String
 showBundle precision aBundle =
@@ -225,32 +232,38 @@ runP p txt =
 
 {- | Run datum parser.
 
-> parseDatum 'i' "-1" == Int32 (-1)
-> parseDatum 'f' "-2.3" == Float (-2.3)
+>>> parseDatum 'i' "-1" == Int32 (-1)
+True
+
+>>> parseDatum 'f' "-2.3" == Float (-2.3)
+True
 -}
 parseDatum :: Char -> String -> Datum
 parseDatum typ = runP (datumP typ)
 
 {- | Run message parser.
 
-> aMessageSeq = [Message "/c_set" [Int32 1, Float 2.3, Int64 4, Double 5.6], Message "/memset" [string "addr", blob [7, 8]]]
-> map (parseMessage . showMessage (Just 4)) aMessageSeq  == aMessageSeq
+>>> let aMessageSeq = [Message "/c_set" [Int32 1, Float 2.3, Int64 4, Double 5.6], Message "/memset" [string "addr", blob [7, 8]]]
+>>> map (parseMessage . showMessage (Just 4)) aMessageSeq  == aMessageSeq
+True
 -}
 parseMessage :: String -> Message
 parseMessage = runP messageP
 
 {- | Run bundle parser.
 
-> aBundle = Bundle 1 [Message "/c_set" [Int32 1, Float 2.3, Int64 4, Double 5.6], Message "/memset" [string "addr", blob [7, 8]]]
-> parseBundle (showBundle (Just 4) aBundle) == aBundle
+>>> let aBundle = Bundle 1 [Message "/c_set" [Int32 1, Float 2.3, Int64 4, Double 5.6], Message "/memset" [string "addr", blob [7, 8]]]
+>>> parseBundle (showBundle (Just 4) aBundle) == aBundle
+True
 -}
 parseBundle :: String -> Bundle
 parseBundle = runP bundleP
 
 {- | Run packet parser.
 
-> aPacket = Packet_Bundle (Bundle 1 [Message "/c_set" [Int32 1, Float 2.3, Int64 4, Double 5.6], Message "/memset" [string "addr", blob [7, 8]]])
-> parsePacket (showPacket (Just 4) aPacket) == aPacket
+>>> let aPacket = Packet_Bundle (Bundle 1 [Message "/c_set" [Int32 1, Float 2.3, Int64 4, Double 5.6], Message "/memset" [string "addr", blob [7, 8]]])
+>>> parsePacket (showPacket (Just 4) aPacket) == aPacket
+True
 -}
 parsePacket :: String -> Packet
 parsePacket = runP packetP

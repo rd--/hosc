@@ -28,7 +28,9 @@ type PosixReal = Double
 
 {- | Convert an NtpReal timestamp to an Ntp64 timestamp.
 
-> ntpr_to_ntpi 0 == 0
+>>> ntpr_to_ntpi 0
+0
+
 > fmap ntpr_to_ntpi time
 -}
 ntpr_to_ntpi :: NtpReal -> Ntp64
@@ -36,15 +38,19 @@ ntpr_to_ntpi t = round (t * (2 ^ (32::Int)))
 
 {- | Convert an 'Ntp64' timestamp to a real-valued Ntp timestamp.
 
-> ntpi_to_ntpr 0 == 0.0
+>>> ntpi_to_ntpr 0
+0.0
 -}
 ntpi_to_ntpr :: Ntp64 -> NtpReal
 ntpi_to_ntpr t = word64_to_double t / 2^(32::Int)
 
 {- | Difference (in seconds) between /Ntp/ and /Posix/ epochs.
 
-> ntp_posix_epoch_diff / (24 * 60 * 60) == 25567
-> 25567 `div` 365 == 70
+>>> ntp_posix_epoch_diff / (24 * 60 * 60)
+25567.0
+
+>>> 25567 `div` 365
+70
 -}
 ntp_posix_epoch_diff :: Num n => n
 ntp_posix_epoch_diff = (70 * 365 + 17) * 24 * 60 * 60

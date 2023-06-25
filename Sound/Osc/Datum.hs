@@ -131,10 +131,12 @@ datum_type_name d = let c = datum_tag d in (c,osc_type_name_err c)
 
 -- * Generalised element access
 
--- | 'Datum' as 'Integral' if Int32 or Int64.
---
--- > let d = [Int32 5,Int64 5,Float 5.5,Double 5.5]
--- > map datum_integral d == [Just (5::Int),Just 5,Nothing,Nothing]
+{- | 'Datum' as 'Integral' if Int32 or Int64.
+
+>>> let d = [Int32 5,Int64 5,Float 5.5,Double 5.5]
+>>> map datum_integral d == [Just (5::Int),Just 5,Nothing,Nothing]
+True
+-}
 datum_integral :: Integral i => Datum -> Maybe i
 datum_integral d =
     case d of
@@ -142,10 +144,12 @@ datum_integral d =
       Int64 x -> Just (fromIntegral x)
       _ -> Nothing
 
--- | 'Datum' as 'Floating' if Int32, Int64, Float, Double or TimeStamp.
---
--- > let d = [Int32 5,Int64 5,Float 5,Double 5,TimeStamp 5]
--- > mapMaybe datum_floating d == replicate 5 (5::Double)
+{- | 'Datum' as 'Floating' if Int32, Int64, Float, Double or TimeStamp.
+
+>>> let d = [Int32 5,Int64 5,Float 5,Double 5,TimeStamp 5]
+>>> mapMaybe datum_floating d == replicate 5 (5::Double)
+True
+-}
 datum_floating :: Floating n => Datum -> Maybe n
 datum_floating d =
     case d of
@@ -158,45 +162,69 @@ datum_floating d =
 
 -- * Constructors
 
--- | Type generalised 'Int32'.
---
--- > int32 (1::Int32) == int32 (1::Integer)
--- > d_int32 (int32 (maxBound::Int32)) == maxBound
--- > int32 (((2::Int) ^ (64::Int))::Int) == Int32 0
+{- | Type generalised 'Int32'.
+
+>>> int32 (1::Int32) == int32 (1::Integer)
+True
+
+>>> d_int32 (int32 (maxBound::Int32)) == maxBound
+True
+
+>>> int32 (((2::Int) ^ (64::Int))::Int) == Int32 0
+True
+-}
 int32 :: Integral n => n -> Datum
 int32 = Int32 . fromIntegral
 
--- | Type generalised Int64.
---
--- > int64 (1::Int32) == int64 (1::Integer)
--- > d_int64 (int64 (maxBound::Int64)) == maxBound
+{- | Type generalised Int64.
+
+>>> int64 (1::Int32) == int64 (1::Integer)
+True
+
+>>> d_int64 (int64 (maxBound::Int64)) == maxBound
+True
+-}
 int64 :: Integral n => n -> Datum
 int64 = Int64 . fromIntegral
 
--- | Type generalised Float.
---
--- > float (1::Int) == float (1::Double)
--- > floatRange (undefined::Float) == (-125,128)
--- > isInfinite (d_float (float (encodeFloat 1 256 :: Double))) == True
+{- | Type generalised Float.
+
+>>> float (1::Int) == float (1::Double)
+True
+
+>>> floatRange (undefined::Float)
+(-125,128)
+
+>>> isInfinite (d_float (float (encodeFloat 1 256 :: Double)))
+True
+-}
 float :: Real n => n -> Datum
 float = Float . realToFrac
 
--- | Type generalised Double.
---
--- > double (1::Int) == double (1::Double)
--- > double (encodeFloat 1 256 :: Double) == Double 1.157920892373162e77
+{- | Type generalised Double.
+
+>>> double (1::Int) == double (1::Double)
+True
+
+>>> double (encodeFloat 1 256 :: Double) == Double 1.157920892373162e77
+True
+-}
 double :: Real n => n -> Datum
 double = Double . realToFrac
 
--- | 'AsciiString' of pack.
---
--- > string "string" == AsciiString (ByteString.Char8.pack "string")
+{- | 'AsciiString' of pack.
+
+>>> string "string" == AsciiString (ByteString.Char8.pack "string")
+True
+-}
 string :: String -> Datum
 string = AsciiString . ascii
 
--- | Four-tuple variant of 'Midi' '.' 'MidiData'.
---
--- > midi (0,0,0,0) == Midi (MidiData 0 0 0 0)
+{- | Four-tuple variant of 'Midi' '.' 'MidiData'.
+
+>>> midi (0,0,0,0) == Midi (MidiData 0 0 0 0)
+True
+-}
 midi :: (Word8,Word8,Word8,Word8) -> Datum
 midi (p,q,r,s) = Midi (MidiData p q r s)
 
@@ -208,14 +236,16 @@ blob = Blob . blob_pack
 
 {- | Message argument types are given by a signature.
 
-> signatureFor [Int32 1,Float 1,string "1"] == ",ifs"
+>>> signatureFor [Int32 1,Float 1,string "1"]
+",ifs"
 -}
 signatureFor :: [Datum] -> String
 signatureFor = (',' :) . map datum_tag
 
 {- | The descriptor is an Ascii encoded signature.
 
-> descriptor [Int32 1,Float 1,string "1"] == ascii ",ifs"
+>>> descriptor [Int32 1,Float 1,string "1"] == ascii ",ifs"
+True
 -}
 descriptor :: [Datum] -> Ascii
 descriptor = ascii . signatureFor

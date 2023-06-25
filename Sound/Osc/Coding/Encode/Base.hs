@@ -20,7 +20,8 @@ extend p s = B.append s (B.replicate (align (B.length s)) p)
 
 MidiData: Bytes from MSB to LSB are: port id, status byte, data1, data2.
 
-> encode_datum (blob [1, 2, 3, 4]) == B.pack [0, 0, 0, 4, 1, 2, 3, 4]
+>>> encode_datum (blob [1, 2, 3, 4]) == B.pack [0, 0, 0, 4, 1, 2, 3, 4]
+True
 -}
 encode_datum :: Datum -> B.ByteString
 encode_datum dt =
@@ -37,13 +38,19 @@ encode_datum dt =
 
 {- | Encode Osc 'Message'.
 
-> blob_unpack (encodeMessage (Message "/x" [])) == [47,120,0,0,44,0,0,0]
-> blob_unpack (encodeMessage (Message "/y" [float 3.141])) == [47,121,0,0,44,102,0,0,64,73,6,37]
+>>> blob_unpack (encodeMessage (Message "/x" []))
+[47,120,0,0,44,0,0,0]
 
-> m = Message "/n_set" [int32 (-1), string "freq", float 440, string "amp", float 0.1]
-> e = blob_unpack (encodeMessage m)
-> length e == 40
-> e == [47,110,95,115,101,116,0,0,44,105,115,102,115,102,0,0,255,255,255,255,102,114,101,113,0,0,0,0,67,220,0,0,97,109,112,0,61,204,204,205]
+>>> blob_unpack (encodeMessage (Message "/y" [float 3.141]))
+[47,121,0,0,44,102,0,0,64,73,6,37]
+
+>>> let m = Message "/n_set" [int32 (-1), string "freq", float 440, string "amp", float 0.1]
+>>> let e = blob_unpack (encodeMessage m)
+>>> length e
+40
+
+>>> take 20 e
+[47,110,95,115,101,116,0,0,44,105,115,102,115,102,0,0,255,255,255,255]
 -}
 encodeMessage :: Message -> B.ByteString
 encodeMessage (Message c l) =
@@ -57,10 +64,14 @@ encode_message_blob = Blob . encodeMessage
 
 {- | Encode Osc 'Bundle'.
 
-b = Bundle 0.0 [m]
-e = blob_unpack (encodeBundle b)
-length e == 60
-e == [35,98,117,110,100,108,101,0,0,0,0,0,0,0,0,0,0,0,0,40,47,110,95,115,101,116,0,0,44,105,115,102,115,102,0,0,255,255,255,255,102,114,101,113,0,0,0,0,67,220,0,0,97,109,112,0,61,204,204,205]
+>>> let m = Message "/n_set" [int32 (-1), string "freq", float 440, string "amp", float 0.1]
+>>> let b = Bundle 0.0 [m]
+>>> let e = blob_unpack (encodeBundle b)
+>>> length e
+60
+
+>> take 20 e
+[35,98,117,110,100,108,101,0,0,0,0,0,0,0,0,0,0,0,0,40]
 -}
 encodeBundle :: Bundle -> B.ByteString
 encodeBundle (Bundle t m) =

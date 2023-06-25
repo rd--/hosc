@@ -37,7 +37,11 @@ u64_bytes = i64_bytes
 cast_f32_i32 :: Float -> Int32
 cast_f32_i32 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Int32)
 
--- > cast_f32_u32 3.141 == 1078527525
+{- | Float to Word32
+
+>>> cast_f32_u32 3.141
+1078527525
+-}
 cast_f32_u32 :: Float -> Word32
 cast_f32_u32 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Word32)
 
@@ -53,7 +57,11 @@ f32_f64 n = realToFrac n
 cast_f64_i64 :: Double -> Int64
 cast_f64_i64 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Int64)
 
--- > cast_f64_u64 3.141 == 4614255322014802772
+{- | Double to Word64
+
+>>> cast_f64_u64 3.141
+4614255322014802772
+-}
 cast_f64_u64 :: Double -> Word64
 cast_f64_u64 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Word64)
 
@@ -97,7 +105,11 @@ bytes_i64 _ = error "illegal input"
 cast_i32_f32 :: Int32 -> Float
 cast_i32_f32 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Float)
 
--- > cast_u32_f32 1078527525 == 3.141
+{- | Word32 to Float
+
+>>> cast_u32_f32 1078527525
+3.141
+-}
 cast_u32_f32 :: Word32 -> Float
 cast_u32_f32 d = runST ((fromArray =<< castSTUArray =<< singletonArray d) :: ST s Float)
 

@@ -1,8 +1,9 @@
 -- | Base-level decode function for Osc packets.
 --   For ordinary use see 'Sound.Osc.Coding.Decode.Binary'.
-module Sound.Osc.Coding.Decode.Base (decodeMessage
-                                    ,decodeBundle
-                                    ,decodePacket) where
+module Sound.Osc.Coding.Decode.Base
+  (decodeMessage
+  ,decodeBundle
+  ,decodePacket) where
 
 import Data.Binary {- base -}
 import qualified Data.ByteString.Char8 as C {- bytestring -}
@@ -93,17 +94,19 @@ decodeBundle b =
          TimeStamp timeStamp -> Bundle timeStamp (decode_message_seq (b_drop (h+t) b))
          _ -> error "decodeBundle"
 
--- | Decode an Osc 'Packet'.
---
--- > let b = B.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
--- > decodePacket b == Packet_Message (Message "/g_free" [Int32 0])
+{- | Decode an Osc 'Packet'.
+
+>>> let b = B.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
+>>> decodePacket b == Packet_Message (Message "/g_free" [Int32 0])
+True
+-}
 decodePacket :: B.ByteString -> Packet
 decodePacket b =
     if bundleHeader `B.isPrefixOf` b
     then Packet_Bundle (decodeBundle b)
     else Packet_Message (decodeMessage b)
 
--- * UTIL
+-- * Util
 
 -- | 'B.take' with 'Int' count.
 b_take :: Int -> B.ByteString -> B.ByteString

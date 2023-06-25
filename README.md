@@ -29,3 +29,11 @@ see the [history](http://rohandrape.net/?t=hosc&q=history) for details
 [ht]: http://www.henning-thielemann.de/Research.html
 [gpl]: http://gnu.org/copyleft/
 [gpl-3]: http://gnu.org/licenses/gpl-3.0.html
+
+* * *
+
+```
+$ doctest Sound/Osc/
+Examples: 86  Tried: 86  Errors: 0  Failures: 0
+$
+```
