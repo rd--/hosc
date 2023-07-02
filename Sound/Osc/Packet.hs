@@ -71,8 +71,8 @@ p_message a = Packet_Message . message a
 
 {- | Constant indicating a bundle to be executed immediately.  It has the Ntp64 representation of @1@.
 
-> import Sound.Osc.Time
-> ntpr_to_ntpi immediately == 1
+>>> immediately == (1 / (2 ^ 32))
+True
 -}
 immediately :: Time
 immediately = 1 / 2^(32::Int)
