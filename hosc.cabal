@@ -11,7 +11,7 @@ Author:            Rohan Drape, Stefan Kersten
 Maintainer:        rd@rohandrape.net
 Stability:         Experimental
 Homepage:          http://rohandrape.net/t/hosc
-Tested-With:       GHC == 9.6.1
+Tested-With:       GHC == 9.8.1
 Build-Type:        Simple
 Data-Files:        README.md
 
