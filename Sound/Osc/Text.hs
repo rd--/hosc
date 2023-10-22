@@ -6,6 +6,8 @@ import Data.Char {- base -}
 import Numeric {- base -}
 import Text.Printf {- base -}
 
+import qualified Safe {- safe -}
+
 import qualified Text.ParserCombinators.Parsec as P {- parsec -}
 
 import Sound.Osc.Datum {- hosc -}
@@ -203,7 +205,7 @@ messageP :: P Message
 messageP = do
   address <- oscAddressP
   typeSignature <- oscSignatureP
-  datum <- mapM datumP (tail typeSignature)
+  datum <- mapM datumP (Safe.tailNote "messageP" typeSignature)
   return (Message address datum)
 
 -- | Bundle tag parser.

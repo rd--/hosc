@@ -23,6 +23,7 @@ Library
                    data-binary-ieee754,
                    network >= 2.3,
                    parsec,
+                   safe,
                    time >= 1.5,
                    transformers
   Default-Language:Haskell2010
