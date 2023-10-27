@@ -8,19 +8,51 @@ import qualified Data.Binary.IEEE754 as Ieee {- data-binary-ieee754 -}
 
 import Sound.Osc.Coding.Convert {- hosc -}
 
--- | The IEEE byte representation of a float.
+{- | The IEEE byte representation of a float.
+
+>>> f32_w32 pi
+1078530011
+
+>>> f32_w32 (-7913907.5)
+3404825447
+
+>>> 23 ^ 7
+3404825447
+-}
 f32_w32 :: Float -> Word32
 f32_w32 = Ieee.floatToWord
 
--- | Inverse of 'f32_w32'.
+{- | Inverse of 'f32_w32'.
+
+>>> w32_f32 1078530011
+3.1415927
+
+>>> w32_f32 (23 ^ 7)
+-7913907.5
+-}
 w32_f32 :: Word32 -> Float
 w32_f32 = Ieee.wordToFloat
 
--- | The IEEE byte representation of a double.
+{- | The IEEE byte representation of a double.
+
+
+>>> f64_w64 pi
+4614256656552045848
+
+>>> f64_w64 1.6822072834e-314
+3404825447
+-}
 f64_w64 :: Double -> Word64
 f64_w64 = Ieee.doubleToWord
 
--- | Inverse of 'f64_i64'.
+{- | Inverse of 'f64_i64'.
+
+>>> w64_f64 4614256656552045848
+3.141592653589793
+
+>>> w64_f64 (23 ^ 7)
+1.6822072834e-314
+-}
 w64_f64 :: Word64 -> Double
 w64_f64 = Ieee.wordToDouble
 
