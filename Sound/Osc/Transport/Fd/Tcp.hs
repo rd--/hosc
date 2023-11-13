@@ -24,11 +24,11 @@ tcp_send_data (Tcp fd) d = do
   Io.hFlush fd
 
 -- | Send packet over Tcp.
-tcp_send_packet :: Tcp -> Packet.Packet -> IO ()
+tcp_send_packet :: Tcp -> Packet.Packet Packet.Message -> IO ()
 tcp_send_packet tcp p = tcp_send_data tcp (Encode.Builder.encodePacket p)
 
 -- | Receive packet over Tcp.
-tcp_recv_packet :: Tcp -> IO Packet.Packet
+tcp_recv_packet :: Tcp -> IO (Packet.Packet Packet.Message)
 tcp_recv_packet (Tcp fd) = do
   b0 <- ByteString.Lazy.hGet fd 4
   b1 <- ByteString.Lazy.hGet fd (Convert.word32_to_int (Byte.decode_word32 b0))

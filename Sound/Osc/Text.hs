@@ -90,7 +90,7 @@ showMessage precision aMessage =
 >>> showBundle (Just 4) aBundle
 "#bundle 4294967296 2 /c_set ,ifhd 1 2.3 4 5.6 /memset ,sb addr 0708"
 -}
-showBundle :: FpPrecision -> Bundle -> String
+showBundle :: FpPrecision -> Bundle Message -> String
 showBundle precision aBundle =
   let messages = bundleMessages aBundle
   in unwords
@@ -100,7 +100,7 @@ showBundle precision aBundle =
      ,unwords (map (showMessage precision) messages)]
 
 -- | Printer for Packet.
-showPacket :: FpPrecision -> Packet -> String
+showPacket :: FpPrecision -> Packet Message -> String
 showPacket precision = at_packet (showMessage precision) (showBundle precision)
 
 -- * Parser
@@ -213,7 +213,7 @@ bundleTagP :: P String
 bundleTagP = lexemeP (P.string "#bundle")
 
 -- | Bundle parser.
-bundleP :: P Bundle
+bundleP :: P (Bundle Message)
 bundleP = do
   _ <- bundleTagP
   timestamp <- fmap ntpi_to_ntpr integerP
@@ -222,7 +222,7 @@ bundleP = do
   return (Bundle timestamp messages)
 
 -- | Packet parser.
-packetP :: P Packet
+packetP :: P (Packet Message)
 packetP = (fmap Packet_Bundle bundleP) P.<|> (fmap Packet_Message messageP)
 
 -- | Run parser.
@@ -258,7 +258,7 @@ parseMessage = runP messageP
 >>> parseBundle (showBundle (Just 4) aBundle) == aBundle
 True
 -}
-parseBundle :: String -> Bundle
+parseBundle :: String -> Bundle Message
 parseBundle = runP bundleP
 
 {- | Run packet parser.
@@ -267,5 +267,5 @@ parseBundle = runP bundleP
 >>> parsePacket (showPacket (Just 4) aPacket) == aPacket
 True
 -}
-parsePacket :: String -> Packet
+parsePacket :: String -> Packet Message
 parsePacket = runP packetP

@@ -91,7 +91,7 @@ get_message_seq = do
             return (p:ps)
 
 -- | Get a bundle. Fail if bundle header is not found in packet.
-get_bundle :: Binary.Get Bundle
+get_bundle :: Binary.Get (Bundle Message)
 get_bundle = do
     h <- Binary.getByteString (ByteString.Char8.length Byte.bundleHeader_strict)
     when (h /= Byte.bundleHeader_strict) (fail "get_bundle: not a bundle")
@@ -99,7 +99,7 @@ get_bundle = do
     fmap (Bundle t) get_message_seq
 
 -- | Get an Osc 'Packet'.
-get_packet :: Binary.Get Packet
+get_packet :: Binary.Get (Packet Message)
 get_packet = fmap Packet_Bundle get_bundle <|> fmap Packet_Message get_message
 
 {-# INLINE decodeMessage #-}
@@ -117,7 +117,7 @@ decodeMessage :: ByteString.Lazy.ByteString -> Message
 decodeMessage = Binary.runGet get_message
 
 -- | Decode an Osc 'Bundle' from a lazy ByteString.
-decodeBundle :: ByteString.Lazy.ByteString -> Bundle
+decodeBundle :: ByteString.Lazy.ByteString -> Bundle Message
 decodeBundle = Binary.runGet get_bundle
 
 {- | Decode an Osc packet from a lazy ByteString.
@@ -126,9 +126,9 @@ decodeBundle = Binary.runGet get_bundle
 >>> decodePacket b == Packet_Message (Message "/g_free" [Int32 0])
 True
 -}
-decodePacket :: ByteString.Lazy.ByteString -> Packet
+decodePacket :: ByteString.Lazy.ByteString -> Packet Message
 decodePacket = Binary.runGet get_packet
 
 -- | Decode an Osc packet from a strict Char8 ByteString.
-decodePacket_strict :: ByteString.Char8.ByteString -> Packet
+decodePacket_strict :: ByteString.Char8.ByteString -> Packet Message
 decodePacket_strict = Binary.runGet get_packet . ByteString.Lazy.fromChunks . (:[])

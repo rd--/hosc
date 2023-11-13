@@ -71,7 +71,7 @@ build_bundle_ntpi t l =
             ,mconcat (map (build_bytes . B.toLazyByteString . build_message) l)]
 
 -- | Builder for an Osc 'Packet'.
-build_packet :: Packet -> B.Builder
+build_packet :: Packet Message -> B.Builder
 build_packet o =
     case o of
       Packet_Message m -> build_message m
@@ -83,7 +83,7 @@ build_packet o =
 {-# INLINE encodePacket_strict #-}
 
 -- | Encode an Osc 'Packet'.
-encodePacket :: Packet -> L.ByteString
+encodePacket :: Packet Message -> L.ByteString
 encodePacket = B.toLazyByteString . build_packet
 
 {- | Encode an Osc 'Message', ie. 'encodePacket' of 'Packet_Message'.
@@ -104,9 +104,9 @@ encodeMessage = encodePacket . Packet_Message
 True
 
 -}
-encodeBundle :: Bundle -> L.ByteString
+encodeBundle :: Bundle Message -> L.ByteString
 encodeBundle = encodePacket . Packet_Bundle
 
 -- | Encode an Osc 'Packet' to a strict 'S.ByteString'.
-encodePacket_strict :: Packet -> S.ByteString
+encodePacket_strict :: Packet Message -> S.ByteString
 encodePacket_strict = B.toByteString . build_packet

@@ -16,12 +16,12 @@ import qualified Sound.Osc.Wait as Wait {- hosc -}
 -- | Sender monad.
 class Monad m => SendOsc m where
    -- | Encode and send an Osc packet.
-   sendPacket :: Packet.Packet -> m ()
+   sendPacket :: Packet.Packet Packet.Message -> m ()
 
 -- | Receiver monad.
 class Monad m => RecvOsc m where
    -- | Receive and decode an Osc packet.
-   recvPacket :: m Packet.Packet
+   recvPacket :: m (Packet.Packet Packet.Message)
 
 -- | 'DuplexOsc' is the union of 'SendOsc' and 'RecvOsc'.
 class (SendOsc m,RecvOsc m) => DuplexOsc m where
@@ -61,13 +61,13 @@ sendMessage :: SendOsc m => Packet.Message -> m ()
 sendMessage = sendPacket . Packet.Packet_Message
 
 -- | Type restricted synonym for 'sendOsc'.
-sendBundle :: SendOsc m => Packet.Bundle -> m ()
+sendBundle :: SendOsc m => Packet.Bundle Packet.Message -> m ()
 sendBundle = sendPacket . Packet.Packet_Bundle
 
 -- * Receive
 
 -- | Variant of 'recvPacket' that runs 'packet_to_bundle'.
-recvBundle :: (RecvOsc m) => m Packet.Bundle
+recvBundle :: (RecvOsc m) => m (Packet.Bundle Packet.Message)
 recvBundle = fmap Packet.packet_to_bundle recvPacket
 
 -- | Variant of 'recvPacket' that runs 'packet_to_message'.
@@ -86,16 +86,16 @@ recvMessages = fmap Packet.packetMessages recvPacket
 
 -- | Wait for a 'Packet' where the supplied predicate is 'True',
 -- discarding intervening packets.
-waitUntil :: (RecvOsc m) => (Packet.Packet -> Bool) -> m Packet.Packet
+waitUntil :: (RecvOsc m) => (Packet.Packet Packet.Message -> Bool) -> m (Packet.Packet Packet.Message)
 waitUntil f = Wait.untilPredicate f recvPacket
 
 -- | Wait for a 'Packet' where the supplied function does not give
 -- 'Nothing', discarding intervening packets.
-waitFor :: (RecvOsc m) => (Packet.Packet -> Maybe a) -> m a
+waitFor :: (RecvOsc m) => (Packet.Packet Packet.Message -> Maybe a) -> m a
 waitFor f = Wait.untilMaybe f recvPacket
 
 -- | 'waitUntil' 'packet_is_immediate'.
-waitImmediate :: RecvOsc m => m Packet.Packet
+waitImmediate :: RecvOsc m => m (Packet.Packet Packet.Message)
 waitImmediate = waitUntil Packet.packet_is_immediate
 
 -- | 'waitFor' 'packet_to_message', ie. an incoming 'Message' or
@@ -105,7 +105,7 @@ waitMessage = waitFor Packet.packet_to_message
 
 -- | A 'waitFor' for variant using 'packet_has_address' to match on
 -- the 'Address_Pattern' of incoming 'Packets'.
-waitAddress :: RecvOsc m => Packet.Address_Pattern -> m Packet.Packet
+waitAddress :: RecvOsc m => Packet.Address_Pattern -> m (Packet.Packet Packet.Message)
 waitAddress s =
     let f o = if Packet.packet_has_address s o then Just o else Nothing
     in waitFor f
