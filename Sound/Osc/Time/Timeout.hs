@@ -11,5 +11,5 @@ timeout_r :: Double -> IO a -> IO (Maybe a)
 timeout_r = timeout . floor . (* 1000000)
 
 -- | Variant of 'recvPacket' that implements an /n/ second 'timeout'.
-recvPacketTimeout :: Transport t => Double -> t -> IO (Maybe (Packet Message))
+recvPacketTimeout :: Transport t => Double -> t -> IO (Maybe (PacketOf Message))
 recvPacketTimeout n fd = timeout_r n (recvPacket fd)

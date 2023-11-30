@@ -86,7 +86,7 @@ decode_message_seq b =
     in if B.length b == 0 then [] else m:nxt
 
 -- | Decode an Osc 'Bundle'.
-decodeBundle :: B.ByteString -> Bundle Message
+decodeBundle :: B.ByteString -> BundleOf Message
 decodeBundle b =
     let h = storage 's' b -- header (should be '#bundle')
         t = storage 't' (b_drop h b) -- time
@@ -100,7 +100,7 @@ decodeBundle b =
 >>> decodePacket b == Packet_Message (Message "/g_free" [Int32 0])
 True
 -}
-decodePacket :: B.ByteString -> Packet Message
+decodePacket :: B.ByteString -> PacketOf Message
 decodePacket b =
     if bundleHeader `B.isPrefixOf` b
     then Packet_Bundle (decodeBundle b)

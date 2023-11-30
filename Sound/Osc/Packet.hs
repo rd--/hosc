@@ -34,20 +34,23 @@ messageDescriptor = descriptor . messageDatum
 -- * Bundle
 
 {- | An Osc bundle, a 'Time' and a sequence of 'Message's.
-Do not allow recursion, all contents must be messages.
+The type parameter specifies the element type.
+Ordinarily this is Message, which does not allow recursion.
 -}
-data Bundle t =
+data BundleOf t =
   Bundle
   {bundleTime :: !Time
   ,bundleMessages :: ![t]}
   deriving (Eq,Read,Show)
 
+type Bundle = BundleOf Message
+
 -- | Osc 'Bundle's can be ordered (time ascending).
-instance Eq t => Ord (Bundle t) where
+instance Eq t => Ord (BundleOf t) where
     compare (Bundle a _) (Bundle b _) = compare a b
 
 -- | 'Bundle' constructor. It is an 'error' if the 'Message' list is empty.
-bundle :: Time -> [t] -> Bundle t
+bundle :: Time -> [t] -> BundleOf t
 bundle t xs =
     case xs of
       [] -> error "bundle: empty?"
@@ -55,21 +58,24 @@ bundle t xs =
 
 -- * Packet
 
--- | An Osc 'Packet' is either a 'Message' or a 'Bundle Message'.
-data Packet t =
+{- | An Osc 'Packet' is either a 'Message' or a 'Bundle t'. -}
+data PacketOf t =
   Packet_Message {packetMessage :: !Message} |
-  Packet_Bundle {packetBundle :: !(Bundle t)}
+  Packet_Bundle {packetBundle :: !(BundleOf t)}
   deriving (Eq,Read,Show)
 
+type Packet = PacketOf Message
+
 -- | 'Packet_Bundle' of 'bundle'.
-p_bundle :: Time -> [t] -> Packet t
+p_bundle :: Time -> [t] -> PacketOf t
 p_bundle t = Packet_Bundle . bundle t
 
 -- | 'Packet_Message' of 'message'.
-p_message :: Address_Pattern -> [Datum] -> Packet t
+p_message :: Address_Pattern -> [Datum] -> PacketOf t
 p_message a = Packet_Message . message a
 
-{- | Constant indicating a bundle to be executed immediately.  It has the Ntp64 representation of @1@.
+{- | Constant indicating a bundle to be executed immediately.
+It has the Ntp64 representation of @1@.
 
 >>> immediately == (1 / (2 ^ 32))
 True
@@ -78,20 +84,20 @@ immediately :: Time
 immediately = 1 / 2^(32::Int)
 
 -- | The 'Time' of 'Packet', if the 'Packet' is a 'Message' this is 'immediately'.
-packetTime :: Packet t -> Time
+packetTime :: PacketOf t -> Time
 packetTime = at_packet (const immediately) bundleTime
 
 -- | Retrieve the set of 'Message's from a 'Packet'.
-packetMessages :: Packet Message -> [Message]
+packetMessages :: PacketOf Message -> [Message]
 packetMessages = at_packet return bundleMessages
 
 -- | If 'Packet' is a 'Message' add 'immediately' timestamp, else 'id'.
-packet_to_bundle :: Packet Message -> Bundle Message
+packet_to_bundle :: PacketOf Message -> BundleOf Message
 packet_to_bundle = at_packet (\m -> Bundle immediately [m]) id
 
 -- | If 'Packet' is a 'Message' or a 'Bundle' with an /immediate/ time
 -- tag and with one element, return the 'Message', else 'Nothing'.
-packet_to_message :: Packet Message -> Maybe Message
+packet_to_message :: PacketOf Message -> Maybe Message
 packet_to_message p =
     case p of
       Packet_Bundle b ->
@@ -101,11 +107,11 @@ packet_to_message p =
       Packet_Message m -> Just m
 
 -- | Is 'Packet' immediate, ie. a 'Bundle' with timestamp 'immediately', or a plain Message.
-packet_is_immediate :: Packet t -> Bool
+packet_is_immediate :: PacketOf t -> Bool
 packet_is_immediate = (== immediately) . packetTime
 
 -- | Variant of 'either' for 'Packet'.
-at_packet :: (Message -> a) -> (Bundle t -> a) -> Packet t -> a
+at_packet :: (Message -> a) -> (BundleOf t -> a) -> PacketOf t -> a
 at_packet f g p =
     case p of
       Packet_Message m -> f m
@@ -119,12 +125,12 @@ message_has_address x = (== x) . messageAddress
 
 -- | Do any of the 'Message's at 'Bundle Message' have the specified
 -- 'Address_Pattern'.
-bundle_has_address :: Address_Pattern -> Bundle Message -> Bool
+bundle_has_address :: Address_Pattern -> BundleOf Message -> Bool
 bundle_has_address x = any (message_has_address x) . bundleMessages
 
 -- | Does 'Packet' have the specified 'Address_Pattern', ie.
 -- 'message_has_address' or 'bundle_has_address'.
-packet_has_address :: Address_Pattern -> Packet Message -> Bool
+packet_has_address :: Address_Pattern -> PacketOf Message -> Bool
 packet_has_address x =
     at_packet (message_has_address x)
               (bundle_has_address x)

@@ -3,23 +3,23 @@ module Sound.Osc.Time.Thread.MonadIO where
 
 import Control.Monad.IO.Class {- base >= 4.9 -}
 
-import Sound.Osc.Time {- hosc -}
-import Sound.Osc.Time.Thread {- hosc -}
+import qualified Sound.Osc.Time as Time {- hosc -}
+import qualified Sound.Osc.Time.Thread as Time.Thread {- hosc -}
 
-time :: MonadIO m => m NtpReal
-time = liftIO currentTime
+time :: MonadIO m => m Time.NtpReal
+time = liftIO Time.currentTime
 
 pauseThread :: (MonadIO m,RealFrac n) => n -> m ()
-pauseThread = liftIO . pauseThreadFor
+pauseThread = liftIO . Time.Thread.pauseThreadFor
 
 wait :: MonadIO m => Double -> m ()
 wait = pauseThread
 
 pauseThreadUntil :: (MonadIO m,RealFrac n) => n -> m ()
-pauseThreadUntil = liftIO . pauseThreadUntilTime
+pauseThreadUntil = liftIO . Time.Thread.pauseThreadUntilTime
 
 sleepThread :: (RealFrac n, MonadIO m) => n -> m ()
-sleepThread = liftIO . sleepThreadFor
+sleepThread = liftIO . Time.Thread.sleepThreadFor
 
 sleepThreadUntil :: (RealFrac n, MonadIO m) => n -> m ()
-sleepThreadUntil = liftIO . sleepThreadUntilTime
+sleepThreadUntil = liftIO . Time.Thread.sleepThreadUntilTime

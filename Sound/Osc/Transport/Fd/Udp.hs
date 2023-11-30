@@ -33,11 +33,11 @@ udp_sendAll_data :: Udp -> B.ByteString -> IO ()
 udp_sendAll_data (Udp fd) = C.sendAll fd
 
 -- | Send packet over Udp.
-udp_send_packet :: Udp -> Packet.Packet Packet.Message -> IO ()
+udp_send_packet :: Udp -> Packet.PacketOf Packet.Message -> IO ()
 udp_send_packet udp = udp_sendAll_data udp . Builder.encodePacket_strict
 
 -- | Receive packet over Udp.
-udp_recv_packet :: Udp -> IO (Packet.Packet Packet.Message)
+udp_recv_packet :: Udp -> IO (Packet.PacketOf Packet.Message)
 udp_recv_packet (Udp fd) = fmap Binary.decodePacket_strict (C.recv fd 8192)
 
 -- | Close Udp.
@@ -105,9 +105,9 @@ udp_server p = do
   return (Udp s)
 
 -- | Send to specified address using 'C.sendAllTo.
-sendTo :: Udp -> Packet.Packet Packet.Message -> N.SockAddr -> IO ()
+sendTo :: Udp -> Packet.PacketOf Packet.Message -> N.SockAddr -> IO ()
 sendTo (Udp fd) p = C.sendAllTo fd (Builder.encodePacket_strict p)
 
 -- | Recv variant to collect message source address.
-recvFrom :: Udp -> IO (Packet.Packet Packet.Message, N.SockAddr)
+recvFrom :: Udp -> IO (Packet.PacketOf Packet.Message, N.SockAddr)
 recvFrom (Udp fd) = fmap (first Binary.decodePacket_strict) (C.recvFrom fd 8192)

@@ -73,7 +73,7 @@ encode_message_blob = Blob . encodeMessage
 >> take 20 e
 [35,98,117,110,100,108,101,0,0,0,0,0,0,0,0,0,0,0,0,40]
 -}
-encodeBundle :: Bundle Message -> B.ByteString
+encodeBundle :: BundleOf Message -> B.ByteString
 encodeBundle (Bundle t m) =
     B.concat
     [bundleHeader
@@ -81,7 +81,7 @@ encodeBundle (Bundle t m) =
     ,B.concat (map (encode_datum . encode_message_blob) m)]
 
 -- | Encode Osc 'Packet'.
-encodePacket :: Packet Message -> B.ByteString
+encodePacket :: PacketOf Message -> B.ByteString
 encodePacket o =
     case o of
       Packet_Message m -> encodeMessage m

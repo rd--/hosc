@@ -12,9 +12,9 @@ import qualified Sound.Osc.Wait as Wait {- hosc -}
 -- | Abstract over the underlying transport protocol.
 class Transport t where
    -- | Encode and send an Osc packet.
-   sendPacket :: t -> Packet Message -> IO ()
+   sendPacket :: t -> PacketOf Message -> IO ()
    -- | Receive and decode an Osc packet.
-   recvPacket :: t -> IO (Packet Message)
+   recvPacket :: t -> IO (PacketOf Message)
    -- | Close an existing connection.
    close :: t -> IO ()
 
@@ -29,13 +29,13 @@ sendMessage :: Transport t => t -> Message -> IO ()
 sendMessage t = sendPacket t . Packet_Message
 
 -- | 'sendPacket' of 'Packet_Bundle'.
-sendBundle :: Transport t => t -> Bundle Message -> IO ()
+sendBundle :: Transport t => t -> BundleOf Message -> IO ()
 sendBundle t = sendPacket t . Packet_Bundle
 
 -- * Receive
 
 -- | Variant of 'recvPacket' that runs 'packet_to_bundle'.
-recvBundle :: (Transport t) => t -> IO (Bundle Message)
+recvBundle :: (Transport t) => t -> IO (BundleOf Message)
 recvBundle = fmap packet_to_bundle . recvPacket
 
 -- | Variant of 'recvPacket' that runs 'packet_to_message'.
@@ -50,16 +50,16 @@ recvMessages = fmap packetMessages . recvPacket
 
 -- | Wait for a 'Packet' where the supplied predicate is 'True',
 -- discarding intervening packets.
-waitUntil :: (Transport t) => t -> (Packet Message -> Bool) -> IO (Packet Message)
+waitUntil :: (Transport t) => t -> (PacketOf Message -> Bool) -> IO (PacketOf Message)
 waitUntil t f = Wait.untilPredicate f (recvPacket t)
 
 -- | Wait for a 'Packet' where the supplied function does not give
 -- 'Nothing', discarding intervening packets.
-waitFor :: (Transport t) => t -> (Packet Message -> Maybe a) -> IO a
+waitFor :: (Transport t) => t -> (PacketOf Message -> Maybe a) -> IO a
 waitFor t f = Wait.untilMaybe f (recvPacket t)
 
 -- | 'waitUntil' 'packet_is_immediate'.
-waitImmediate :: Transport t => t -> IO (Packet Message)
+waitImmediate :: Transport t => t -> IO (PacketOf Message)
 waitImmediate t = waitUntil t packet_is_immediate
 
 -- | 'waitFor' 'packet_to_message', ie. an incoming 'Message' or
@@ -69,7 +69,7 @@ waitMessage t = waitFor t packet_to_message
 
 -- | A 'waitFor' for variant using 'packet_has_address' to match on
 -- the 'Address_Pattern' of incoming 'Packets'.
-waitAddress :: Transport t => t -> Address_Pattern -> IO (Packet Message)
+waitAddress :: Transport t => t -> Address_Pattern -> IO (PacketOf Message)
 waitAddress t s =
     let f o = if packet_has_address s o then Just o else Nothing
     in waitFor t f
