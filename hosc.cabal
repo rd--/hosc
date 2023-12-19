@@ -47,6 +47,7 @@ Library
                    Sound.Osc.Time.Thread.MonadIO
                    Sound.Osc.Time.Timeout
                    Sound.Osc.Transport.Fd
+                   Sound.Osc.Transport.Fd.Socket
                    Sound.Osc.Transport.Fd.Tcp
                    Sound.Osc.Transport.Fd.Udp
                    Sound.Osc.Transport.Monad

@@ -44,7 +44,7 @@ instance Fd.Transport Tcp where
    recvPacket = tcp_recv_packet
    close = tcp_close
 
--- | Bracket UDP communication.
+-- | Bracket Tcp communication.
 with_tcp :: IO Tcp -> (Tcp -> IO t) -> IO t
 with_tcp u = Exception.bracket u tcp_close
 
