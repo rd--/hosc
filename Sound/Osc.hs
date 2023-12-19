@@ -3,6 +3,5 @@ module Sound.Osc (module M) where
 
 import Control.Monad.IO.Class as M (MonadIO, liftIO)
 import Sound.Osc.Core as M
-import Sound.Osc.Transport.Fd.Udp as M
-import Sound.Osc.Transport.Fd.Tcp as M
+import Sound.Osc.Transport.Fd.Socket as M
 import Sound.Osc.Transport.Monad as M
