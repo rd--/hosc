@@ -16,8 +16,7 @@ type OscHostname = String
 type OscPort = Int
 
 -- | Socket address
-data OscSocketAddress = OscSocketAddress OscProtocol OscHostname OscPort
-  deriving (Eq, Read, Show)
+type OscSocketAddress = (OscProtocol, OscHostname, OscPort)
 
 -- | Socket
 data OscSocket = OscUdpSocket Fd.Udp.Udp | OscTcpSocket Fd.Tcp.Tcp
@@ -26,8 +25,8 @@ data OscSocket = OscUdpSocket Fd.Udp.Udp | OscTcpSocket Fd.Tcp.Tcp
 openOscSocket :: OscSocketAddress -> IO OscSocket
 openOscSocket address =
   case address of
-    OscSocketAddress Tcp hostname port -> fmap OscTcpSocket (Fd.Tcp.openTcp hostname port)
-    OscSocketAddress Udp hostname port -> fmap OscUdpSocket (Fd.Udp.openUdp hostname port)
+    (Tcp, hostname, port) -> fmap OscTcpSocket (Fd.Tcp.openTcp hostname port)
+    (Udp, hostname, port) -> fmap OscUdpSocket (Fd.Udp.openUdp hostname port)
 
 -- | 'OscSocket' is an instance of 'Fd.Transport'.
 instance Fd.Transport OscSocket where
