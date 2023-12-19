@@ -5,8 +5,8 @@ import Data.Int {- base -}
 import Data.Maybe {- base -}
 import Data.Word {- base -}
 
-import qualified Data.ByteString.Lazy as ByteString.Lazy {- bytestring -}
 import qualified Data.ByteString.Char8 as ByteString.Char8 {- bytestring -}
+import qualified Data.ByteString.Lazy as ByteString.Lazy {- bytestring -}
 
 -- * Datum
 
@@ -28,7 +28,7 @@ ascii_to_string = ByteString.Char8.unpack
 type Blob = ByteString.Lazy.ByteString
 
 -- | Type-specialised pack.
-blob_pack ::  [Word8] -> Blob
+blob_pack :: [Word8] -> Blob
 blob_pack = ByteString.Lazy.pack
 
 -- | Type-specialised unpack.
@@ -41,9 +41,9 @@ blob_unpack_int = map fromIntegral . blob_unpack
 
 -- | Four-byte midi message: port-id, status-byte, data, data.
 data MidiData = MidiData !Word8 !Word8 !Word8 !Word8
-    deriving (Ord, Eq, Show, Read)
+  deriving (Ord, Eq, Show, Read)
 
-midi_pack ::  [Word8] -> MidiData
+midi_pack :: [Word8] -> MidiData
 midi_pack w =
   case w of
     [m1, m2, m3, m4] -> MidiData m1 m2 m3 m4
@@ -61,44 +61,45 @@ This is the primary form of timestamp used by hosc.
 type Time = Double
 
 -- | The basic elements of Osc messages.
-data Datum = Int32 {d_int32 :: !Int32}
-           | Int64 {d_int64 :: !Int64}
-           | Float {d_float :: !Float}
-           | Double {d_double :: !Double}
-           | AsciiString {d_ascii_string :: !Ascii}
-           | Blob {d_blob :: !Blob}
-           | TimeStamp {d_timestamp :: !Time} -- ie. real valued Ntp
-           | Midi {d_midi :: !MidiData}
-             deriving (Ord, Eq, Read, Show)
+data Datum
+  = Int32 {d_int32 :: !Int32}
+  | Int64 {d_int64 :: !Int64}
+  | Float {d_float :: !Float}
+  | Double {d_double :: !Double}
+  | AsciiString {d_ascii_string :: !Ascii}
+  | Blob {d_blob :: !Blob}
+  | TimeStamp {d_timestamp :: !Time} -- ie. real valued Ntp
+  | Midi {d_midi :: !MidiData}
+  deriving (Ord, Eq, Read, Show)
 
 -- * Datum types
 
 -- | List of required data types (tag, name).
-osc_types_required :: [(DatumType,String)]
+osc_types_required :: [(DatumType, String)]
 osc_types_required =
-    [('i',"Int32")
-    ,('f',"Float")
-    ,('s',"String") -- Ascii
-    ,('b',"Blob")
-    ]
+  [ ('i', "Int32")
+  , ('f', "Float")
+  , ('s', "String") -- Ascii
+  , ('b', "Blob")
+  ]
 
 -- | List of optional data types (tag,name).
 osc_types_optional :: [(DatumType, String)]
 osc_types_optional =
-    [('h',"Int64")
-    ,('t',"TimeStamp")
-    ,('d',"Double")
-    -- ,('S',"Symbol")
+  [ ('h', "Int64")
+  , ('t', "TimeStamp")
+  , ('d', "Double")
+  , -- ,('S',"Symbol")
     -- ,('c',"Character")
     -- ,('r',"RGBA")
-    ,('m',"Midi")
+    ('m', "Midi")
     -- ,('T',"True")
     -- ,('F',"False")
     -- ,('N',"Nil")
     -- ,('I',"Infinitum")
     -- ,('[',"Array_Begin")
     -- ,(']',"Array_End")
-    ]
+  ]
 
 -- | List of all data types (tag,name).
 osc_types :: [(DatumType, String)]
@@ -115,19 +116,19 @@ osc_type_name_err = fromMaybe (error "osc_type_name") . osc_type_name
 -- | Single character identifier of an Osc datum.
 datum_tag :: Datum -> DatumType
 datum_tag d =
-    case d of
-      Int32 _ -> 'i'
-      Int64 _ -> 'h'
-      Float _ -> 'f'
-      Double _ -> 'd'
-      AsciiString _ -> 's'
-      Blob _ -> 'b'
-      TimeStamp _ -> 't'
-      Midi _ -> 'm'
+  case d of
+    Int32 _ -> 'i'
+    Int64 _ -> 'h'
+    Float _ -> 'f'
+    Double _ -> 'd'
+    AsciiString _ -> 's'
+    Blob _ -> 'b'
+    TimeStamp _ -> 't'
+    Midi _ -> 'm'
 
 -- | Type and name of 'Datum'.
 datum_type_name :: Datum -> (DatumType, String)
-datum_type_name d = let c = datum_tag d in (c,osc_type_name_err c)
+datum_type_name d = let c = datum_tag d in (c, osc_type_name_err c)
 
 -- * Generalised element access
 
@@ -139,10 +140,10 @@ True
 -}
 datum_integral :: Integral i => Datum -> Maybe i
 datum_integral d =
-    case d of
-      Int32 x -> Just (fromIntegral x)
-      Int64 x -> Just (fromIntegral x)
-      _ -> Nothing
+  case d of
+    Int32 x -> Just (fromIntegral x)
+    Int64 x -> Just (fromIntegral x)
+    _ -> Nothing
 
 {- | 'Datum' as 'Floating' if Int32, Int64, Float, Double or TimeStamp.
 
@@ -152,13 +153,13 @@ True
 -}
 datum_floating :: Floating n => Datum -> Maybe n
 datum_floating d =
-    case d of
-      Int32 n -> Just (fromIntegral n)
-      Int64 n -> Just (fromIntegral n)
-      Float n -> Just (realToFrac n)
-      Double n -> Just (realToFrac n)
-      TimeStamp n -> Just (realToFrac n)
-      _ -> Nothing
+  case d of
+    Int32 n -> Just (fromIntegral n)
+    Int64 n -> Just (fromIntegral n)
+    Float n -> Just (realToFrac n)
+    Double n -> Just (realToFrac n)
+    TimeStamp n -> Just (realToFrac n)
+    _ -> Nothing
 
 -- * Constructors
 
@@ -225,8 +226,8 @@ string = AsciiString . ascii
 >>> midi (0,0,0,0) == Midi (MidiData 0 0 0 0)
 True
 -}
-midi :: (Word8,Word8,Word8,Word8) -> Datum
-midi (p,q,r,s) = Midi (MidiData p q r s)
+midi :: (Word8, Word8, Word8, Word8) -> Datum
+midi (p, q, r, s) = Midi (MidiData p q r s)
 
 -- | 'Blob' of 'blob_pack'.
 blob :: [Word8] -> Datum

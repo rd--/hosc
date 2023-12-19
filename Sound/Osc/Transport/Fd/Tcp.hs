@@ -6,10 +6,10 @@ import qualified Data.ByteString.Lazy as ByteString.Lazy {- bytestring -}
 import qualified Network.Socket as Socket {- network -}
 import qualified System.IO as Io {- base -}
 
-import qualified Sound.Osc.Coding.Decode.Binary as Decode.Binary {- hosc -}
-import qualified Sound.Osc.Coding.Encode.Builder as Encode.Builder {- hosc -}
 import qualified Sound.Osc.Coding.Byte as Byte {- hosc -}
 import qualified Sound.Osc.Coding.Convert as Convert {- hosc -}
+import qualified Sound.Osc.Coding.Decode.Binary as Decode.Binary {- hosc -}
+import qualified Sound.Osc.Coding.Encode.Builder as Encode.Builder {- hosc -}
 import qualified Sound.Osc.Packet as Packet {- hosc -}
 import qualified Sound.Osc.Transport.Fd as Fd {- hosc -}
 
@@ -40,9 +40,9 @@ tcp_close = Io.hClose . tcpHandle
 
 -- | 'Tcp' is an instance of 'Transport'.
 instance Fd.Transport Tcp where
-   sendPacket = tcp_send_packet
-   recvPacket = tcp_recv_packet
-   close = tcp_close
+  sendPacket = tcp_send_packet
+  recvPacket = tcp_recv_packet
+  close = tcp_close
 
 -- | Bracket Tcp communication.
 with_tcp :: IO Tcp -> (Tcp -> IO t) -> IO t
@@ -53,7 +53,7 @@ tcp_socket :: (Socket.Socket -> Socket.SockAddr -> IO ()) -> Maybe String -> Int
 tcp_socket f host port = do
   fd <- Socket.socket Socket.AF_INET Socket.Stream 0
   let hints = Socket.defaultHints {Socket.addrFamily = Socket.AF_INET} -- localhost=ipv4
-  i:_ <- Socket.getAddrInfo (Just hints) host (Just (show port))
+  i : _ <- Socket.getAddrInfo (Just hints) host (Just (show port))
   let sa = Socket.addrAddress i
   _ <- f fd sa
   return fd
@@ -68,13 +68,12 @@ tcp_handle f host port = tcp_socket f (Just host) port >>= socket_to_tcp
 
 {- | Make a 'Tcp' connection.
 
-> import Sound.Osc.Datum {- hosc -}
-> import Sound.Osc.Time {- hosc -}
+> import Sound.Osc.Datum
+> import Sound.Osc.Time
 > let t = openTcp "127.0.0.1" 57110
 > let m1 = Packet.message "/dumpOsc" [Int32 1]
 > let m2 = Packet.message "/g_new" [Int32 1]
 > Fd.withTransport t (\fd -> let f = Fd.sendMessage fd in f m1 >> pauseThread 0.25 >> f m2)
-
 -}
 openTcp :: String -> Int -> IO Tcp
 openTcp = tcp_handle Socket.connect

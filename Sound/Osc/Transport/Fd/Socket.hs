@@ -30,9 +30,9 @@ openOscSocket address =
 
 -- | 'OscSocket' is an instance of 'Fd.Transport'.
 instance Fd.Transport OscSocket where
-   sendPacket (OscTcpSocket fd) = Fd.Tcp.tcp_send_packet fd
-   sendPacket (OscUdpSocket fd) = Fd.Udp.udp_send_packet fd
-   recvPacket (OscTcpSocket fd) = Fd.Tcp.tcp_recv_packet fd
-   recvPacket (OscUdpSocket fd) = Fd.Udp.udp_recv_packet fd
-   close (OscTcpSocket fd) = Fd.Tcp.tcp_close fd
-   close (OscUdpSocket fd) = Fd.Udp.udp_close fd
+  sendPacket (OscTcpSocket fd) = Fd.Tcp.tcp_send_packet fd
+  sendPacket (OscUdpSocket fd) = Fd.Udp.udp_send_packet fd
+  recvPacket (OscTcpSocket fd) = Fd.Tcp.tcp_recv_packet fd
+  recvPacket (OscUdpSocket fd) = Fd.Udp.udp_recv_packet fd
+  close (OscTcpSocket fd) = Fd.Tcp.tcp_close fd
+  close (OscUdpSocket fd) = Fd.Udp.udp_close fd

@@ -5,7 +5,7 @@ import Control.Exception {- base -}
 import Control.Monad {- base -}
 import Data.Bifunctor {- base -}
 
-import qualified Data.ByteString  as B {- bytestring -}
+import qualified Data.ByteString as B {- bytestring -}
 import qualified Network.Socket as N {- network -}
 import qualified Network.Socket.ByteString as C {- network -}
 
@@ -46,9 +46,9 @@ udp_close (Udp fd) = N.close fd
 
 -- | 'Udp' is an instance of 'Fd.Transport'.
 instance Fd.Transport Udp where
-   sendPacket = udp_send_packet
-   recvPacket = udp_recv_packet
-   close = udp_close
+  sendPacket = udp_send_packet
+  recvPacket = udp_recv_packet
+  close = udp_close
 
 -- | Bracket Udp communication.
 with_udp :: IO Udp -> (Udp -> IO t) -> IO t
@@ -59,7 +59,7 @@ udp_socket :: (N.Socket -> N.SockAddr -> IO ()) -> String -> Int -> IO Udp
 udp_socket f host port = do
   fd <- N.socket N.AF_INET N.Datagram 0
   let hints = N.defaultHints {N.addrFamily = N.AF_INET} -- localhost=ipv4
-  i:_ <- N.getAddrInfo (Just hints) (Just host) (Just (show port))
+  i : _ <- N.getAddrInfo (Just hints) (Just host) (Just (show port))
   let sa = N.addrAddress i
   f fd sa
   return (Udp fd)
@@ -78,7 +78,7 @@ openUdp = udp_socket N.connect
 
 {- | Trivial 'Udp' server socket.
 
-> import Control.Concurrent {- base -}
+> import Control.Concurrent
 
 > let u0 = udpServer "127.0.0.1" 57300
 > t0 <- forkIO (Fd.withTransport u0 (\fd -> forever (Fd.recvMessage fd >>= print >> print "Received message, continuing")))
@@ -95,10 +95,11 @@ udp_server :: Int -> IO Udp
 udp_server p = do
   let hints =
         N.defaultHints
-        {N.addrFamily = N.AF_INET -- localhost=ipv4
-        ,N.addrFlags = [N.AI_PASSIVE,N.AI_NUMERICSERV]
-        ,N.addrSocketType = N.Datagram}
-  a:_ <- N.getAddrInfo (Just hints) Nothing (Just (show p))
+          { N.addrFamily = N.AF_INET -- localhost=ipv4
+          , N.addrFlags = [N.AI_PASSIVE, N.AI_NUMERICSERV]
+          , N.addrSocketType = N.Datagram
+          }
+  a : _ <- N.getAddrInfo (Just hints) Nothing (Just (show p))
   s <- N.socket (N.addrFamily a) (N.addrSocketType a) (N.addrProtocol a)
   N.setSocketOption s N.ReuseAddr 1
   N.bind s (N.addrAddress a)

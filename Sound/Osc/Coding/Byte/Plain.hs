@@ -1,16 +1,16 @@
 -- | Byte-level coding utility functions.   This form does not require the binary library.
 module Sound.Osc.Coding.Byte.Plain where
 
-import Control.Exception (bracket) {- base -}
-import Control.Monad.ST (runST, ST) {- base -}
-import Data.Bits (Bits, shiftL, shiftR, (.&.)) {- base -}
-import Data.Char (chr, ord) {- base -}
-import Data.Int (Int32, Int64) {- base -}
-import Data.Word (Word8, Word32, Word64) {- base -}
-import System.IO (openFile, IOMode(..), hPutStr, hClose) {- base -}
+import Control.Exception (bracket {- base -})
+import Control.Monad.ST (ST {- base -}, runST)
+import Data.Bits (Bits, shiftL, shiftR, (.&.) {- base -})
+import Data.Char (chr, ord {- base -})
+import Data.Int (Int32, Int64 {- base -})
+import Data.Word (Word32, Word64 {- base -}, Word8)
+import System.IO (IOMode (..), hClose {- base -}, hPutStr, openFile)
 
-import Data.Array.ST (MArray, newArray, readArray) {- array -}
-import Data.Array.Unsafe (castSTUArray) {- array -}
+import Data.Array.ST (MArray, newArray, readArray {- array -})
+import Data.Array.Unsafe (castSTUArray {- array -})
 
 -- | Fetch byte n of the value a (zero indexed).
 byte :: (Integral a, Bits a) => Int -> a -> Word8
@@ -74,7 +74,8 @@ str_bytes s = map (fromIntegral . ord) s
 -- | pstr = pascal string
 pstr_bytes :: String -> [Word8]
 pstr_bytes s = i8_bytes n ++ str_bytes s
-    where n = length s
+ where
+  n = length s
 
 bytes_str :: [Word8] -> String
 bytes_str s = map (chr . fromIntegral) s
@@ -87,19 +88,23 @@ bytes_i8 [a] = shift_byte_left a 0
 bytes_i8 _ = error "illegal input"
 
 bytes_i16 :: [Word8] -> Int
-bytes_i16 [b,a] = shift_byte_left b 8 + shift_byte_left a 0
+bytes_i16 [b, a] = shift_byte_left b 8 + shift_byte_left a 0
 bytes_i16 _ = error "illegal input"
 
 bytes_i32 :: [Word8] -> Int
-bytes_i32 [d,c,b,a] = shift_byte_left d 24 + shift_byte_left c 16 + shift_byte_left b 8 + shift_byte_left a 0
+bytes_i32 [d, c, b, a] = shift_byte_left d 24 + shift_byte_left c 16 + shift_byte_left b 8 + shift_byte_left a 0
 bytes_i32 _ = error "illegal input"
 
 bytes_i64 :: [Word8] -> Integer
-bytes_i64 [h,g,f,e,d,c,b,a] =
-  shift_byte_left h 56 + shift_byte_left g 48 +
-  shift_byte_left f 40 + shift_byte_left e 32 +
-  shift_byte_left d 24 + shift_byte_left c 16 +
-  shift_byte_left b 8 + shift_byte_left a 0
+bytes_i64 [h, g, f, e, d, c, b, a] =
+  shift_byte_left h 56
+    + shift_byte_left g 48
+    + shift_byte_left f 40
+    + shift_byte_left e 32
+    + shift_byte_left d 24
+    + shift_byte_left c 16
+    + shift_byte_left b 8
+    + shift_byte_left a 0
 bytes_i64 _ = error "illegal input"
 
 cast_i32_f32 :: Int32 -> Float
@@ -127,14 +132,14 @@ bytes_f64 b = cast_i64_f64 (fromIntegral $ bytes_i64 b)
 bytesWrite :: FilePath -> [Word8] -> IO ()
 bytesWrite fn u =
   bracket
-  (openFile fn WriteMode)
-  hClose
-  (flip hPutStr (bytes_str u))
+    (openFile fn WriteMode)
+    hClose
+    (flip hPutStr (bytes_str u))
 
 -- * Util
 
 singletonArray :: (MArray a e m) => e -> m (a Int e)
-singletonArray = newArray (0, 0::Int)
+singletonArray = newArray (0, 0 :: Int)
 
 fromArray :: (MArray a e m) => a Int e -> m e
 fromArray = flip readArray 0

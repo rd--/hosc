@@ -11,8 +11,8 @@ import qualified Safe {- safe -}
 import qualified Text.ParserCombinators.Parsec as P {- parsec -}
 
 import Sound.Osc.Datum {- hosc -}
-import Sound.Osc.Packet  {- hosc3 -}
-import Sound.Osc.Time  {- hosc3 -}
+import Sound.Osc.Packet {- hosc3 -}
+import Sound.Osc.Time {- hosc3 -}
 
 -- | Precision value for floating point numbers.
 type FpPrecision = Maybe Int
@@ -24,11 +24,11 @@ type FpPrecision = Maybe Int
 -}
 showFloatWithPrecision :: RealFloat n => FpPrecision -> n -> String
 showFloatWithPrecision p n =
-    let s = showFFloat p n ""
-        s' = dropWhile (== '0') (reverse s)
-    in case s' of
-         '.':_ -> reverse ('0' : s')
-         _ -> reverse s'
+  let s = showFFloat p n ""
+      s' = dropWhile (== '0') (reverse s)
+  in case s' of
+      '.' : _ -> reverse ('0' : s')
+      _ -> reverse s'
 
 {- | Hex encoded byte sequence.
 
@@ -47,7 +47,7 @@ escapeString :: String -> String
 escapeString txt =
   case txt of
     [] -> []
-    c:txt' -> if c `elem` "\\\t\n " then '\\'  : c : escapeString txt' else c : escapeString txt'
+    c : txt' -> if c `elem` "\\\t\n " then '\\' : c : escapeString txt' else c : escapeString txt'
 
 {- | Printer for Datum.
 
@@ -57,15 +57,15 @@ escapeString txt =
 -}
 showDatum :: FpPrecision -> Datum -> String
 showDatum p d =
-    case d of
-      Int32 n -> show n
-      Int64 n -> show n
-      Float n -> showFloatWithPrecision p n
-      Double n -> showFloatWithPrecision p n
-      AsciiString s -> escapeString (ascii_to_string s)
-      Blob s -> showBytes (blob_unpack_int s)
-      TimeStamp t -> show (ntpr_to_ntpi t)
-      Midi m -> showBytes (midi_unpack_int m)
+  case d of
+    Int32 n -> show n
+    Int64 n -> show n
+    Float n -> showFloatWithPrecision p n
+    Double n -> showFloatWithPrecision p n
+    AsciiString s -> escapeString (ascii_to_string s)
+    Blob s -> showBytes (blob_unpack_int s)
+    TimeStamp t -> show (ntpr_to_ntpi t)
+    Midi m -> showBytes (midi_unpack_int m)
 
 {- | Printer for Message.
 
@@ -80,9 +80,10 @@ showDatum p d =
 showMessage :: FpPrecision -> Message -> String
 showMessage precision aMessage =
   unwords
-  [messageAddress aMessage
-  ,messageSignature aMessage
-  ,unwords (map (showDatum precision) (messageDatum aMessage))]
+    [ messageAddress aMessage
+    , messageSignature aMessage
+    , unwords (map (showDatum precision) (messageDatum aMessage))
+    ]
 
 {- | Printer for Bundle
 
@@ -94,10 +95,11 @@ showBundle :: FpPrecision -> BundleOf Message -> String
 showBundle precision aBundle =
   let messages = bundleMessages aBundle
   in unwords
-     ["#bundle"
-     ,show (ntpr_to_ntpi (bundleTime aBundle))
-     ,show (length messages)
-     ,unwords (map (showMessage precision) messages)]
+      [ "#bundle"
+      , show (ntpr_to_ntpi (bundleTime aBundle))
+      , show (length messages)
+      , unwords (map (showMessage precision) messages)
+      ]
 
 -- | Printer for Packet.
 showPacket :: FpPrecision -> PacketOf Message -> String
@@ -133,10 +135,13 @@ oscAddressP = do
 
 -- | Parser for Osc signature.
 oscSignatureP :: P String
-oscSignatureP = lexemeP (do
-  comma <- P.char ','
-  types <- P.many1 (P.oneOf "ifsbhtdm") -- 1.0 = ifsb 2.0 = htdm
-  return (comma : types))
+oscSignatureP =
+  lexemeP
+    ( do
+        comma <- P.char ','
+        types <- P.many1 (P.oneOf "ifsbhtdm") -- 1.0 = ifsb 2.0 = htdm
+        return (comma : types)
+    )
 
 -- | Parser for decimal digit.
 digitP :: P Char
@@ -159,11 +164,14 @@ integerP = allowNegativeP nonNegativeIntegerP
 
 -- | Parser for non-negative float.
 nonNegativeFloatP :: (Fractional n, Read n) => P n
-nonNegativeFloatP = lexemeP (do
-  integerPart <- P.many1 digitP
-  _ <- P.char '.'
-  fractionalPart <- P.many1 digitP
-  return (read (concat [integerPart, ".", fractionalPart])))
+nonNegativeFloatP =
+  lexemeP
+    ( do
+        integerPart <- P.many1 digitP
+        _ <- P.char '.'
+        fractionalPart <- P.many1 digitP
+        return (read (concat [integerPart, ".", fractionalPart]))
+    )
 
 -- | Parser for non-negative float.
 floatP :: (Fractional n, Read n) => P n
@@ -179,7 +187,7 @@ byteP = do
   c1 <- hexdigitP
   c2 <- hexdigitP
   case readHex [c1, c2] of
-    [(r,"")] -> return r
+    [(r, "")] -> return r
     _ -> error "byteP?"
 
 -- | Byte sequence parser.

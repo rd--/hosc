@@ -5,25 +5,27 @@ import Sound.Osc.Datum {- hosc -}
 
 -- * Message
 
--- | Osc address pattern.  This is strictly an Ascii value, however it
---   is very common to pattern match on addresses and matching on
---   Data.ByteString.Char8 requires @OverloadedStrings@.
+{- | Osc address pattern.  This is strictly an Ascii value, however it
+  is very common to pattern match on addresses and matching on
+  Data.ByteString.Char8 requires @OverloadedStrings@.
+-}
 type Address_Pattern = String
 
 -- | An Osc message, an 'Address_Pattern' and a sequence of 'Datum'.
-data Message =
-  Message
-  {messageAddress :: !Address_Pattern
-  ,messageDatum :: ![Datum]}
+data Message = Message
+  { messageAddress :: !Address_Pattern
+  , messageDatum :: ![Datum]
+  }
   deriving (Ord, Eq, Read, Show)
 
--- | 'Message' constructor.  It is an 'error' if the 'Address_Pattern'
--- doesn't conform to the Osc specification.
+{- | 'Message' constructor.  It is an 'error' if the 'Address_Pattern'
+doesn't conform to the Osc specification.
+-}
 message :: Address_Pattern -> [Datum] -> Message
 message a xs =
-    case a of
-      '/':_ -> Message a xs
-      _ -> error "message: ill-formed address pattern"
+  case a of
+    '/' : _ -> Message a xs
+    _ -> error "message: ill-formed address pattern"
 
 messageSignature :: Message -> String
 messageSignature = signatureFor . messageDatum
@@ -37,32 +39,32 @@ messageDescriptor = descriptor . messageDatum
 The type parameter specifies the element type.
 Ordinarily this is Message, which does not allow recursion.
 -}
-data BundleOf t =
-  Bundle
-  {bundleTime :: !Time
-  ,bundleMessages :: ![t]}
-  deriving (Eq,Read,Show)
+data BundleOf t = Bundle
+  { bundleTime :: !Time
+  , bundleMessages :: ![t]
+  }
+  deriving (Eq, Read, Show)
 
 type Bundle = BundleOf Message
 
 -- | Osc 'Bundle's can be ordered (time ascending).
 instance Eq t => Ord (BundleOf t) where
-    compare (Bundle a _) (Bundle b _) = compare a b
+  compare (Bundle a _) (Bundle b _) = compare a b
 
 -- | 'Bundle' constructor. It is an 'error' if the 'Message' list is empty.
 bundle :: Time -> [t] -> BundleOf t
 bundle t xs =
-    case xs of
-      [] -> error "bundle: empty?"
-      _ -> Bundle t xs
+  case xs of
+    [] -> error "bundle: empty?"
+    _ -> Bundle t xs
 
 -- * Packet
 
-{- | An Osc 'Packet' is either a 'Message' or a 'Bundle t'. -}
-data PacketOf t =
-  Packet_Message {packetMessage :: !Message} |
-  Packet_Bundle {packetBundle :: !(BundleOf t)}
-  deriving (Eq,Read,Show)
+-- | An Osc 'Packet' is either a 'Message' or a 'Bundle t'.
+data PacketOf t
+  = Packet_Message {packetMessage :: !Message}
+  | Packet_Bundle {packetBundle :: !(BundleOf t)}
+  deriving (Eq, Read, Show)
 
 type Packet = PacketOf Message
 
@@ -81,7 +83,7 @@ It has the Ntp64 representation of @1@.
 True
 -}
 immediately :: Time
-immediately = 1 / 2^(32::Int)
+immediately = 1 / 2 ^ (32 :: Int)
 
 -- | The 'Time' of 'Packet', if the 'Packet' is a 'Message' this is 'immediately'.
 packetTime :: PacketOf t -> Time
@@ -95,16 +97,17 @@ packetMessages = at_packet return bundleMessages
 packet_to_bundle :: PacketOf Message -> BundleOf Message
 packet_to_bundle = at_packet (\m -> Bundle immediately [m]) id
 
--- | If 'Packet' is a 'Message' or a 'Bundle' with an /immediate/ time
--- tag and with one element, return the 'Message', else 'Nothing'.
+{- | If 'Packet' is a 'Message' or a 'Bundle' with an /immediate/ time
+tag and with one element, return the 'Message', else 'Nothing'.
+-}
 packet_to_message :: PacketOf Message -> Maybe Message
 packet_to_message p =
-    case p of
-      Packet_Bundle b ->
-          case b of
-            Bundle t [m] -> if t == immediately then Just m else Nothing
-            _ -> Nothing
-      Packet_Message m -> Just m
+  case p of
+    Packet_Bundle b ->
+      case b of
+        Bundle t [m] -> if t == immediately then Just m else Nothing
+        _ -> Nothing
+    Packet_Message m -> Just m
 
 -- | Is 'Packet' immediate, ie. a 'Bundle' with timestamp 'immediately', or a plain Message.
 packet_is_immediate :: PacketOf t -> Bool
@@ -113,9 +116,9 @@ packet_is_immediate = (== immediately) . packetTime
 -- | Variant of 'either' for 'Packet'.
 at_packet :: (Message -> a) -> (BundleOf t -> a) -> PacketOf t -> a
 at_packet f g p =
-    case p of
-      Packet_Message m -> f m
-      Packet_Bundle b -> g b
+  case p of
+    Packet_Message m -> f m
+    Packet_Bundle b -> g b
 
 -- * Address Query
 
@@ -123,14 +126,17 @@ at_packet f g p =
 message_has_address :: Address_Pattern -> Message -> Bool
 message_has_address x = (== x) . messageAddress
 
--- | Do any of the 'Message's at 'Bundle Message' have the specified
--- 'Address_Pattern'.
+{- | Do any of the 'Message's at 'Bundle Message' have the specified
+'Address_Pattern'.
+-}
 bundle_has_address :: Address_Pattern -> BundleOf Message -> Bool
 bundle_has_address x = any (message_has_address x) . bundleMessages
 
--- | Does 'Packet' have the specified 'Address_Pattern', ie.
--- 'message_has_address' or 'bundle_has_address'.
+{- | Does 'Packet' have the specified 'Address_Pattern', ie.
+'message_has_address' or 'bundle_has_address'.
+-}
 packet_has_address :: Address_Pattern -> PacketOf Message -> Bool
 packet_has_address x =
-    at_packet (message_has_address x)
-              (bundle_has_address x)
+  at_packet
+    (message_has_address x)
+    (bundle_has_address x)

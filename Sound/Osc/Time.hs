@@ -1,5 +1,6 @@
--- | Osc related timing functions.
---   Osc timestamps are 64-bit @Ntp@ values, <http://ntp.org/>.
+{- | Osc related timing functions.
+  Osc timestamps are 64-bit @Ntp@ values, <http://ntp.org/>.
+-}
 module Sound.Osc.Time where
 
 import Data.Word {- base -}
@@ -12,16 +13,18 @@ import Sound.Osc.Coding.Convert {- hosc -}
 
 -- * Temporal types
 
--- | Type for binary (integeral) representation of a 64-bit Ntp timestamp (ie. ntpi).
---   The Ntp epoch is January 1, 1900.
---   Ntp v4 also includes a 128-bit format, which is not used by Osc.
+{- | Type for binary (integeral) representation of a 64-bit Ntp timestamp (ie. ntpi).
+  The Ntp epoch is January 1, 1900.
+  Ntp v4 also includes a 128-bit format, which is not used by Osc.
+-}
 type Ntp64 = Word64
 
 -- | @Ntp@ time in real-valued (fractional) form.
 type NtpReal = Double
 
--- | @Unix/Posix@ time in real-valued (fractional) form.
---   The Unix/Posix epoch is January 1, 1970.
+{- | @Unix/Posix@ time in real-valued (fractional) form.
+  The Unix/Posix epoch is January 1, 1970.
+-}
 type PosixReal = Double
 
 -- * Time conversion
@@ -34,7 +37,7 @@ type PosixReal = Double
 > fmap ntpr_to_ntpi time
 -}
 ntpr_to_ntpi :: NtpReal -> Ntp64
-ntpr_to_ntpi t = round (t * (2 ^ (32::Int)))
+ntpr_to_ntpi t = round (t * (2 ^ (32 :: Int)))
 
 {- | Convert an 'Ntp64' timestamp to a real-valued Ntp timestamp.
 
@@ -42,7 +45,7 @@ ntpr_to_ntpi t = round (t * (2 ^ (32::Int)))
 0.0
 -}
 ntpi_to_ntpr :: Ntp64 -> NtpReal
-ntpi_to_ntpr t = word64_to_double t / 2^(32::Int)
+ntpi_to_ntpr t = word64_to_double t / 2 ^ (32 :: Int)
 
 {- | Difference (in seconds) between /Ntp/ and /Posix/ epochs.
 
@@ -84,9 +87,9 @@ posixtime_to_ntpr = posix_to_ntpr . realToFrac
 -- | The time at 1970-01-01:00:00:00 which is the Unix/Posix epoch.
 posix_epoch :: Time.UTCTime
 posix_epoch =
-    let d = Time.fromGregorian 1970 1 1
-        s = fromInteger 0 -- Time.secondsToDiffTime
-    in Time.UTCTime d s
+  let d = Time.fromGregorian 1970 1 1
+      s = fromInteger 0 -- Time.secondsToDiffTime
+  in Time.UTCTime d s
 
 -- | Convert 'Time.UTCTime' to @Unix/Posix@.
 utc_to_posix :: Fractional n => Time.UTCTime -> n

@@ -9,13 +9,13 @@ import qualified Sound.Osc.Time.Thread as Time.Thread {- hosc -}
 time :: MonadIO m => m Time.NtpReal
 time = liftIO Time.currentTime
 
-pauseThread :: (MonadIO m,RealFrac n) => n -> m ()
+pauseThread :: (MonadIO m, RealFrac n) => n -> m ()
 pauseThread = liftIO . Time.Thread.pauseThreadFor
 
 wait :: MonadIO m => Double -> m ()
 wait = pauseThread
 
-pauseThreadUntil :: (MonadIO m,RealFrac n) => n -> m ()
+pauseThreadUntil :: (MonadIO m, RealFrac n) => n -> m ()
 pauseThreadUntil = liftIO . Time.Thread.pauseThreadUntilTime
 
 sleepThread :: (RealFrac n, MonadIO m) => n -> m ()
