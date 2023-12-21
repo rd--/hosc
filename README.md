@@ -33,7 +33,7 @@ see the [history](http://rohandrape.net/?t=hosc&q=history) for details
 * * *
 
 ```
-$ doctest Sound/Osc/
+$ make doctest
 Examples: 96  Tried: 96  Errors: 0  Failures: 0
 $
 ```

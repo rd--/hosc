@@ -14,9 +14,9 @@ import Data.Word {- base -}
 
 import qualified Data.Binary.Get as Binary {- binary -}
 import qualified Data.Binary.IEEE754 as Ieee {- data-binary-ieee754 -}
-{- bytestring -}
+
 import qualified Data.ByteString.Char8 as ByteString.Char8 {- bytestring -}
-import qualified Data.ByteString.Lazy as ByteString.Lazy
+import qualified Data.ByteString.Lazy as ByteString.Lazy {- bytestring -}
 import qualified Data.ByteString.Lazy.Char8 as ByteString.Lazy.Char8 {- bytestring -}
 
 import qualified Sound.Osc.Coding.Byte as Byte {- hosc -}
