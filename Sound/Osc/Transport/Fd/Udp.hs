@@ -6,6 +6,7 @@ import Control.Monad {- base -}
 import Data.Bifunctor {- base -}
 
 import qualified Data.ByteString as B {- bytestring -}
+import qualified Data.ByteString.Lazy.Char8 as ByteString.Lazy
 import qualified Network.Socket as N {- network -}
 import qualified Network.Socket.ByteString as C {- network -}
 
@@ -40,6 +41,9 @@ udp_send_packet udp = udp_sendAll_data udp . Builder.encodePacket_strict
 udp_recv_packet :: Udp -> IO (Packet.PacketOf Packet.Message)
 udp_recv_packet (Udp fd) = fmap Binary.decodePacket_strict (C.recv fd 8192)
 
+udp_recv_packet_or_fail :: Udp -> IO (Either ByteString.Lazy.ByteString Packet.Packet)
+udp_recv_packet_or_fail (Udp fd) = Binary.eitherDecodePacket . B.fromStrict <$> C.recv fd 8192
+
 -- | Close Udp.
 udp_close :: Udp -> IO ()
 udp_close (Udp fd) = N.close fd
@@ -48,6 +52,7 @@ udp_close (Udp fd) = N.close fd
 instance Fd.Transport Udp where
   sendPacket = udp_send_packet
   recvPacket = udp_recv_packet
+  recvPacketOrFail = udp_recv_packet_or_fail
   close = udp_close
 
 -- | Bracket Udp communication.

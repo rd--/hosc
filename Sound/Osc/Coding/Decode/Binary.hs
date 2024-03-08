@@ -5,6 +5,10 @@ module Sound.Osc.Coding.Decode.Binary (
   decodeBundle,
   decodePacket,
   decodePacket_strict,
+  eitherDecodeMessage,
+  eitherDecodeBundle,
+  eitherDecodePacket,
+  eitherDecodePacket_strict
 ) where
 
 import Control.Applicative {- base -}
@@ -134,3 +138,25 @@ decodePacket = Binary.runGet get_packet
 -- | Decode an Osc packet from a strict Char8 ByteString.
 decodePacket_strict :: ByteString.Char8.ByteString -> PacketOf Message
 decodePacket_strict = Binary.runGet get_packet . ByteString.Lazy.fromChunks . (: [])
+
+-- | Decode or return a lazy ByteString containing an error message
+-- prevents application halt in comparison to normal decode functions 
+-- if non-valid message/bundle/packet arrives
+eitherDecodeMessage :: ByteString.Lazy.ByteString -> Either ByteString.Lazy.ByteString Message
+eitherDecodeMessage = eitherDecode get_message
+
+eitherDecodeBundle :: ByteString.Lazy.ByteString -> Either ByteString.Lazy.ByteString Bundle
+eitherDecodeBundle = eitherDecode get_bundle
+
+eitherDecodePacket :: ByteString.Lazy.ByteString -> Either ByteString.Lazy.ByteString Packet
+eitherDecodePacket = eitherDecode get_packet
+
+eitherDecode :: Binary.Get b -> ByteString.Lazy.ByteString -> Either ByteString.Lazy.ByteString b
+eitherDecode f p = case Binary.runGetOrFail f p of
+    Left (_, _, err) -> Left $ ByteString.Lazy.fromStrict (ByteString.Char8.pack err)
+    Right (_, _, decoded) -> Right decoded
+
+eitherDecodePacket_strict :: ByteString.Lazy.ByteString -> Either ByteString.Char8.ByteString Packet
+eitherDecodePacket_strict f = case Binary.runGetOrFail get_packet f of
+    Left (_, _, err) -> Left $ ByteString.Char8.pack err
+    Right (_, _, packet) -> Right packet

@@ -4,6 +4,7 @@ module Sound.Osc.Transport.Fd where
 import Control.Exception {- base -}
 import Data.List {- base -}
 import Data.Maybe {- base -}
+import qualified Data.ByteString.Lazy as ByteString.Lazy
 
 import Sound.Osc.Datum {- hosc -}
 import Sound.Osc.Packet {- hosc -}
@@ -16,6 +17,9 @@ class Transport t where
 
   -- | Receive and decode an Osc packet.
   recvPacket :: t -> IO (PacketOf Message)
+
+  -- | Receive and either decode an Osc packet.
+  recvPacketOrFail :: t -> IO (Either ByteString.Lazy.ByteString Packet)
 
   -- | Close an existing connection.
   close :: t -> IO ()
