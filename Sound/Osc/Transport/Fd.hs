@@ -17,6 +17,9 @@ class Transport t where
   -- | Receive and decode an Osc packet.
   recvPacket :: t -> IO (PacketOf Message)
 
+  -- | Receive and either decode an Osc packet.
+  recvPacketOr :: t -> IO (Either String Packet)
+
   -- | Close an existing connection.
   close :: t -> IO ()
 

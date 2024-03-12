@@ -5,6 +5,9 @@ module Sound.Osc.Coding.Decode.Binary (
   decodeBundle,
   decodePacket,
   decodePacket_strict,
+  decodeMessageOr,
+  decodeBundleOr,
+  decodePacketOr
 ) where
 
 import Control.Applicative {- base -}
@@ -122,6 +125,13 @@ decodeMessage = Binary.runGet get_message
 decodeBundle :: ByteString.Lazy.ByteString -> BundleOf Message
 decodeBundle = Binary.runGet get_bundle
 
+-- | Run decoder and report any error.
+runDecoder :: Binary.Get t -> ByteString.Lazy.Char8.ByteString -> Either String t
+runDecoder f p =
+  case Binary.runGetOrFail f p of
+    Left (_, _, err) -> Left err
+    Right (_, _, decoded) -> Right decoded
+
 {- | Decode an Osc packet from a lazy ByteString.
 
 >>> let b = ByteString.Lazy.pack [47,103,95,102,114,101,101,0,44,105,0,0,0,0,0,0]
@@ -134,3 +144,19 @@ decodePacket = Binary.runGet get_packet
 -- | Decode an Osc packet from a strict Char8 ByteString.
 decodePacket_strict :: ByteString.Char8.ByteString -> PacketOf Message
 decodePacket_strict = Binary.runGet get_packet . ByteString.Lazy.fromChunks . (: [])
+
+{- | Either decode Osc message or return an error message.
+Prevents application halt for non-valid message/bundle/packet arrives.
+
+>>> let b = ByteString.Lazy.pack [1,2,3,2,1]
+>>> decodePacketOr b
+Left "not enough bytes"
+-}
+decodeMessageOr :: ByteString.Lazy.ByteString -> Either String Message
+decodeMessageOr = runDecoder get_message
+
+decodeBundleOr :: ByteString.Lazy.ByteString -> Either String Bundle
+decodeBundleOr = runDecoder get_bundle
+
+decodePacketOr :: ByteString.Lazy.ByteString -> Either String Packet
+decodePacketOr = runDecoder get_packet

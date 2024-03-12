@@ -27,7 +27,7 @@ Library
                    time >= 1.5,
                    transformers
   Default-Language:Haskell2010
-  GHC-Options:     -Wall -fwarn-tabs
+  GHC-Options:     -Wall -Wno-x-partial -Wno-incomplete-uni-patterns
   Exposed-modules: Sound.Osc
                    Sound.Osc.Coding.Byte
                    Sound.Osc.Coding.Cast

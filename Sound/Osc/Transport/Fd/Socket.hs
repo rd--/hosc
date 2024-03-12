@@ -34,5 +34,7 @@ instance Fd.Transport OscSocket where
   sendPacket (OscUdpSocket fd) = Fd.Udp.udp_send_packet fd
   recvPacket (OscTcpSocket fd) = Fd.Tcp.tcp_recv_packet fd
   recvPacket (OscUdpSocket fd) = Fd.Udp.udp_recv_packet fd
+  recvPacketOr (OscTcpSocket fd) = Fd.Tcp.tcp_recv_packet_or fd
+  recvPacketOr (OscUdpSocket fd) = Fd.Udp.udp_recv_packet_or fd
   close (OscTcpSocket fd) = Fd.Tcp.tcp_close fd
   close (OscUdpSocket fd) = Fd.Udp.udp_close fd

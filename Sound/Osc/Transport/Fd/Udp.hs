@@ -40,6 +40,9 @@ udp_send_packet udp = udp_sendAll_data udp . Builder.encodePacket_strict
 udp_recv_packet :: Udp -> IO (Packet.PacketOf Packet.Message)
 udp_recv_packet (Udp fd) = fmap Binary.decodePacket_strict (C.recv fd 8192)
 
+udp_recv_packet_or :: Udp -> IO (Either String Packet.Packet)
+udp_recv_packet_or (Udp fd) = Binary.decodePacketOr . B.fromStrict <$> C.recv fd 8192
+
 -- | Close Udp.
 udp_close :: Udp -> IO ()
 udp_close (Udp fd) = N.close fd
@@ -48,6 +51,7 @@ udp_close (Udp fd) = N.close fd
 instance Fd.Transport Udp where
   sendPacket = udp_send_packet
   recvPacket = udp_recv_packet
+  recvPacketOr = udp_recv_packet_or
   close = udp_close
 
 -- | Bracket Udp communication.

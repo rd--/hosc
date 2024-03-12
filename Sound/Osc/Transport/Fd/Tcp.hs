@@ -34,6 +34,12 @@ tcp_recv_packet (Tcp fd) = do
   b1 <- ByteString.Lazy.hGet fd (Convert.word32_to_int (Byte.decode_word32 b0))
   return (Decode.Binary.decodePacket b1)
 
+tcp_recv_packet_or :: Tcp -> IO (Either String Packet.Packet)
+tcp_recv_packet_or (Tcp fd) = do
+  b0 <- ByteString.Lazy.hGet fd 4
+  b1 <- ByteString.Lazy.hGet fd (Convert.word32_to_int (Byte.decode_word32 b0))
+  return (Decode.Binary.decodePacketOr b1)
+
 -- | Close Tcp.
 tcp_close :: Tcp -> IO ()
 tcp_close = Io.hClose . tcpHandle
@@ -42,6 +48,7 @@ tcp_close = Io.hClose . tcpHandle
 instance Fd.Transport Tcp where
   sendPacket = tcp_send_packet
   recvPacket = tcp_recv_packet
+  recvPacketOr = tcp_recv_packet_or
   close = tcp_close
 
 -- | Bracket Tcp communication.
