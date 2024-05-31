@@ -68,6 +68,9 @@ encode_message_blob = Blob . encodeMessage
 
 {- | Encode Osc 'Bundle'.
 
+>>> blob_unpack (encodeBundle (Bundle immediately [Message "/x" []]))
+[35,98,117,110,100,108,101,0,0,0,0,0,0,0,0,1,0,0,0,8,47,120,0,0,44,0,0,0]
+
 >>> let m = Message "/n_set" [int32 (-1), string "freq", float 440, string "amp", float 0.1]
 >>> let b = Bundle 0.0 [m]
 >>> let e = blob_unpack (encodeBundle b)
