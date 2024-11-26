@@ -21,8 +21,7 @@ import qualified Data.ByteString.Lazy as ByteString.Lazy {- bytestring -}
 import qualified Data.ByteString.Lazy.Char8 as ByteString.Lazy.Char8 {- bytestring -}
 import qualified Data.ByteString.Unsafe as ByteString.Unsafe {- bytestring -}
 
-import qualified Sound.Osc.Coding.Cast as Cast {- hosc -}
-import Sound.Osc.Coding.Convert {- hosc -}
+import qualified Sound.Osc.Coding.Convert as Convert {- hosc -}
 
 -- * Encode
 
@@ -86,11 +85,11 @@ encode_word64 = Binary.encode
 
 -- | Encode a signed 8-bit integer.
 encode_i8 :: Int -> ByteString.Lazy.ByteString
-encode_i8 = encode_int8 . int_to_int8
+encode_i8 = encode_int8 . Convert.int_to_int8
 
 -- | Encode an un-signed 8-bit integer.
 encode_u8 :: Int -> ByteString.Lazy.ByteString
-encode_u8 = encode_word8 . int_to_word8
+encode_u8 = encode_word8 . Convert.int_to_word8
 
 {- | Encode an un-signed 16-bit integer.
 
@@ -98,7 +97,7 @@ encode_u8 = encode_word8 . int_to_word8
 True
 -}
 encode_u16 :: Int -> ByteString.Lazy.ByteString
-encode_u16 = encode_word16 . int_to_word16
+encode_u16 = encode_word16 . Convert.int_to_word16
 
 {- | Little-endian.
 
@@ -106,53 +105,65 @@ encode_u16 = encode_word16 . int_to_word16
 True
 -}
 encode_u16_le :: Int -> ByteString.Lazy.ByteString
-encode_u16_le = encode_word16_le . int_to_word16
+encode_u16_le = encode_word16_le . Convert.int_to_word16
 
 -- | Encode a signed 16-bit integer.
 encode_i16 :: Int -> ByteString.Lazy.ByteString
-encode_i16 = Binary.encode . int_to_int16
+encode_i16 = Binary.encode . Convert.int_to_int16
 
 -- | Encode a signed 32-bit integer.
 encode_i32 :: Int -> ByteString.Lazy.ByteString
-encode_i32 = Binary.encode . int_to_int32
+encode_i32 = Binary.encode . Convert.int_to_int32
 
 {- | Encode an unsigned 32-bit integer.
 
->>> encode_u32 0x01020304 == ByteString.Lazy.pack [1,2,3,4]
-True
+>>> ByteString.Lazy.unpack (encode_u32 0x01020304)
+[1,2,3,4]
 -}
 encode_u32 :: Int -> ByteString.Lazy.ByteString
-encode_u32 = encode_word32 . int_to_word32
+encode_u32 = encode_word32 . Convert.int_to_word32
 
 {- | Little-endian.
 
->>> encode_u32_le 0x01020304 == ByteString.Lazy.pack [4,3,2,1]
-True
+>>> ByteString.Lazy.unpack (encode_u32_le 0x01020304)
+[4,3,2,1]
 -}
 encode_u32_le :: Int -> ByteString.Lazy.ByteString
-encode_u32_le = encode_word32_le . int_to_word32
+encode_u32_le = encode_word32_le . Convert.int_to_word32
 
 -- * Encode/Float
 
 {- | Encode a 32-bit IEEE floating point number.
 
->>> encode_f32 1.0 == ByteString.Lazy.pack [63, 128, 0, 0]
-True
+>>> ByteString.Lazy.unpack (encode_f32 3.141)
+[64,73,6,37]
 -}
 encode_f32 :: Float -> ByteString.Lazy.ByteString
-encode_f32 = Binary.encode . Cast.f32_w32
+encode_f32 = Binary.Put.runPut . Binary.Put.putFloatbe
 
--- | Little-endian variant of 'encode_f32'.
+{- | Little-endian variant of 'encode_f32'.
+
+>>> ByteString.Lazy.unpack (encode_f32_le 3.141)
+[37,6,73,64]
+-}
 encode_f32_le :: Float -> ByteString.Lazy.ByteString
-encode_f32_le = Binary.Put.runPut . Binary.Put.putWord32le . Cast.f32_w32
+encode_f32_le = Binary.Put.runPut . Binary.Put.putFloatle
 
--- | Encode a 64-bit IEEE floating point number.
+{- | Encode a 64-bit IEEE floating point number.
+
+>>> ByteString.Lazy.unpack (encode_f64 3.141)
+[64,9,32,196,155,165,227,84]
+-}
 encode_f64 :: Double -> ByteString.Lazy.ByteString
-encode_f64 = Binary.encode . Cast.f64_w64
+encode_f64 = Binary.Put.runPut . Binary.Put.putDoublebe
 
--- | Little-endian variant of 'encode_f64'.
+{- | Little-endian variant of 'encode_f64'.
+
+>>> ByteString.Lazy.unpack (encode_f64_le 3.141)
+[84,227,165,155,196,32,9,64]
+-}
 encode_f64_le :: Double -> ByteString.Lazy.ByteString
-encode_f64_le = Binary.Put.runPut . Binary.Put.putWord64le . Cast.f64_w64
+encode_f64_le = Binary.Put.runPut . Binary.Put.putDoublele
 
 -- * Encode/Ascii
 
@@ -194,23 +205,23 @@ decode_word64 = Binary.decode
 
 -- | Decode an un-signed 8-bit integer.
 decode_u8 :: ByteString.Lazy.ByteString -> Int
-decode_u8 = word8_to_int . ByteString.Lazy.head
+decode_u8 = Convert.word8_to_int . ByteString.Lazy.head
 
 -- | Decode a signed 8-bit integer.
 decode_i8 :: ByteString.Lazy.ByteString -> Int
-decode_i8 = int8_to_int . Binary.decode
+decode_i8 = Convert.int8_to_int . Binary.decode
 
 -- | Decode an unsigned 8-bit integer.
 decode_u16 :: ByteString.Lazy.ByteString -> Int
-decode_u16 = word16_to_int . decode_word16
+decode_u16 = Convert.word16_to_int . decode_word16
 
 -- | Little-endian variant of 'decode_u16'.
 decode_u16_le :: ByteString.Lazy.ByteString -> Int
-decode_u16_le = word16_to_int . decode_word16_le
+decode_u16_le = Convert.word16_to_int . decode_word16_le
 
 -- | Decode a signed 16-bit integer.
 decode_i16 :: ByteString.Lazy.ByteString -> Int
-decode_i16 = int16_to_int . decode_int16
+decode_i16 = Convert.int16_to_int . decode_int16
 
 -- | Little-endian variant of 'decode_i16'.
 decode_i16_le :: ByteString.Lazy.ByteString -> Int
@@ -222,7 +233,7 @@ decode_i16_le = decode_i16 . ByteString.Lazy.reverse
 True
 -}
 decode_i32 :: ByteString.Lazy.ByteString -> Int
-decode_i32 = int32_to_int . Binary.decode
+decode_i32 = Convert.int32_to_int . Binary.decode
 
 {- | Little-endian variant of 'decode_i32'.
 
@@ -238,7 +249,7 @@ decode_i32_le = decode_i32 . ByteString.Lazy.reverse
 True
 -}
 decode_u32 :: ByteString.Lazy.ByteString -> Int
-decode_u32 = word32_to_int . decode_word32
+decode_u32 = Convert.word32_to_int . decode_word32
 
 {- | Little-endian variant of decode_u32.
 
@@ -246,21 +257,25 @@ decode_u32 = word32_to_int . decode_word32
 True
 -}
 decode_u32_le :: ByteString.Lazy.ByteString -> Int
-decode_u32_le = word32_to_int . decode_word32_le
+decode_u32_le = Convert.word32_to_int . decode_word32_le
 
 -- * Decode/Float
 
--- | Decode a 32-bit IEEE floating point number.
+{- | Decode a 32-bit IEEE floating point number.
+
+>>> decode_f32 (ByteString.Lazy.pack [64,73,6,37])
+3.141
+-}
 decode_f32 :: ByteString.Lazy.ByteString -> Float
-decode_f32 = Cast.w32_f32 . decode_word32
+decode_f32 = Binary.Get.runGet Binary.Get.getFloatbe
 
 -- | Little-endian variant of 'decode_f32'.
 decode_f32_le :: ByteString.Lazy.ByteString -> Float
-decode_f32_le = Cast.w32_f32 . decode_word32_le
+decode_f32_le = Binary.Get.runGet Binary.Get.getFloatle
 
 -- | Decode a 64-bit IEEE floating point number.
 decode_f64 :: ByteString.Lazy.ByteString -> Double
-decode_f64 b = Cast.w64_f64 (Binary.decode b :: Word64)
+decode_f64 = Binary.Get.runGet Binary.Get.getDoublebe
 
 -- * Decode/Ascii
 

@@ -34,6 +34,6 @@ see the [history](http://rohandrape.net/?t=hosc&q=history) for details
 
 ```
 $ make doctest
-Examples: 96  Tried: 96  Errors: 0  Failures: 0
+Examples: 110  Tried: 110  Errors: 0  Failures: 0
 $
 ```

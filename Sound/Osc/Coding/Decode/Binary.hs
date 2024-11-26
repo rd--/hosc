@@ -7,66 +7,56 @@ module Sound.Osc.Coding.Decode.Binary (
   decodePacket_strict,
   decodeMessageOr,
   decodeBundleOr,
-  decodePacketOr
+  decodePacketOr,
 ) where
 
 import Control.Applicative {- base -}
 import Control.Monad {- base -}
-import Data.Int {- base -}
 import Data.Word {- base -}
 
 import qualified Data.Binary.Get as Binary {- binary -}
-import qualified Data.Binary.IEEE754 as Ieee {- data-binary-ieee754 -}
 
 import qualified Data.ByteString.Char8 as ByteString.Char8 {- bytestring -}
 import qualified Data.ByteString.Lazy as ByteString.Lazy {- bytestring -}
 import qualified Data.ByteString.Lazy.Char8 as ByteString.Lazy.Char8 {- bytestring -}
 
 import qualified Sound.Osc.Coding.Byte as Byte {- hosc -}
-import Sound.Osc.Coding.Convert {- hosc -}
+import qualified Sound.Osc.Coding.Convert as Convert {- hosc -}
 import Sound.Osc.Datum {- hosc -}
 import Sound.Osc.Packet {- hosc -}
 import qualified Sound.Osc.Time as Time {- hosc -}
-
--- | Get a 32 bit integer in big-endian byte order.
-getInt32be :: Binary.Get Int32
-getInt32be = fmap word32_to_int32 Binary.getWord32be
-
--- | Get a 64 bit integer in big-endian byte order.
-getInt64be :: Binary.Get Int64
-getInt64be = fmap word64_to_int64 Binary.getWord64be
 
 -- | Get an aligned Osc string.
 get_string :: Binary.Get String
 get_string = do
   s <- Binary.getLazyByteStringNul
-  Binary.skip (int64_to_int (Byte.align (ByteString.Lazy.length s + 1)))
+  Binary.skip (Convert.int64_to_int (Byte.align (ByteString.Lazy.length s + 1)))
   return (ByteString.Lazy.Char8.unpack s)
 
 -- | Get an aligned Osc string.
 get_ascii :: Binary.Get Ascii
 get_ascii = do
   s <- Binary.getLazyByteStringNul
-  Binary.skip (int64_to_int (Byte.align (ByteString.Lazy.length s + 1)))
+  Binary.skip (Convert.int64_to_int (Byte.align (ByteString.Lazy.length s + 1)))
   return (ByteString.Char8.pack (ByteString.Lazy.Char8.unpack s))
 
 -- | Get binary data prefixed by byte count.
 get_bytes :: Word32 -> Binary.Get ByteString.Lazy.ByteString
 get_bytes n = do
-  b <- Binary.getLazyByteString (word32_to_int64 n)
-  if n /= int64_to_word32 (ByteString.Lazy.length b)
+  b <- Binary.getLazyByteString (Convert.word32_to_int64 n)
+  if n /= Convert.int64_to_word32 (ByteString.Lazy.length b)
     then fail "get_bytes: end of stream"
-    else Binary.skip (word32_to_int (Byte.align n))
+    else Binary.skip (Convert.word32_to_int (Byte.align n))
   return b
 
 -- | Get an Osc datum.
 get_datum :: DatumType -> Binary.Get Datum
 get_datum ty =
   case ty of
-    'i' -> fmap Int32 getInt32be
-    'h' -> fmap Int64 getInt64be
-    'f' -> fmap Float Ieee.getFloat32be
-    'd' -> fmap Double Ieee.getFloat64be
+    'i' -> fmap Int32 Binary.getInt32be
+    'h' -> fmap Int64 Binary.getInt64be
+    'f' -> fmap Float Binary.getFloatbe
+    'd' -> fmap Double Binary.getDoublebe
     's' -> fmap AsciiString get_ascii
     'b' -> fmap Blob (get_bytes =<< Binary.getWord32be)
     't' -> fmap (TimeStamp . Time.ntpi_to_ntpr) Binary.getWord64be
@@ -91,7 +81,7 @@ get_message_seq = do
   if b
     then return []
     else do
-      p <- flip Binary.isolate get_message . word32_to_int =<< Binary.getWord32be
+      p <- flip Binary.isolate get_message . Convert.word32_to_int =<< Binary.getWord32be
       ps <- get_message_seq
       return (p : ps)
 

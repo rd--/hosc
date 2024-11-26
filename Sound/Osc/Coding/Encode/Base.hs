@@ -23,6 +23,27 @@ MidiData: Bytes from MSB to LSB are: port id, status byte, data1, data2.
 
 >>> encode_datum (blob [1, 2, 3, 4]) == B.pack [0, 0, 0, 4, 1, 2, 3, 4]
 True
+
+>>> encode_datum (Float 1) == B.pack [63, 128, 0, 0]
+True
+
+>>> encode_datum (Float 2) == B.pack [64, 0, 0, 0]
+True
+
+>>> encode_datum (Float 3) == B.pack [64, 64, 0, 0]
+True
+
+>>> encode_datum (Float 4) == B.pack [64, 128, 0, 0]
+True
+
+>>> encode_datum (Float 5) == B.pack [64, 160, 0, 0]
+True
+
+>>> encode_datum (Int32 65536) == B.pack [0, 1, 0, 0]
+True
+
+>>> encode_datum (Int32 (-65536)) == B.pack [255, 255, 0, 0]
+True
 -}
 encode_datum :: Datum -> B.ByteString
 encode_datum dt =

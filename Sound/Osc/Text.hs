@@ -12,7 +12,7 @@ import qualified Text.ParserCombinators.Parsec as P {- parsec -}
 
 import Sound.Osc.Datum {- hosc -}
 import Sound.Osc.Packet {- hosc3 -}
-import Sound.Osc.Time {- hosc3 -}
+import qualified Sound.Osc.Time as Time {- hosc3 -}
 
 -- | Precision value for floating point numbers.
 type FpPrecision = Maybe Int
@@ -64,7 +64,7 @@ showDatum p d =
     Double n -> showFloatWithPrecision p n
     AsciiString s -> escapeString (ascii_to_string s)
     Blob s -> showBytes (blob_unpack_int s)
-    TimeStamp t -> show (ntpr_to_ntpi t)
+    TimeStamp t -> show (Time.ntpr_to_ntpi t)
     Midi m -> showBytes (midi_unpack_int m)
 
 {- | Printer for Message.
@@ -96,7 +96,7 @@ showBundle precision aBundle =
   let messages = bundleMessages aBundle
   in unwords
       [ "#bundle"
-      , show (ntpr_to_ntpi (bundleTime aBundle))
+      , show (Time.ntpr_to_ntpi (bundleTime aBundle))
       , show (length messages)
       , unwords (map (showMessage precision) messages)
       ]
@@ -205,7 +205,7 @@ datumP typeChar = do
     'h' -> fmap Int64 integerP
     'd' -> fmap Double floatP
     'm' -> fmap (Midi . midi_pack) (replicateM 4 byteP)
-    't' -> fmap (TimeStamp . ntpi_to_ntpr) integerP
+    't' -> fmap (TimeStamp . Time.ntpi_to_ntpr) integerP
     _ -> error "datumP: type?"
 
 -- | Message parser.
@@ -224,7 +224,7 @@ bundleTagP = lexemeP (P.string "#bundle")
 bundleP :: P (BundleOf Message)
 bundleP = do
   _ <- bundleTagP
-  timestamp <- fmap ntpi_to_ntpr integerP
+  timestamp <- fmap Time.ntpi_to_ntpr integerP
   messageCount <- integerP
   messages <- replicateM messageCount messageP
   return (Bundle timestamp messages)

@@ -9,16 +9,13 @@ module Sound.Osc.Coding.Encode.Builder (
 
 import Data.Word {- base -}
 
-{- data-binary-ieee754 -}
-{- bytestring -}
-{- bytestring -}
 import qualified Blaze.ByteString.Builder as B {- bytestring -}
 import qualified Blaze.ByteString.Builder.Char8 as B {- bytestring -}
-import qualified Data.Binary.IEEE754 as I
-import qualified Data.ByteString as S
-import qualified Data.ByteString.Lazy as L
+import qualified Data.ByteString as S {- bytestring -}
+import qualified Data.ByteString.Lazy as L {- bytestring -}
 
 import qualified Sound.Osc.Coding.Byte as Byte {- hosc -}
+import qualified Sound.Osc.Coding.Cast as Cast {- hosc -}
 import qualified Sound.Osc.Coding.Convert as Convert {- hosc -}
 import Sound.Osc.Datum {- hosc -}
 import Sound.Osc.Packet {- hosc -}
@@ -53,8 +50,8 @@ build_datum d =
   case d of
     Int32 i -> B.fromInt32be i
     Int64 i -> B.fromInt64be i
-    Float n -> B.fromWord32be (I.floatToWord n)
-    Double n -> B.fromWord64be (I.doubleToWord n)
+    Float n -> B.fromWord32be (Cast.f32_w32 n)
+    Double n -> B.fromWord64be (Cast.f64_w64 n)
     TimeStamp t -> B.fromWord64be (ntpr_to_ntpi t)
     AsciiString s -> build_ascii s
     Midi (MidiData b0 b1 b2 b3) -> B.fromWord8s [b0, b1, b2, b3]

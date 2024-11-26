@@ -4,8 +4,7 @@ module Sound.Osc.Coding.Cast where
 import Data.Char {- base -}
 import Data.Word {- base -}
 
-import qualified Data.Binary.IEEE754 as Ieee {- data-binary-ieee754 -}
-
+import Sound.Osc.Coding.Byte {- hosc3 -}
 import Sound.Osc.Coding.Convert {- hosc -}
 
 {- | The IEEE byte representation of a float.
@@ -20,7 +19,7 @@ import Sound.Osc.Coding.Convert {- hosc -}
 3404825447
 -}
 f32_w32 :: Float -> Word32
-f32_w32 = Ieee.floatToWord
+f32_w32 = decode_word32 . encode_f32
 
 {- | Inverse of 'f32_w32'.
 
@@ -31,7 +30,7 @@ f32_w32 = Ieee.floatToWord
 -7913907.5
 -}
 w32_f32 :: Word32 -> Float
-w32_f32 = Ieee.wordToFloat
+w32_f32 = decode_f32 . encode_word32
 
 {- | The IEEE byte representation of a double.
 
@@ -43,9 +42,9 @@ w32_f32 = Ieee.wordToFloat
 3404825447
 -}
 f64_w64 :: Double -> Word64
-f64_w64 = Ieee.doubleToWord
+f64_w64 = decode_word64 . encode_f64
 
-{- | Inverse of 'f64_i64'.
+{- | Inverse of 'f64_w64'.
 
 >>> w64_f64 4614256656552045848
 3.141592653589793
@@ -54,7 +53,7 @@ f64_w64 = Ieee.doubleToWord
 1.6822072834e-314
 -}
 w64_f64 :: Word64 -> Double
-w64_f64 = Ieee.wordToDouble
+w64_f64 = decode_f64 . encode_word64
 
 -- | Transform a haskell string into a C string (a null suffixed byte string).
 str_cstr :: String -> [Word8]

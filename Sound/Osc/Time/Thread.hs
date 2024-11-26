@@ -4,7 +4,7 @@ module Sound.Osc.Time.Thread where
 import Control.Concurrent {- base -}
 import Control.Monad {- base -}
 
-import Sound.Osc.Time {- hosc -}
+import qualified Sound.Osc.Time as Time {- hosc -}
 
 {- | The 'pauseThread' limit (in seconds).
   Values larger than this require a different thread delay mechanism, see 'sleepThread'.
@@ -19,7 +19,7 @@ pauseThreadFor n = when (n > 0) (threadDelay (floor (n * 1e6)))
 
 -- | Pause current thread until the given time, see 'pauseThreadLimit'.
 pauseThreadUntilTime :: RealFrac n => n -> IO ()
-pauseThreadUntilTime t = pauseThreadFor . (t -) . realToFrac =<< currentTime
+pauseThreadUntilTime t = pauseThreadFor . (t -) . realToFrac =<< Time.currentTime
 
 {- | Sleep current thread for the indicated duration (in seconds).
   Divides long sleeps into parts smaller than 'pauseThreadLimit'.
@@ -36,4 +36,4 @@ sleepThreadFor n =
   Divides long sleeps into parts smaller than 'pauseThreadLimit'.
 -}
 sleepThreadUntilTime :: RealFrac n => n -> IO ()
-sleepThreadUntilTime t = sleepThreadFor . (t -) . realToFrac =<< currentTime
+sleepThreadUntilTime t = sleepThreadFor . (t -) . realToFrac =<< Time.currentTime
