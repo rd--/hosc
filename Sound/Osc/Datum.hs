@@ -31,6 +31,10 @@ type Blob = ByteString.Lazy.ByteString
 blob_pack :: [Word8] -> Blob
 blob_pack = ByteString.Lazy.pack
 
+-- | Type-specialised pack.
+blob_pack_int :: [Int] -> Blob
+blob_pack_int = ByteString.Lazy.pack . map fromIntegral
+
 -- | Type-specialised unpack.
 blob_unpack :: Blob -> [Word8]
 blob_unpack = ByteString.Lazy.unpack
@@ -48,6 +52,10 @@ midi_pack w =
   case w of
     [m1, m2, m3, m4] -> MidiData m1 m2 m3 m4
     _ -> error "midi_pack?"
+
+-- | Type-specialised pack.
+midi_pack_int :: [Int] -> MidiData
+midi_pack_int = midi_pack . map fromIntegral
 
 -- | Type-specialised unpack.
 midi_unpack_int :: MidiData -> [Int]

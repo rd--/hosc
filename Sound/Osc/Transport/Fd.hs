@@ -47,6 +47,10 @@ recvBundle = fmap packet_to_bundle . recvPacket
 recvMessage :: (Transport t) => t -> IO (Maybe Message)
 recvMessage = fmap packet_to_message . recvPacket
 
+-- | Erroring variant.
+recvMessage_err :: (Transport t) => t -> IO Message
+recvMessage_err = fmap (fromMaybe (error "recvMessage")) . recvMessage
+
 -- | Variant of 'recvPacket' that runs 'packetMessages'.
 recvMessages :: (Transport t) => t -> IO [Message]
 recvMessages = fmap packetMessages . recvPacket
