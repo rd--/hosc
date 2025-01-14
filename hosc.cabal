@@ -6,7 +6,7 @@ Description:       Haskell library implementing the Open Sound Control protocol
 License:           GPL-3.0-only
 License-File:      contrib/LICENSE
 Category:          Sound
-Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2007-2024
+Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2007-2025
 Author:            Rohan Drape, Stefan Kersten
 Maintainer:        rd@rohandrape.net
 Stability:         Experimental
@@ -19,7 +19,7 @@ Library
   Build-Depends:   base >= 4.8 && < 5,
                    binary >= 0.7.2,
                    blaze-builder >= 0.3,
-                   bytestring,
+                   bytestring >= 0.11.0.0,
                    network >= 2.3,
                    parsec,
                    safe,

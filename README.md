@@ -10,7 +10,7 @@ See also:
 - [hosc-json](http://rohandrape.net/?t=hosc-json): Json text encoding of Osc
 - [hosc-util](http://rohandrape.net/?t=hosc-util): non-core Osc functions
 
-© [Rohan Drape][rd], [Stefan Kersten][sk] and others, 2007-2024,
+© [Rohan Drape][rd], [Stefan Kersten][sk] and others, 2007-2025,
 [Gpl-3][gpl-3]. with contributions by:
 
 - [Alex McLean][am]
