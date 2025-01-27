@@ -3,16 +3,16 @@ module Sound.Osc.Text where
 
 import Control.Monad {- base -}
 import Data.Char {- base -}
-import Numeric {- base -}
+import qualified Numeric {- base -}
 import Text.Printf {- base -}
 
 import qualified Safe {- safe -}
 
-import qualified Text.ParserCombinators.Parsec as P {- parsec -}
+import qualified Text.ParserCombinators.Parsec as Parsec {- parsec -}
 
 import Sound.Osc.Datum {- hosc -}
-import Sound.Osc.Packet {- hosc3 -}
-import qualified Sound.Osc.Time as Time {- hosc3 -}
+import Sound.Osc.Packet {- hosc -}
+import qualified Sound.Osc.Time as Time {- hosc -}
 
 -- | Precision value for floating point numbers.
 type FpPrecision = Maybe Int
@@ -24,7 +24,7 @@ type FpPrecision = Maybe Int
 -}
 showFloatWithPrecision :: RealFloat n => FpPrecision -> n -> String
 showFloatWithPrecision p n =
-  let s = showFFloat p n ""
+  let s = Numeric.showFFloat p n ""
       s' = dropWhile (== '0') (reverse s)
   in case s' of
       '.' : _ -> reverse ('0' : s')
@@ -108,7 +108,7 @@ showPacket precision = at_packet (showMessage precision) (showBundle precision)
 -- * Parser
 
 -- | A character parser with no user state.
-type P a = P.GenParser Char () a
+type P a = Parsec.GenParser Char () a
 
 -- | Run p then q, returning result of p.
 (>>~) :: Monad m => m t -> m u -> m t
@@ -116,20 +116,20 @@ p >>~ q = p >>= \x -> q >> return x
 
 -- | /p/ as lexeme, i.e. consuming any trailing white space.
 lexemeP :: P t -> P t
-lexemeP p = p >>~ P.many P.space
+lexemeP p = p >>~ Parsec.many Parsec.space
 
 -- | Any non-space character.  Allow escaped space.
 stringCharP :: P Char
-stringCharP = (P.char '\\' >> P.space) P.<|> P.satisfy (\c -> not (isSpace c))
+stringCharP = (Parsec.char '\\' >> Parsec.space) Parsec.<|> Parsec.satisfy (\c -> not (isSpace c))
 
 -- | Parser for string.
 stringP :: P String
-stringP = lexemeP (P.many1 stringCharP)
+stringP = lexemeP (Parsec.many1 stringCharP)
 
 -- | Parser for Osc address.
 oscAddressP :: P String
 oscAddressP = do
-  forwardSlash <- P.char '/'
+  forwardSlash <- Parsec.char '/'
   address <- stringP
   return (forwardSlash : address)
 
@@ -138,25 +138,25 @@ oscSignatureP :: P String
 oscSignatureP =
   lexemeP
     ( do
-        comma <- P.char ','
-        types <- P.many1 (P.oneOf "ifsbhtdm") -- 1.0 = ifsb 2.0 = htdm
+        comma <- Parsec.char ','
+        types <- Parsec.many1 (Parsec.oneOf "ifsbhtdm") -- 1.0 = ifsb 2.0 = htdm
         return (comma : types)
     )
 
 -- | Parser for decimal digit.
 digitP :: P Char
-digitP = P.oneOf "0123456789"
+digitP = Parsec.oneOf "0123456789"
 
 allowNegativeP :: Num n => P n -> P n
 allowNegativeP p = do
-  let optionMaybe x = P.option Nothing (liftM Just x) -- hugs...
-  maybeNegative <- optionMaybe (P.char '-')
+  let optionMaybe x = Parsec.option Nothing (liftM Just x) -- hugs...
+  maybeNegative <- optionMaybe (Parsec.char '-')
   number <- p
   return (maybe number (const (negate number)) maybeNegative)
 
 -- | Parser for non-negative integer.
 nonNegativeIntegerP :: (Integral n, Read n) => P n
-nonNegativeIntegerP = lexemeP (fmap read (P.many1 digitP))
+nonNegativeIntegerP = lexemeP (fmap read (Parsec.many1 digitP))
 
 -- | Parser for integer.
 integerP :: (Integral n, Read n) => P n
@@ -167,9 +167,9 @@ nonNegativeFloatP :: (Fractional n, Read n) => P n
 nonNegativeFloatP =
   lexemeP
     ( do
-        integerPart <- P.many1 digitP
-        _ <- P.char '.'
-        fractionalPart <- P.many1 digitP
+        integerPart <- Parsec.many1 digitP
+        _ <- Parsec.char '.'
+        fractionalPart <- Parsec.many1 digitP
         return (read (concat [integerPart, ".", fractionalPart]))
     )
 
@@ -179,20 +179,20 @@ floatP = allowNegativeP nonNegativeFloatP
 
 -- | Parser for hexadecimal digit.
 hexdigitP :: P Char
-hexdigitP = P.oneOf "0123456789abcdef"
+hexdigitP = Parsec.oneOf "0123456789abcdef"
 
 -- | Byte parser.
 byteP :: (Integral n, Read n) => P n
 byteP = do
   c1 <- hexdigitP
   c2 <- hexdigitP
-  case readHex [c1, c2] of
+  case Numeric.readHex [c1, c2] of
     [(r, "")] -> return r
     _ -> error "byteP?"
 
 -- | Byte sequence parser.
 byteSeqP :: (Integral n, Read n) => P [n]
-byteSeqP = lexemeP (P.many1 byteP)
+byteSeqP = lexemeP (Parsec.many1 byteP)
 
 -- | Datum parser.
 datumP :: Char -> P Datum
@@ -218,7 +218,7 @@ messageP = do
 
 -- | Bundle tag parser.
 bundleTagP :: P String
-bundleTagP = lexemeP (P.string "#bundle")
+bundleTagP = lexemeP (Parsec.string "#bundle")
 
 -- | Bundle parser.
 bundleP :: P (BundleOf Message)
@@ -231,12 +231,12 @@ bundleP = do
 
 -- | Packet parser.
 packetP :: P (PacketOf Message)
-packetP = (fmap Packet_Bundle bundleP) P.<|> (fmap Packet_Message messageP)
+packetP = (fmap Packet_Bundle bundleP) Parsec.<|> (fmap Packet_Message messageP)
 
 -- | Run parser.
 runP :: P t -> String -> t
 runP p txt =
-  case P.parse p "" txt of
+  case Parsec.parse p "" txt of
     Left err -> error (show err)
     Right r -> r
 
