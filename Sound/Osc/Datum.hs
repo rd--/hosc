@@ -47,6 +47,7 @@ blob_unpack_int = map fromIntegral . blob_unpack
 data MidiData = MidiData !Word8 !Word8 !Word8 !Word8
   deriving (Ord, Eq, Show, Read)
 
+-- | Word8 list to MidiData.
 midi_pack :: [Word8] -> MidiData
 midi_pack w =
   case w of
@@ -143,8 +144,8 @@ datum_type_name d = let c = datum_tag d in (c, osc_type_name_err c)
 {- | 'Datum' as 'Integral' if Int32 or Int64.
 
 >>> let d = [Int32 5,Int64 5,Float 5.5,Double 5.5]
->>> map datum_integral d == [Just (5::Int),Just 5,Nothing,Nothing]
-True
+>>> map datum_integral d
+[Just 5,Just 5,Nothing,Nothing]
 -}
 datum_integral :: Integral i => Datum -> Maybe i
 datum_integral d =
