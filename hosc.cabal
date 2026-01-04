@@ -1,17 +1,17 @@
 Cabal-Version:     2.4
 Name:              hosc
-Version:           0.22
+Version:           0.23
 Synopsis:          Haskell Open Sound Control
 Description:       Haskell library implementing the Open Sound Control protocol
 License:           GPL-3.0-only
 License-File:      contrib/LICENSE
 Category:          Sound
-Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2007-2025
+Copyright:         (c) Rohan Drape, Stefan Kersten and others, 2007-2026
 Author:            Rohan Drape, Stefan Kersten
 Maintainer:        rd@rohandrape.net
 Stability:         Experimental
 Homepage:          http://rohandrape.net/t/hosc
-Tested-With:       GHC == 9.12.1
+Tested-With:       GHC == 9.14.1
 Build-Type:        Simple
 Data-Files:        README.md
 
