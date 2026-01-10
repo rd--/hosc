@@ -1,12 +1,15 @@
 all:
 	echo "hosc"
 
-mk-cmd:
-	echo "hosc - NIL"
+install:
+	cabal v1-install --allow-newer
 
 clean:
 	rm -Rf dist dist-newstyle
 	(cd contrib/tests ; make clean)
+
+mk-cmd:
+	echo "hosc - NIL"
 
 push-all:
 	r.gitlab-push.sh hosc
