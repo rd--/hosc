@@ -9,6 +9,33 @@ import qualified Sound.Osc.Time as Time {- hosc -}
 {- | The 'pauseThread' limit (in seconds).
   Values larger than this require a different thread delay mechanism, see 'sleepThread'.
   The value is the number of microseconds in @maxBound::Int@.
+  This is only relevant for thirty-two bit systems, where the limit is thirty-six minutes.
+  On sixty-four bit systems the limit is close to three-hundred thousand years.
+
+>>> import Data.Int
+>>> maxBound::Int32
+2147483647
+
+>>> 2 ^ 31 - 1
+2147483647
+
+>>> round (2147483647 / (1E6 * 60))
+36
+
+>>> maxBound::Int64
+9223372036854775807
+
+>>> 2 ^ 63 - 1
+9223372036854775807
+
+>>> round (9223372036854775807 / (1E6 * 60 * 60 * 24 * 365))
+292471
+
+> maxBound::Int
+9223372036854775807
+
+> round (pauseThreadLimit / 60)
+153722867281
 -}
 pauseThreadLimit :: Fractional n => n
 pauseThreadLimit = fromIntegral (maxBound :: Int) / 1e6
