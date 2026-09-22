@@ -43,8 +43,9 @@ udp_recv_packet (Udp fd) = fmap Binary.decodePacket_strict (Socket.ByteString.re
 
 udp_recv_packet_or :: Udp -> IO (Either String Packet.Packet)
 udp_recv_packet_or (Udp fd) =
-  Binary.decodePacketOr .
-  ByteString.Lazy.fromStrict <$> Socket.ByteString.recv fd 8192
+  Binary.decodePacketOr
+    . ByteString.Lazy.fromStrict
+    <$> Socket.ByteString.recv fd 8192
 
 -- | Close Udp.
 udp_close :: Udp -> IO ()

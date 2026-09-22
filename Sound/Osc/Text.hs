@@ -1,10 +1,10 @@
 -- | A simple and unambigous text encoding for Osc.
 module Sound.Osc.Text where
 
-import Control.Monad {- base -}
-import Data.Char {- base -}
+import qualified Control.Monad {- base -}
+import qualified Data.Char {- base -}
 import qualified Numeric {- base -}
-import Text.Printf {- base -}
+import qualified Text.Printf {- base -}
 
 import qualified Safe {- safe -}
 
@@ -36,7 +36,7 @@ showFloatWithPrecision p n =
 "000f1090ff"
 -}
 showBytes :: [Int] -> String
-showBytes = concatMap (printf "%02x")
+showBytes = concatMap (Text.Printf.printf "%02x")
 
 {- | Escape whites space (space, tab, newline) and the escape character (backslash).
 
@@ -120,7 +120,7 @@ lexemeP p = p >>~ Parsec.many Parsec.space
 
 -- | Any non-space character.  Allow escaped space.
 stringCharP :: P Char
-stringCharP = (Parsec.char '\\' >> Parsec.space) Parsec.<|> Parsec.satisfy (\c -> not (isSpace c))
+stringCharP = (Parsec.char '\\' >> Parsec.space) Parsec.<|> Parsec.satisfy (\c -> not (Data.Char.isSpace c))
 
 -- | Parser for string.
 stringP :: P String
@@ -149,7 +149,7 @@ digitP = Parsec.oneOf "0123456789"
 
 allowNegativeP :: Num n => P n -> P n
 allowNegativeP p = do
-  let optionMaybe x = Parsec.option Nothing (liftM Just x) -- hugs...
+  let optionMaybe x = Parsec.option Nothing (Control.Monad.liftM Just x) -- hugs...
   maybeNegative <- optionMaybe (Parsec.char '-')
   number <- p
   return (maybe number (const (negate number)) maybeNegative)
@@ -204,7 +204,7 @@ datumP typeChar = do
     'b' -> fmap blob byteSeqP
     'h' -> fmap Int64 integerP
     'd' -> fmap Double floatP
-    'm' -> fmap (Midi . midi_pack) (replicateM 4 byteP)
+    'm' -> fmap (Midi . midi_pack) (Control.Monad.replicateM 4 byteP)
     't' -> fmap (TimeStamp . Time.ntpi_to_ntpr) integerP
     _ -> error "datumP: type?"
 
@@ -226,7 +226,7 @@ bundleP = do
   _ <- bundleTagP
   timestamp <- fmap Time.ntpi_to_ntpr integerP
   messageCount <- integerP
-  messages <- replicateM messageCount messageP
+  messages <- Control.Monad.replicateM messageCount messageP
   return (Bundle timestamp messages)
 
 -- | Packet parser.
